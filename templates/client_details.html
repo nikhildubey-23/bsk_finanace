@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Details - InsureVault Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        /* Modern Navigation */
+        .navbar {
+            background: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #1e40af !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .nav-link {
+            color: #64748b !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #3b82f6 !important;
+        }
+        
+        .nav-link.active {
+            background: #3b82f6;
+            color: white !important;
+        }
+        
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .card-header-modern {
+            background: #3b82f6;
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+        
+        .card-header-modern h4 {
+            margin: 0;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Custom Buttons */
+        .btn-primary-custom {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-success-custom {
+            background: #10b981;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-warning-custom {
+            background: #f59e0b;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-warning-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+        
+        .btn-secondary-custom {
+            background: #64748b;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-custom:hover {
+            background: #475569;
+            transform: translateY(-2px);
+        }
+        
+        /* Info Cards */
+        .info-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-value {
+            color: #1e293b;
+            font-size: 1rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Table Styling */
+        .modern-table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .modern-table thead {
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .modern-table th {
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+        }
+        
+        .modern-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .modern-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        /* Badges */
+        .badge-modern {
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-primary {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+{% set active_page = 'clients' %}
+{% include '_navbar.html' %}
+
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <h4 class="mb-0"><i class="bi bi-person-circle"></i> Client Details</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #1e293b;">
+                                    <i class="bi bi-person-badge"></i> Personal Information
+                                </h5>
+                                
+                                <div class="info-card">
+                                    <div class="info-label">Name</div>
+                                    <div class="info-value">{{ client['name'] }}</div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-label">Phone</div>
+                                    <div class="info-value">{{ client['phone'] or 'Not provided' }}</div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-label">Email</div>
+                                    <div class="info-value">{{ client['email'] or 'Not provided' }}</div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-label">Client Type</div>
+                                    <div class="info-value">
+                                        {% if client['client_type'] %}
+                                            <span class="badge-modern badge-primary">{{ client['client_type'] }}</span>
+                                        {% else %}
+                                            <span class="badge-modern badge-secondary">Not specified</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if client['policy_number'] %}
+                                <div class="info-card">
+                                    <div class="info-label">Policy/Fund No</div>
+                                    <div class="info-value">{{ client['policy_number'] }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if client['pan_card'] %}
+                                <div class="info-card">
+                                    <div class="info-label">PAN Card</div>
+                                    <div class="info-value">{{ client['pan_card'] }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if client['address'] %}
+                                <div class="info-card">
+                                    <div class="info-label">Address</div>
+                                    <div class="info-value">{{ client['address'] }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="info-card">
+                                    <div class="info-label">Client Since</div>
+                                    <div class="info-value">{{ client['created_at'] }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-grid gap-3">
+                                    <a href="{{ url_for('upload_document', client_id=client['id']) }}" class="btn btn-success-custom">
+                                        <i class="bi bi-cloud-upload"></i> Upload Document
+                                    </a>
+                                    <a href="{{ url_for('edit_client', client_id=client['id']) }}" class="btn btn-warning-custom">
+                                        <i class="bi bi-pencil"></i> Edit Client
+                                    </a>
+                                    <a href="/search_client" class="btn btn-secondary-custom">
+                                        <i class="bi bi-arrow-left"></i> Back to Search
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #1e293b;">
+                                <i class="bi bi-folder2-open"></i> Documents ({{ documents|length }})
+                            </h5>
+                            {% if documents %}
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-trash"></i> Client Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="confirmDeleteClient()">
+                                            <i class="bi bi-trash"></i> Delete Client & All Documents
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if documents %}
+                            <div class="table-responsive modern-table">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Document Name</th>
+                                        <th>Document Date</th>
+                                        <th>File Name</th>
+                                        <th>Type</th>
+                                        <th>Upload Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doc in documents %}
+                                    <tr>
+                                        <td><strong>{{ doc['document_name'] or doc['original_filename'] }}</strong></td>
+                                        <td>{{ doc['document_date'] or '-' }}</td>
+                                        <td><small class="text-muted">{{ doc['original_filename'] }}</small></td>
+                                        <td><span class="badge-modern badge-secondary">{{ doc['file_type'].upper() }}</span></td>
+                                        <td><small>{{ doc['upload_date'] }}</small></td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                {% if doc['file_type'] in ['pdf', 'jpg', 'jpeg', 'png'] %}
+                                                    <a href="{{ url_for('view_file', filename=doc['filename']) }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                {% endif %}
+                                                <a href="{{ url_for('download_file', filename=doc['filename']) }}" class="btn btn-outline-success btn-sm">
+                                                    <i class="bi bi-download"></i> Download
+                                                </a>
+                                                <button class="btn btn-outline-danger btn-sm" onclick="confirmDelete({{ doc['id'] }})">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="bi bi-folder-x"></i>
+                                <h5>No documents uploaded yet</h5>
+                                <p class="mb-4">Start by uploading the first document for this client.</p>
+                                <a href="{{ url_for('upload_document', client_id=client['id']) }}" class="btn btn-primary-custom">
+                                    <i class="bi bi-plus-circle"></i> Add First Document
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #1e293b;">
+                        <i class="bi bi-shield-check"></i> InsureVault Pro
+                    </h6>
+                    <p class="text-muted mb-0">Professional Insurance Document Management System</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-c-circle"></i> 2024 InsureVault Pro. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function confirmDelete(docId) {
+            if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/delete_document/${docId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function confirmDeleteClient() {
+            if (confirm('⚠️ WARNING: This will delete the client and ALL their documents permanently. This action cannot be undone. Are you absolutely sure?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/delete_client/{{ client['id'] }}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

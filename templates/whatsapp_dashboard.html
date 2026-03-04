@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Messaging - InsureVault Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #1e40af !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .nav-link {
+            color: #64748b !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #3b82f6 !important;
+        }
+        
+        .nav-link.active {
+            background: #3b82f6;
+            color: white !important;
+        }
+        
+        /* WhatsApp Header */
+        .whatsapp-header {
+            background: #25d366;
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .whatsapp-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .whatsapp-subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        /* Cards */
+        .message-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .card-title-custom {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Client Selection */
+        .client-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        
+        .client-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .client-item:hover {
+            border-color: #25d366;
+            box-shadow: 0 2px 8px rgba(37, 211, 102, 0.1);
+        }
+        
+        .client-item.selected {
+            background: #f0fdf4;
+            border-color: #25d366;
+        }
+        
+        .client-checkbox {
+            margin-right: 0.75rem;
+        }
+        
+        .client-name {
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        
+        .client-details {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .policy-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+        
+        .badge-expired {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .badge-success {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        
+        /* Templates */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .template-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .template-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+        
+        .template-card.selected {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+        
+        .template-name {
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .template-preview {
+            font-size: 0.875rem;
+            color: #64748b;
+            line-height: 1.4;
+            max-height: 60px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Message Preview */
+        .message-preview {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .message-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            resize: vertical;
+            background: #fff;
+        }
+        
+        .message-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .edit-message-btn {
+            background: transparent;
+            border: 1px solid #64748b;
+            color: #64748b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .edit-message-btn:hover {
+            background: #f1f5f9;
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .edit-message-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        /* Action Buttons */
+        .btn-whatsapp {
+            background: #25d366;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+            color: white;
+        }
+        
+        .btn-outline-whatsapp {
+            background: transparent;
+            border: 2px solid #25d366;
+            color: #25d366;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-whatsapp:hover {
+            background: #25d366;
+            color: white;
+        }
+
+        .whatsapp-link-btn {
+            background: #25d366;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .whatsapp-link-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+            color: white;
+        }
+        
+        /* Statistics */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        /* Alert */
+        .alert-custom {
+            border-radius: 8px;
+            border: none;
+            padding: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .whatsapp-title {
+                font-size: 1.5rem;
+            }
+            
+            .client-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+{% set active_page = 'whatsapp' %}
+{% include '_navbar.html' %}
+
+    </nav>
+
+    <!-- WhatsApp Header -->
+    <div class="whatsapp-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="whatsapp-title">
+                        <i class="bi bi-whatsapp"></i> WhatsApp Messaging Center
+                    </h1>
+                    <p class="whatsapp-subtitle">Send personalized messages to your clients for policy renewals, birthdays, and important updates</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="/whatsapp_sent_history" class="btn btn-light">
+                        <i class="bi bi-clock-history"></i> Sent History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                        <i class="bi bi-check-circle-fill"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Statistics Row -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value">{{ upcoming_renewals|length }}</div>
+                    <div class="stat-label">Upcoming Renewals</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value">{{ expired_policies|length }}</div>
+                    <div class="stat-label">Expired Policies</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value">{{ all_clients|length }}</div>
+                    <div class="stat-label">Total Clients</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value">{{ templates|length }}</div>
+                    <div class="stat-label">Message Templates</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Client Selection -->
+            <div class="col-lg-6 mb-4">
+                <div class="message-card">
+                    <h5 class="card-title-custom">
+                        <i class="bi bi-people-check"></i>
+                        Select Clients
+                    </h5>
+                    
+                    <!-- Quick Selection -->
+                    <div class="mb-3">
+                        <button class="btn btn-outline-primary btn-sm me-2" onclick="selectClients('upcoming')">
+                            Select Upcoming Renewals ({{ upcoming_renewals|length }})
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm me-2" onclick="selectClients('expired')">
+                            Select Expired ({{ expired_policies|length }})
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="selectClients('none')">
+                            Clear Selection
+                        </button>
+                    </div>
+                    
+                    <!-- Client Grid -->
+                    <div class="client-grid" id="clientGrid">
+                        {% for client in all_clients %}
+                        <div class="client-item" data-client-id="{{ client.id }}" onclick="toggleClient({{ client.id }})">
+                            <div class="d-flex align-items-start">
+                                <input type="checkbox" class="client-checkbox" id="client_{{ client.id }}">
+                                <div class="flex-grow-1">
+                                    <div class="client-name">{{ client.name }}</div>
+                                    <div class="client-details">
+                                        <i class="bi bi-telephone"></i> {{ client.phone or 'No phone' }}
+                                        {% if client.email %}
+                                        <br><i class="bi bi-envelope"></i> {{ client.email }}
+                                        {% endif %}
+                                    </div>
+                                    {% if client.policy_expiry_date %}
+                                    <div class="client-details">
+                                        <i class="bi bi-calendar"></i> Expires: {{ client.policy_expiry_date }}
+                                    </div>
+                                    {% endif %}
+                                    {% if client.policy_number %}
+                                    <span class="policy-badge badge-success">
+                                        {{ client.policy_type or 'Policy' }}: {{ client.policy_number }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Templates -->
+            <div class="col-lg-6 mb-4">
+                <div class="message-card">
+                    <h5 class="card-title-custom">
+                        <i class="bi bi-chat-text"></i>
+                        Select Message Template
+                    </h5>
+                    
+                    <div class="template-grid">
+                        {% for template_id, template in templates.items() %}
+                        <div class="template-card" onclick="selectTemplate('{{ template_id }}')" data-template-id="{{ template_id }}">
+                            <div class="template-name">{{ template.name }}</div>
+                            <div class="template-preview">{{ template.message[:100] }}...</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Preview and Actions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="message-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title-custom mb-0">
+                            <i class="bi bi-eye"></i>
+                            Message Preview
+                        </h5>
+                        <button class="edit-message-btn" id="editMessageBtn" onclick="toggleEdit()">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="message-preview" id="messagePreview">
+                                Select clients and a message template to preview the message...
+                            </div>
+                            <textarea class="message-textarea d-none" id="messageTextarea"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-whatsapp" onclick="sendMessages()">
+                                    <i class="bi bi-send"></i> Send WhatsApp Messages
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="refreshData()">
+                                    <i class="bi bi-arrow-clockwise"></i> Refresh Data
+                                </button>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle"></i> 
+                                    Messages will open in WhatsApp Web. Click send for each client.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Preparing messages...</p>
+        </div>
+
+        <!-- WhatsApp Links Modal -->
+        <div class="modal fade" id="whatsappLinksModal" tabindex="-1" aria-labelledby="whatsappLinksModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background: #25d366; color: white;">
+                        <h5 class="modal-title" id="whatsappLinksModalLabel">
+                            <i class="bi bi-whatsapp"></i> WhatsApp Message Links
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            <strong>Tip:</strong> Click any link below to open WhatsApp. If you already have WhatsApp Web open, it will use that tab.
+                        </div>
+                        <div id="whatsappLinksList" class="d-grid gap-2">
+                            <!-- Links will be generated here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Close
+                        </button>
+                        <button type="button" class="btn btn-whatsapp" onclick="sendAllMessages()">
+                            <i class="bi bi-send"></i> Send All Messages
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedClients = new Set();
+        let selectedTemplate = '';
+        let whatsappLinks = [];
+        const templates = {{ templates|tojson }};
+        const clients = {{ all_clients|tojson }};
+        let isEditing = false;
+        let editedTemplateContent = null;
+
+        function toggleClient(clientId) {
+            const checkbox = document.getElementById(`client_${clientId}`);
+            const clientItem = document.querySelector(`[data-client-id="${clientId}"]`);
+            
+            if (selectedClients.has(clientId)) {
+                selectedClients.delete(clientId);
+                checkbox.checked = false;
+                clientItem.classList.remove('selected');
+            } else {
+                selectedClients.add(clientId);
+                checkbox.checked = true;
+                clientItem.classList.add('selected');
+            }
+            
+            updateMessagePreview();
+        }
+
+        function selectClients(type) {
+            selectedClients.clear();
+            document.querySelectorAll('.client-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelectorAll('.client-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+
+            let clientIds = [];
+            if (type === 'upcoming') {
+                clientIds = {{ upcoming_renewals|map(attribute='id')|list }};
+            } else if (type === 'expired') {
+                clientIds = {{ expired_policies|map(attribute='id')|list }};
+            }
+
+            clientIds.forEach(id => {
+                selectedClients.add(id);
+                const checkbox = document.getElementById(`client_${id}`);
+                const clientItem = document.querySelector(`[data-client-id="${id}"]`);
+                if (checkbox) checkbox.checked = true;
+                if (clientItem) clientItem.classList.add('selected');
+            });
+
+            updateMessagePreview();
+        }
+
+        function selectTemplate(templateId) {
+            if (isEditing) {
+                toggleEdit(); // Exit edit mode
+            }
+            editedTemplateContent = null; // Reset custom message
+            selectedTemplate = templateId;
+            
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-template-id="${templateId}"]`).classList.add('selected');
+            
+            updateMessagePreview();
+        }
+
+        function updateMessagePreview() {
+            const preview = document.getElementById('messagePreview');
+            
+            if (selectedClients.size === 0) {
+                preview.textContent = 'Please select clients to message...';
+                return;
+            }
+            
+            if (!selectedTemplate) {
+                preview.textContent = 'Please select a message template...';
+                return;
+            }
+            
+            const templateContent = editedTemplateContent || (templates[selectedTemplate] ? templates[selectedTemplate].message : '');
+
+            if (!templateContent) {
+                preview.textContent = 'Template not found...';
+                return;
+            }
+            
+            // Get first selected client for preview
+            const firstClientId = Array.from(selectedClients)[0];
+            const client = clients.find(c => c.id === firstClientId);
+            let message = templateContent;
+            
+            if (client) {
+                message = message.replace(/{client_name}/g, client.name || 'Client');
+                message = message.replace(/{policy_number}/g, client.policy_number || 'N/A');
+                message = message.replace(/{policy_type}/g, client.policy_type || 'Insurance');
+                message = message.replace(/{premium_amount}/g, client.premium_amount || 'Contact for details');
+                message = message.replace(/{due_date}/g, client.policy_expiry_date || 'Contact for details');
+                message = message.replace(/{expiry_date}/g, client.policy_expiry_date || 'Contact for details');
+            } else {
+                 // Fallback if client not found, though this shouldn't happen with the logic flow
+                message = message.replace(/{client_name}/g, 'Client');
+                message = message.replace(/{policy_number}/g, 'N/A');
+                message = message.replace(/{policy_type}/g, 'Insurance');
+                message = message.replace(/{premium_amount}/g, 'Contact for details');
+                message = message.replace(/{due_date}/g, 'Contact for details');
+                message = message.replace(/{expiry_date}/g, 'Contact for details');
+            }
+
+            // These are not client-specific
+            message = message.replace(/{advisor_name}/g, 'Insurance Advisor');
+            message = message.replace(/{advisor_phone}/g, '+919876543210');
+            message = message.replace(/{update_details}/g, 'Please contact us for details');
+
+            preview.textContent = message;
+        }
+
+        function toggleEdit() {
+            const preview = document.getElementById('messagePreview');
+            const textarea = document.getElementById('messageTextarea');
+            const editBtn = document.getElementById('editMessageBtn');
+
+            if (!selectedTemplate) {
+                alert("Please select a template before editing.");
+                return;
+            }
+
+            isEditing = !isEditing;
+
+            if (isEditing) {
+                // Entering edit mode
+                const template = editedTemplateContent || (templates[selectedTemplate] ? templates[selectedTemplate].message : '');
+                textarea.value = template;
+
+                preview.classList.add('d-none');
+                textarea.classList.remove('d-none');
+                textarea.focus();
+                editBtn.innerHTML = '<i class="bi bi-check-lg"></i> Save';
+                editBtn.classList.add('active');
+            } else {
+                // Saving changes
+                editedTemplateContent = textarea.value;
+
+                preview.classList.remove('d-none');
+                textarea.classList.add('d-none');
+                editBtn.innerHTML = '<i class="bi bi-pencil"></i> Edit';
+                editBtn.classList.remove('active');
+
+                updateMessagePreview(); // Refresh preview with new content
+            }
+        }
+
+        function sendMessages() {
+            if (selectedClients.size === 0) {
+                alert('Please select at least one client');
+                return;
+            }
+            
+            if (!selectedTemplate) {
+                alert('Please select a message template');
+                return;
+            }
+            
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+
+            const templateContent = editedTemplateContent || (templates[selectedTemplate] ? templates[selectedTemplate].message : '');
+
+            // This fetch seems to be for logging/history on the backend
+            fetch('/send_whatsapp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    client_ids: Array.from(selectedClients),
+                    template_id: selectedTemplate,
+                    // Send custom message if it exists
+                    message: editedTemplateContent 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    whatsappLinks = [];
+                    const clientIds = Array.from(selectedClients);
+                    
+                    clientIds.forEach((clientId, index) => {
+                        const client = clients.find(c => c.id === clientId);
+                        if (client && client.phone) {
+                            let message = templateContent;
+                            message = message.replace(/{client_name}/g, client.name || 'Client');
+                            message = message.replace(/{policy_number}/g, client.policy_number || 'N/A');
+                            message = message.replace(/{policy_type}/g, client.policy_type || 'Insurance');
+                            message = message.replace(/{premium_amount}/g, client.premium_amount || 'Contact for details');
+                            message = message.replace(/{due_date}/g, client.policy_expiry_date || 'Contact for details');
+                            message = message.replace(/{expiry_date}/g, client.policy_expiry_date || 'Contact for details');
+                            message = message.replace(/{advisor_name}/g, 'Insurance Advisor');
+                            message = message.replace(/{advisor_phone}/g, '+919876543210');
+                            message = message.replace(/{update_details}/g, 'Please contact us for details');
+                            
+                            const whatsappUrl = `https://web.whatsapp.com/send?phone=${client.phone}&text=${encodeURIComponent(message)}`;
+                            whatsappLinks.push({
+                                clientName: client.name,
+                                clientPhone: client.phone,
+                                url: whatsappUrl,
+                                message: message
+                            });
+                        }
+                    });
+                    
+                    showWhatsappLinksModal();
+                    
+                    alert(`${data.sent_count} messages prepared! Click the links in the modal to send.`);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                console.error('Error:', error);
+                alert('Error sending messages');
+            });
+        }
+
+        function showWhatsappLinksModal() {
+            const linksList = document.getElementById('whatsappLinksList');
+            linksList.innerHTML = '';
+            
+            whatsappLinks.forEach((link, index) => {
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'd-flex align-items-center justify-content-between p-3 border rounded';
+                linkDiv.style.background = '#f8fafc';
+                linkDiv.innerHTML = `
+                    <div>
+                        <strong>${link.clientName}</strong>
+                        <br><small class="text-muted">${link.clientPhone}</small>
+                    </div>
+                    <a href="${link.url}" target="_blank" class="whatsapp-link-btn" onclick="openWhatsApp(${index})">
+                        <i class="bi bi-whatsapp"></i> Open Chat
+                    </a>
+                `;
+                linksList.appendChild(linkDiv);
+            });
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('whatsappLinksModal'));
+            modal.show();
+        }
+
+        function openWhatsApp(index) {
+            // Small delay to ensure modal closes properly
+            setTimeout(() => {
+                // The link will open in a new tab
+                // WhatsApp Web will reuse the existing tab if it's already open
+            }, 100);
+        }
+
+        function sendAllMessages() {
+            // Close modal first
+            bootstrap.Modal.getInstance(document.getElementById('whatsappLinksModal')).hide();
+            
+            // Open first message in current tab
+            if (whatsappLinks.length > 0) {
+                window.open(whatsappLinks[0].url, '_blank');
+                
+                // Show remaining links in a small delay
+                setTimeout(() => {
+                    if (whatsappLinks.length > 1) {
+                        const remainingLinks = whatsappLinks.slice(1);
+                        let message = 'Click these links to send remaining messages:\n\n';
+                        remainingLinks.forEach(link => {
+                            message += `• ${link.clientName}: ${link.url}\n\n`;
+                        });
+                        
+                        // Create a popup with remaining links
+                        const popup = window.open('', '_blank', 'width=600,height=400');
+                        popup.document.write(`
+                            <html>
+                            <head>
+                                <title>Remaining WhatsApp Links</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; padding: 20px; }
+                                    .link-item { margin: 10px 0; padding: 10px; background: #f0fdf4; border-radius: 5px; }
+                                    .link-item a { color: #25d366; font-weight: bold; }
+                                </style>
+                            </head>
+                            <body>
+                                <h3>Click to send remaining messages:</h3>
+                                ${remainingLinks.map(link => `
+                                    <div class="link-item">
+                                        <strong>${link.clientName}</strong><br>
+                                        <a href="${link.url}" target="_blank">Open WhatsApp Chat</a>
+                                    </div>
+                                `).join('')}
+                            </body>
+                            </html>
+                        `);
+                    }
+                }, 1000);
+            }
+            
+            // Clear selection after sending
+            selectedClients.clear();
+            selectedTemplate = '';
+            document.querySelectorAll('.client-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelectorAll('.client-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            updateMessagePreview();
+        }
+
+        function refreshData() {
+            window.location.reload();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMessagePreview();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-shield-check"></i>
+            InsureVault Pro
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link {{ 'active' if active_page == 'dashboard' else '' }}" href="/"><i class="bi bi-grid"></i> Dashboard</a>
+            <a class="nav-link {{ 'active' if active_page == 'clients' else '' }}" href="/client_list"><i class="bi bi-people"></i> Clients</a>
+            <a class="nav-link {{ 'active' if active_page == 'daily_entry' else '' }}" href="/daily_entry"><i class="bi bi-calendar-check"></i> Daily Entry</a>
+            <a class="nav-link {{ 'active' if active_page == 'daily_report' else '' }}" href="/daily_report"><i class="bi bi-file-text"></i> Daily Report</a>
+            <a class="nav-link {{ 'active' if active_page == 'upload' else '' }}" href="/quick_upload"><i class="bi bi-cloud-upload"></i> Upload</a>
+            <a class="nav-link {{ 'active' if active_page == 'search' else '' }}" href="/search_client"><i class="bi bi-search"></i> Search</a>
+            <a class="nav-link {{ 'active' if active_page == 'storage' else '' }}" href="/storage_info"><i class="bi bi-hdd"></i> Storage</a>
+            <a class="nav-link {{ 'active' if active_page == 'whatsapp' else '' }}" href="/whatsapp"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+            <a class="nav-link {{ 'active' if active_page == 'master' else '' }}" href="/master"><i class="bi bi-gear"></i> Master</a>
+        </div>
+    </div>
+</nav>

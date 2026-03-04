@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Clients - InsureVault Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        /* Modern Navigation */
+        .navbar {
+            background: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #1e40af !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .nav-link {
+            color: #64748b !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #3b82f6 !important;
+        }
+        
+        .nav-link.active {
+            background: #3b82f6;
+            color: white !important;
+        }
+        
+        /* Page Container */
+        .page-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+        
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .client-count {
+            background: #eff6ff;
+            color: #1e40af;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .table {
+            margin: 0;
+        }
+        
+        .table thead th {
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            color: #374151;
+            font-weight: 600;
+            padding: 1rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .client-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-view {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+        
+        .btn-view:hover {
+            background: #dbeafe;
+            color: #1e40af;
+            text-decoration: none;
+        }
+        
+        .btn-upload {
+            background: #f0fdf4;
+            color: #166534;
+        }
+        
+        .btn-upload:hover {
+            background: #dcfce7;
+            color: #166534;
+            text-decoration: none;
+        }
+        
+        .btn-edit {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .btn-edit:hover {
+            background: #fde68a;
+            color: #92400e;
+            text-decoration: none;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .btn-delete:hover {
+            background: #fecaca;
+            color: #b91c1c;
+        }
+        
+        /* Badges */
+        .badge-primary-custom {
+            background: #eff6ff;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-success-custom {
+            background: #f0fdf4;
+            color: #166534;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-secondary-custom {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state-text {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-primary-custom {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 1.5rem;
+                margin-top: 1rem;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .table {
+                font-size: 0.875rem;
+            }
+            
+            .action-btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+{% set active_page = 'clients' %}
+{% include '_navbar.html' %}
+
+<div class="container">
+        <div class="page-container">
+            <div class="page-title">
+                <span><i class="bi bi-people-fill"></i> All Clients</span>
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="/add_client" class="btn-primary-custom">
+                        <i class="bi bi-person-plus"></i> Add Client
+                    </a>
+                    <span class="client-count">{{ clients|length }} Clients</span>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="input-group mb-4">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" id="clientSearch" class="form-control" placeholder="Search for clients by name, phone, email or policy number...">
+            </div>
+            
+            {% if clients %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Client Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Client Type</th>
+                                <th>Documents</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in clients %}
+                            <tr data-client-id="{{ client['id'] }}">
+                                <td>
+                                    <div class="client-name">{{ client['name'] }}</div>
+                                    {% if client['policy_number'] %}
+                                        <small class="text-muted">{{ client['policy_number'] }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ client['phone'] or '-' }}</td>
+                                <td>
+                                    {% if client['email'] %}
+                                        <div>{{ client['email'] }}</div>
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if client['client_type'] %}
+                                        <span class="badge-primary-custom">{{ client['client_type'] }}</span>
+                                    {% else %}
+                                        <span class="badge-secondary-custom">Not specified</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge-success-custom doc-count">Loading...</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="{{ url_for('client_details', client_id=client['id']) }}" class="action-btn btn-view">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        <a href="{{ url_for('upload_document', client_id=client['id']) }}" class="action-btn btn-upload">
+                                            <i class="bi bi-upload"></i> Upload
+                                        </a>
+                                        <a href="{{ url_for('edit_client', client_id=client['id']) }}" class="action-btn btn-edit">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                        <button class="action-btn btn-delete" onclick="deleteClient('{{ client['id'] }}', '{{ client['name'] }}')">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h5 class="empty-state-title">No clients found</h5>
+                    <p class="empty-state-text">Start by adding your first client to begin managing documents</p>
+                    <a href="/add_client" class="btn-primary-custom">
+                        <i class="bi bi-person-plus"></i>
+                        Add First Client
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load document counts for each client
+        fetch('/api/document_counts')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(count => {
+                    const badge = document.querySelector(`tr[data-client-id="${count.client_id}"] .doc-count`);
+                    if (badge) {
+                        badge.textContent = count.count + ' docs';
+                        if (count.count > 0) {
+                            badge.className = 'badge-success-custom doc-count';
+                        } else {
+                            badge.className = 'badge-secondary-custom doc-count';
+                        }
+                    }
+                });
+            });
+
+        // Client search functionality
+        document.getElementById('clientSearch').addEventListener('keyup', function() {
+            let searchTerm = this.value.toLowerCase();
+            let tableRows = document.querySelectorAll('.table-container .table tbody tr');
+
+            tableRows.forEach(row => {
+                let clientName = row.cells[0].textContent.toLowerCase();
+                let clientPhone = row.cells[1].textContent.toLowerCase();
+                let clientEmail = row.cells[2].textContent.toLowerCase();
+                let policyNumberText = row.querySelector('.text-muted') ? row.querySelector('.text-muted').textContent.toLowerCase() : '';
+
+                if (clientName.includes(searchTerm) || 
+                    clientPhone.includes(searchTerm) || 
+                    clientEmail.includes(searchTerm) ||
+                    policyNumberText.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        function deleteClient(clientId, clientName) {
+            if (confirm(`Are you sure you want to delete the client "${clientName}"? This action cannot be undone.`)) {
+                fetch(`/delete_client/${clientId}`, {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the client.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

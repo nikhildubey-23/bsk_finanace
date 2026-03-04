@@ -1,0 +1,37 @@
+{% for entry in entries %}
+<tr data-entry-id="{{ entry['id'] }}">
+    <td>{{ loop.index }}</td>
+    <td>{{ entry['entry_date'] }}</td>
+    <td><strong>{{ entry['client_name'] }}</strong></td>
+    <td>
+        {% if entry['investment_type'] == 'LIC' %}<span class="badge bg-primary">{{ entry['investment_type'] }}</span>
+        {% elif entry['investment_type'] == 'Mutual Fund' %}<span class="badge bg-success">{{ entry['investment_type'] }}</span>
+        {% elif entry['investment_type'] == 'Health Insurance' %}<span class="badge bg-warning text-dark">{{ entry['investment_type'] }}</span>
+        {% else %}<span class="badge bg-info text-dark">{{ entry['investment_type'] }}</span>
+        {% endif %}
+    </td>
+    <td>
+        <small class="d-block text-muted">{{ entry.lic_subtype or entry.mf_subtype or '' }}</small>
+        {{ entry.lic_policy_number or entry.mf_folio or entry.hi_policy or entry.file_no or ''}}
+    </td>
+    <td>
+        {% if entry.amount %}<strong class="text-success">₹{{ entry.amount|int }}</strong>
+        {% elif entry.hi_sum_assured %}<strong class="text-success">₹{{ entry.hi_sum_assured|int }}</strong>
+        {% elif entry.mf_sip_amount %}<strong class="text-success">₹{{ entry.mf_sip_amount|int }}</strong>
+        {% else %}-{% endif %}
+    </td>
+    <td>
+        {% if entry.images %}
+            {% for image in entry.images.split(',') %}
+                <a href="/view/{{ image }}" target="_blank">
+                    <img src="/view/{{ image }}" width="40" height="40" class="rounded" style="object-fit: cover; margin: 2px;">
+                </a>
+            {% endfor %}
+        {% endif %}
+    </td>
+    <td>
+        <button class="btn-action btn-view" onclick="viewEntryDetails('{{ entry['id'] }}')" title="View Details"><i class="bi bi-eye"></i></button>
+        <button class="btn-action btn-delete" onclick="deleteEntry('{{ entry['id'] }}')" title="Delete Entry"><i class="bi bi-trash"></i></button>
+    </td>
+</tr>
+{% endfor %}

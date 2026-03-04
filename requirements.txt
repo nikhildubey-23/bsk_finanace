@@ -1,0 +1,5 @@
+Flask>=2.0.0
+Werkzeug>=2.0.0
+comtypes>=1.2.0
+Pillow>=10.0.0
+wia>=1.1.0

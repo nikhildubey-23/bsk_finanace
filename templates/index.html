@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsureVault Pro - Professional Insurance Document Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        /* Modern Navigation */
+        .navbar {
+            background: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #1e40af !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .nav-link {
+            color: #64748b !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #3b82f6 !important;
+        }
+        
+        .nav-link.active {
+            background: #3b82f6;
+            color: white !important;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            background: #f8fafc;
+            padding: 3rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .welcome-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .welcome-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
+        
+        /* Quick Actions */
+        .quick-action-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .quick-action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            border-color: #3b82f6;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .action-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .action-icon.primary { background: #3b82f6; }
+        .action-icon.success { background: #10b981; }
+        .action-icon.warning { background: #f59e0b; }
+        .action-icon.info { background: #06b6d4; }
+        
+        .action-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        
+        .action-description {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        /* Statistics Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #3b82f6;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            color: #3b82f6;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Recent Activity */
+        .activity-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            height: 100%;
+        }
+        
+        .card-title-custom {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .activity-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .activity-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            color: #3b82f6;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 0.875rem;
+        }
+        
+        .activity-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+        
+        /* System Status */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: #166534;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Quick Upload Section */
+        .quick-upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            border: 2px dashed #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-upload-section:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        
+        /* Buttons */
+        .btn-primary-custom {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+            
+            .quick-action-card {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+{% set active_page = 'dashboard' %}
+{% include '_navbar.html' %}
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="welcome-card">
+                        <h1 class="welcome-title">Welcome to InsureVault Pro</h1>
+                        <p class="welcome-subtitle">Professional Document Management System for Insurance & Mutual Fund Advisors</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-3 col-6 mb-3">
+                                <a href="/add_client" class="quick-action-card">
+                                    <div class="action-icon primary">
+                                        <i class="bi bi-person-plus-fill"></i>
+                                    </div>
+                                    <div class="action-title">Add Client</div>
+                                    <div class="action-description">Register new client</div>
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <a href="/client_list" class="quick-action-card">
+                                    <div class="action-icon success">
+                                        <i class="bi bi-people-fill"></i>
+                                    </div>
+                                    <div class="action-title">All Clients</div>
+                                    <div class="action-description">View complete list</div>
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <a href="/quick_upload" class="quick-action-card">
+                                    <div class="action-icon warning">
+                                        <i class="bi bi-cloud-upload-fill"></i>
+                                    </div>
+                                    <div class="action-title">Quick Upload</div>
+                                    <div class="action-description">Fast document upload</div>
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <a href="/storage_info" class="quick-action-card">
+                                    <div class="action-icon info">
+                                        <i class="bi bi-folder-fill"></i>
+                                    </div>
+                                    <div class="action-title">Storage</div>
+                                    <div class="action-description">File management</div>
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <a href="/whatsapp" class="quick-action-card">
+                                    <div class="action-icon" style="background: #25d366;">
+                                        <i class="bi bi-whatsapp"></i>
+                                    </div>
+                                    <div class="action-title">WhatsApp</div>
+                                    <div class="action-description">Send messages</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center mb-4">
+                        <div class="status-indicator">
+                            <span class="status-dot"></span>
+                            System Operational
+                        </div>
+                    </div>
+                    <div class="quick-upload-section">
+                        <div class="upload-icon">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                        </div>
+                        <h5>Quick Document Upload</h5>
+                        <p class="text-muted mb-3">Drag and drop or click to upload</p>
+                        <a href="/quick_upload" class="btn btn-primary-custom">
+                            <i class="bi bi-plus-circle"></i> Start Upload
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle-fill"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Statistics Row -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-value" id="totalClients">-</div>
+                    <div class="stat-label">Total Clients</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-file-text"></i>
+                    </div>
+                    <div class="stat-value" id="totalDocs">-</div>
+                    <div class="stat-label">Documents</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Insurance Types</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-hdd"></i>
+                    </div>
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Local Storage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Row -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="activity-card">
+                    <h5 class="card-title-custom">
+                        <i class="bi bi-star"></i>
+                        Key Features
+                    </h5>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background: #e0f2fe; color: #0284c7;">
+                                <i class="bi bi-folder-fill"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Client-Specific Folders</div>
+                                <div class="activity-time">Automatic file organization by client</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background: #f0fdf4; color: #16a34a;">
+                                <i class="bi bi-shield-fill"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Enterprise Security</div>
+                                <div class="activity-time">100% local, no cloud dependency</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background: #fef3c7; color: #d97706;">
+                                <i class="bi bi-lightning-fill"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Lightning Fast</div>
+                                <div class="activity-time">Optimized for professional use</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background: #f3e8ff; color: #9333ea;">
+                                <i class="bi bi-gear-fill"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Professional Tools</div>
+                                <div class="activity-time">Built specifically for insurance advisors</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load statistics
+        function loadStatistics() {
+            fetch('/api/total_clients')
+                .then(response => response.json())
+                .then(data => {
+                    animateValue('totalClients', 0, data.count, 1000);
+                });
+
+            fetch('/api/document_counts')
+                .then(response => response.json())
+                .then(data => {
+                    const totalDocs = data.reduce((sum, item) => sum + item.count, 0);
+                    animateValue('totalDocs', 0, totalDocs, 1000);
+                });
+        }
+
+        function animateValue(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 16);
+        }
+
+        // Initialize
+        loadStatistics();
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(loadStatistics, 30000);
+    </script>
+</body>
+</html>

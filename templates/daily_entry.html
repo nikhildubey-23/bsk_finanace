@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Entry - InsureVault Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .navbar {
+            background: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #1e40af !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .nav-link {
+            color: #64748b !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #3b82f6 !important;
+        }
+        
+        .nav-link.active {
+            background: #3b82f6;
+            color: white !important;
+        }
+        
+        .page-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border: 1px solid #e2e8f0;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        
+        .form-control:hover, .form-select:hover {
+            border-color: #94a3b8;
+            background: white;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            background: white;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary-custom {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            color: white;
+            background: #2563eb;
+        }
+        
+        .btn-primary-custom:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary-custom {
+            background: #64748b;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-custom:hover {
+            background: #475569;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Animated Investment Cards */
+        .investment-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 100%;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .investment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .investment-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
+        }
+        
+        .investment-card:hover::before {
+            background: #3b82f6;
+        }
+        
+        .investment-card.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Colorful Investment Cards */
+        .investment-card.lic { border-color: #e9d5ff; }
+        .investment-card.lic:hover { border-color: #8b5cf6; box-shadow: 0 12px 24px rgba(139, 92, 246, 0.2); }
+        .investment-card.lic:hover i { color: #8b5cf6; }
+        .investment-card.lic.active { background: #8b5cf6; border-color: #8b5cf6; box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4); }
+        
+        .investment-card.mf { border-color: #d1fae5; }
+        .investment-card.mf:hover { border-color: #10b981; box-shadow: 0 12px 24px rgba(16, 185, 129, 0.2); }
+        .investment-card.mf:hover i { color: #10b981; }
+        .investment-card.mf.active { background: #10b981; border-color: #10b981; box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4); }
+        
+        .investment-card.hi { border-color: #ffe4e6; }
+        .investment-card.hi:hover { border-color: #f43f5e; box-shadow: 0 12px 24px rgba(244, 63, 94, 0.2); }
+        .investment-card.hi:hover i { color: #f43f5e; }
+        .investment-card.hi.active { background: #f43f5e; border-color: #f43f5e; box-shadow: 0 15px 30px rgba(244, 63, 94, 0.4); }
+        
+        .investment-card.it { border-color: #fef3c7; }
+        .investment-card.it:hover { border-color: #f59e0b; box-shadow: 0 12px 24px rgba(245, 158, 11, 0.2); }
+        .investment-card.it:hover i { color: #f59e0b; }
+        .investment-card.it.active { background: #f59e0b; border-color: #f59e0b; box-shadow: 0 15px 30px rgba(245, 158, 11, 0.4); }
+        
+        .investment-card.id { border-color: #cffafe; }
+        .investment-card.id:hover { border-color: #06b6d4; box-shadow: 0 12px 24px rgba(6, 182, 212, 0.2); }
+        .investment-card.id:hover i { color: #06b6d4; }
+        .investment-card.id.active { background: #06b6d4; border-color: #06b6d4; box-shadow: 0 15px 30px rgba(6, 182, 212, 0.4); }
+        
+        .investment-card i { color: #64748b; }
+        
+        .investment-card.active::before {
+            background: white;
+            height: 100%;
+            opacity: 0.1;
+        }
+        
+        .investment-card i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        
+        .investment-card:hover i {
+            transform: scale(1.2) rotate(5deg);
+        }
+        
+        .investment-card.active i {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Animated Section Cards */
+        .section-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .section-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title i {
+            color: #3b82f6;
+            font-size: 1.25rem;
+        }
+        
+        /* Colorful Section Headers */
+        .section-card[data-section="lic"] .section-title i { color: #8b5cf6; }
+        .section-card[data-section="mf"] .section-title i { color: #10b981; }
+        .section-card[data-section="hi"] .section-title i { color: #f43f5e; }
+        .section-card[data-section="it"] .section-title i { color: #f59e0b; }
+        .section-card[data-section="id"] .section-title i { color: #06b6d4; }
+        
+        .section-card[data-section="lic"]:hover { border-left: 4px solid #8b5cf6; }
+        .section-card[data-section="mf"]:hover { border-left: 4px solid #10b981; }
+        .section-card[data-section="hi"]:hover { border-left: 4px solid #f43f5e; }
+        .section-card[data-section="it"]:hover { border-left: 4px solid #f59e0b; }
+        .section-card[data-section="id"]:hover { border-left: 4px solid #06b6d4; }
+        
+        .section-card[data-section="lic"] { border-left: 4px solid #8b5cf6; }
+        .section-card[data-section="mf"] { border-left: 4px solid #10b981; }
+        .section-card[data-section="hi"] { border-left: 4px solid #f43f5e; }
+        .section-card[data-section="it"] { border-left: 4px solid #f59e0b; }
+        .section-card[data-section="id"] { border-left: 4px solid #06b6d4; }
+        
+        .scanner-status {
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .scanner-status.ready {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .scanner-status.not-ready {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .scanner-item {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .scanner-item:hover {
+            background: #f1f5f9;
+        }
+        
+        .scanner-item.selected {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        /* Floating Labels Effect */
+        .form-floating label {
+            transition: all 0.3s ease;
+        }
+        
+        /* Submit Button Animation */
+        .btn-save {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-save::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-save:hover::before {
+            left: 100%;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 1.5rem;
+                margin-top: 1rem;
+            }
+            .investment-card {
+                min-height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+{% set active_page = 'daily_entry' %}
+{% include '_navbar.html' %}
+
+    <div class="container">
+        <div class="page-container">
+            <h1 class="page-title"><i class="bi bi-calendar-check"></i> Daily Entry</h1>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="/daily_entry">
+                <!-- Date and Serial Section -->
+                <div class="section-card visible" style="animation-delay: 0.1s;">
+                    <div class="section-title"><i class="bi bi-calendar3"></i> Entry Details</div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="entry_serial_no" class="form-label">Serial No</label>
+                            <input type="text" class="form-control" id="entry_serial_no" name="entry_serial_no" placeholder="Auto-generated">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="entry_date_visible" class="form-label">Entry Date *</label>
+                            <input type="date" class="form-control" id="entry_date_visible" name="entry_date_visible" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Client Selection -->
+                <div class="section-card">
+                    <div class="section-title"><i class="bi bi-person"></i> Client Information</div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="client_id" class="form-label">Select Client</label>
+                            <select class="form-select" id="client_id" name="client_id" onchange="handleClientSelect()">
+                                <option value="">Select a client...</option>
+                                {% for client in clients %}
+                                    <option value="{{ client['id'] }}" data-name="{{ client['name'] }}">{{ client['name'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="client_name" class="form-label">Client Name</label>
+                            <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Auto-filled from selection">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Investment Type Selection -->
+                <div class="section-card visible" style="animation-delay: 0.2s;">
+                    <div class="section-title"><i class="bi bi-briefcase"></i> Investment Type</div>
+                    <div class="row g-3">
+                        <div class="col-2">
+                            <div class="investment-card lic" onclick="selectInvestmentType('LIC', this)">
+                                <i class="bi bi-shield-plus"></i>
+                                <strong>LIC</strong>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="investment-card mf" onclick="selectInvestmentType('Mutual Fund', this)">
+                                <i class="bi bi-graph-up-arrow"></i>
+                                <strong>Mutual Fund</strong>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="investment-card hi" onclick="selectInvestmentType('Health Insurance', this)">
+                                <i class="bi bi-heart-pulse"></i>
+                                <strong>Health Insurance</strong>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="investment-card it" onclick="selectInvestmentType('Income Tax', this)">
+                                <i class="bi bi-calculator"></i>
+                                <strong>Income Tax</strong>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="investment-card id" onclick="selectInvestmentType('ID Section', this)">
+                                <i class="bi bi-person-badge"></i>
+                                <strong>ID Section</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="investment_type" name="investment_type" value="">
+                </div>
+                
+                <!-- LIC Section -->
+                <div class="section-card" id="lic_subtype_section" data-section="lic" style="display: none;">
+                    <div class="section-title"><i class="bi bi-shield-plus"></i> LIC Details</div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="lic_policy_number" class="form-label">Policy Number</label>
+                            <input type="text" class="form-control" id="lic_policy_number" name="lic_policy_number">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="lic_plan_term" class="form-label">Plan Term (Years)</label>
+                            <input type="text" class="form-control" id="lic_plan_term" name="lic_plan_term">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="lic_subtype" class="form-label">Investment Type</label>
+                            <select class="form-select" id="lic_subtype" name="lic_subtype">
+                                <option value="">Select Type</option>
+                                <option value="New Policy">New Policy</option>
+                                <option value="Surrender">Surrender</option>
+                                <option value="Assignment">Assignment</option>
+                                <option value="Nominee Change">Nominee Change</option>
+                                <option value="Address Change">Address Change</option>
+                                <option value="Maturity">Maturity</option>
+                                <option value="Loan">Loan</option>
+                                <option value="NEFT">NEFT</option>
+                                <option value="Death Claim">Death Claim</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Health Insurance Section -->
+                <div class="section-card" id="health_insurance_section" data-section="hi" style="display: none;">
+                    <div class="section-title"><i class="bi bi-heart-pulse"></i> Health Insurance Details</div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_company" class="form-label">Insurance Company</label>
+                            <select class="form-select" id="hi_company" name="hi_company" onchange="loadHIProducts()">
+                                <option value="">Select Company</option>
+                                {% for company in hi_companies %}
+                                    <option value="{{ company['id'] }}">{{ company['name'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_product" class="form-label">Product</label>
+                            <select class="form-select" id="hi_product" name="hi_product">
+                                <option value="">Select Product</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_policy" class="form-label">Policy Number</label>
+                            <input type="text" class="form-control" id="hi_policy" name="hi_policy">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_dob" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="hi_dob" name="hi_dob">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_plan_term" class="form-label">Plan Term (Years)</label>
+                            <input type="number" class="form-control" id="hi_plan_term" name="hi_plan_term">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_doc" class="form-label">Policy Start Date</label>
+                            <input type="date" class="form-control" id="hi_doc" name="hi_doc" onchange="calculateExpiryDate()">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_year" class="form-label">Policy Years</label>
+                            <input type="number" class="form-control" id="hi_year" name="hi_year" onchange="calculateExpiryDate()">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_expiry_date" class="form-label">Expiry Date</label>
+                            <input type="date" class="form-control" id="hi_expiry_date" name="hi_expiry_date" readonly>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="hi_sum_assured" class="form-label">Sum Assured</label>
+                            <input type="number" class="form-control" id="hi_sum_assured" name="hi_sum_assured">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Income Tax Section -->
+                <div class="section-card" id="income_tax_section" data-section="it" style="display: none;">
+                    <div class="section-title"><i class="bi bi-calculator"></i> Income Tax Details</div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="pan_card" class="form-label">PAN Card</label>
+                            <input type="text" class="form-control" id="pan_card" name="pan_card" placeholder="ABCDE1234F">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="file_no" class="form-label">File Number</label>
+                            <input type="text" class="form-control" id="file_no" name="file_no">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="it_address" class="form-label">Address</label>
+                            <textarea class="form-control" id="it_address" name="it_address" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ID Section -->
+                <div class="section-card" id="id_section" data-section="id" style="display: none;">
+                    <div class="section-title"><i class="bi bi-person-badge"></i> ID Details</div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_client_id" class="form-label">Client Name</label>
+                            <select class="form-select" id="id_client_id" name="id_client_id">
+                                <option value="">Select Client</option>
+                                {% for client in clients %}
+                                    <option value="{{ client['id'] }}">{{ client['name'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_type" class="form-label">ID Type</label>
+                            <input class="form-select" list="id_type_options" id="id_type" name="id_type" placeholder="Select or type ID Type">
+                            <datalist id="id_type_options">
+                                <option value="Aadhar">
+                                <option value="Voter ID">
+                                <option value="Driving License">
+                                <option value="Passport">
+                                <option value="Ration Card">
+                            </datalist>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mutual Fund Section -->
+                <div class="section-card" id="mutual_fund_section" data-section="mf" style="display: none;">
+                    <div class="section-title"><i class="bi bi-graph-up-arrow"></i> Mutual Fund Details</div>
+                    
+                    <!-- MF Main Fields -->
+                    <div class="row g-3" id="mf_main_fields">
+                        <div class="col-md-2 mb-3">
+                            <label for="mf_folio" class="form-label">Folio Number</label>
+                            <input type="text" class="form-control" id="mf_folio" name="mf_folio">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="mf_company" class="form-label">Company</label>
+                            <select class="form-select" id="mf_company" name="mf_company" onchange="loadFundNames()">
+                                <option value="">Select Company</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="mf_fund_name" class="form-label">Fund Name</label>
+                            <select class="form-select" id="mf_fund_name" name="mf_fund_name">
+                                <option value="">Select Fund</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="mf_fund_type" class="form-label">Fund Type</label>
+                            <select class="form-select" id="mf_fund_type" name="mf_fund_type" onchange="toggleFundSubType()">
+                                <option value="">Select Type</option>
+                                <option value="Growth">Growth</option>
+                                <option value="Dividend">Dividend</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3" id="fund_subtype_div" style="display: none;">
+                            <label for="mf_fund_subtype" class="form-label">Fund Sub Type</label>
+                            <select class="form-select" id="mf_fund_subtype" name="mf_fund_subtype">
+                                <option value="">Select Sub Type</option>
+                                <option value="Re-investment">Re-investment</option>
+                                <option value="IDCW">IDCW</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="mf_subtype" class="form-label">Investment Subtype</label>
+                            <select class="form-select" id="mf_subtype" name="mf_subtype" onchange="toggleMFFields()">
+                                <option value="">Select Type</option>
+                                <option value="Purchase">Purchase</option>
+                                <option value="Add-Purchase">Add-Purchase</option>
+                                <option value="NFO">NFO</option>
+                                <option value="Redemption">Redemption</option>
+                                <option value="SIP">SIP</option>
+                                <option value="SIP Cancellation">SIP Cancellation</option>
+                                <option value="SIP Pause">SIP Pause</option>
+                                <option value="STP">STP</option>
+                                <option value="SWP">SWP</option>
+                                <option value="Switch">Switch</option>
+                                <option value="Death Transmutation">Death Transmutation</option>
+                                <option value="Address Change">Address Change</option>
+                                <option value="Bank Change">Bank Change</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- SIP Fields -->
+                    <div id="sip_fields_section" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_sip_amount" class="form-label">SIP Amount</label>
+                                <input type="number" class="form-control" id="mf_sip_amount" name="mf_sip_amount">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_sip_date" class="form-label">SIP Date</label>
+                                <input type="number" class="form-control" id="mf_sip_date" name="mf_sip_date" placeholder="1-31">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_sip_frequency" class="form-label">SIP Frequency</label>
+                                <select class="form-select" id="mf_sip_frequency" name="mf_sip_frequency">
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Weekly">Weekly</option>
+                                    <option value="Quarterly">Quarterly</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_sip_start_date" class="form-label">SIP Start Date</label>
+                                <input type="date" class="form-control" id="mf_sip_start_date" name="mf_sip_start_date">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_sip_end_date" class="form-label">SIP End Date</label>
+                                <input type="date" class="form-control" id="mf_sip_end_date" name="mf_sip_end_date">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- STP Fields -->
+                    <div id="stp_period_section" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-3 mb-3">
+                                <label for="mf_stp_start_date" class="form-label">STP Start Date</label>
+                                <input type="date" class="form-control" id="mf_stp_start_date" name="mf_stp_start_date">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="mf_stp_end_date" class="form-label">STP End Date</label>
+                                <input type="date" class="form-control" id="mf_stp_end_date" name="mf_stp_end_date">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="stp_fund_name_to" class="form-label">STP To Fund</label>
+                                <select class="form-select" id="stp_fund_name_to" name="mf_fund_id_to">
+                                    <option value="">Select Fund</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="stp_fund_type" class="form-label">STP Fund Type</label>
+                                <select class="form-select" id="stp_fund_type" name="stp_fund_type" onchange="toggleSTPFundSubType()">
+                                    <option value="">Select Type</option>
+                                    <option value="Growth">Growth</option>
+                                    <option value="Dividend">Dividend</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3" id="stp_fund_subtype_div" style="display: none;">
+                                <label for="stp_fund_subtype" class="form-label">STP Fund Sub Type</label>
+                                <select class="form-select" id="stp_fund_subtype" name="stp_fund_subtype">
+                                    <option value="">Select Sub Type</option>
+                                    <option value="Re-investment">Re-investment</option>
+                                    <option value="IDCW">IDCW</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SWP Fields -->
+                    <div id="swp_fields_section" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_swp_amount" class="form-label">SWP Amount</label>
+                                <input type="number" class="form-control" id="mf_swp_amount" name="mf_swp_amount">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_swp_start_date" class="form-label">SWP Start Date</label>
+                                <input type="date" class="form-control" id="mf_swp_start_date" name="mf_swp_start_date">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_swp_end_date" class="form-label">SWP End Date</label>
+                                <input type="date" class="form-control" id="mf_swp_end_date" name="mf_swp_end_date">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Switch Fund -->
+                    <div id="switch_fund_section" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_switch_fund_from" class="form-label">Switch From Fund</label>
+                                <select class="form-select" id="mf_switch_fund_from" name="mf_switch_fund_from">
+                                    <option value="">Select Fund</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_switch_fund_to" class="form-label">Switch To Fund</label>
+                                <select class="form-select" id="mf_switch_fund_to" name="mf_switch_fund_to">
+                                    <option value="">Select Fund</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="switch_fund_type" class="form-label">Switch To Fund Type</label>
+                                <select class="form-select" id="switch_fund_type" name="switch_fund_type" onchange="toggleSwitchFundSubType()">
+                                    <option value="">Select Type</option>
+                                    <option value="Growth">Growth</option>
+                                    <option value="Dividend">Dividend</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3" id="switch_fund_subtype_div" style="display: none;">
+                                <label for="switch_fund_subtype" class="form-label">Switch To Fund Sub Type</label>
+                                <select class="form-select" id="switch_fund_subtype" name="switch_fund_subtype">
+                                    <option value="">Select Sub Type</option>
+                                    <option value="Re-investment">Re-investment</option>
+                                    <option value="IDCW">IDCW</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Death Transmutation -->
+                    <div id="death_trans_section" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Fund Details</label>
+                                <div id="death_fund_details">
+                                    <div class="row g-3 mb-2 death-fund-row">
+                                        <div class="col-md-3">
+                                            <select class="form-select death-company" name="death_company[]" onchange="loadDeathFundNames(this)">
+                                                <option value="">Select Company</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <select class="form-select death-fund-name" name="death_fund_name[]">
+                                                <option value="">Select Fund</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <select class="form-select death-fund-type" name="death_fund_type[]" onchange="toggleDeathFundSubType(this)">
+                                                <option value="">Select Type</option>
+                                                <option value="Growth">Growth</option>
+                                                <option value="Dividend">Dividend</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 death-fund-subtype-div" style="display: none;">
+                                            <select class="form-select death-fund-subtype" name="death_fund_subtype[]">
+                                                <option value="">Select Sub Type</option>
+                                                <option value="Re-investment">Re-investment</option>
+                                                <option value="IDCW">IDCW</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-center">
+                                            <button type="button" class="btn btn-success btn-sm" onclick="addDeathFundRow()">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_transmission_type" class="form-label">Transmission</label>
+                                <select class="form-select" id="mf_transmission_type" name="mf_transmission_type">
+                                    <option value="">Select</option>
+                                    <option value="T1">T1</option>
+                                    <option value="T2">T2</option>
+                                    <option value="T3">T3</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_claimant_name" class="form-label">Claimant Name</label>
+                                <input type="text" class="form-control" id="mf_claimant_name" name="mf_claimant_name">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_claimant_relation" class="form-label">Relation</label>
+                                <select class="form-select" id="mf_claimant_relation" name="mf_claimant_relation">
+                                    <option value="">Select</option>
+                                    <option value="Nominee">Nominee</option>
+                                    <option value="2nd Applicant">2nd Applicant</option>
+                                    <option value="Joint Holder">Joint Holder</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Address Change -->
+                    <div id="address_change_section" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-12 mb-3">
+                                <label for="mf_new_address" class="form-label">New Address</label>
+                                <textarea class="form-control" id="mf_new_address" name="mf_new_address" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bank Change -->
+                    <div id="bank_change_section" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_old_bank_detail" class="form-label">Old Bank Detail</label>
+                                <input type="text" class="form-control" id="mf_old_bank_detail" name="mf_old_bank_detail">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_new_bank_detail" class="form-label">New Bank Detail</label>
+                                <input type="text" class="form-control" id="mf_new_bank_detail" name="mf_new_bank_detail">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Amount and Note Section -->
+                <div class="section-card" id="amount_note_section" style="display: none;">
+                    <div class="section-title"><i class="bi bi-currency-dollar"></i> Amount & Note</div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="amount" class="form-label">Amount (₹)</label>
+                            <input type="text" class="form-control" id="amount" name="amount">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="note" class="form-label">Note</label>
+                            <input type="text" class="form-control" id="note" name="note">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Document Scanning -->
+                <div class="section-card">
+                    <div class="section-title"><i class="bi bi-scanner"></i> Document Scanning</div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <input type="hidden" id="scanned_documents" name="scanned_documents" value="">
+                            <button type="button" class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#scannerModal">
+                                <i class="bi bi-scanner"></i> Scan Document
+                            </button>
+                            <div id="attached_scans_list" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-2 justify-content-end">
+                    <button type="reset" class="btn btn-secondary-custom">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                    <button type="submit" class="btn btn-save">
+                        <i class="bi bi-save me-2"></i> Save Entry
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Scanner Modal -->
+    <div class="modal fade" id="scannerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-scanner"></i> Scan Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="scannerStatus" class="scanner-status not-ready">
+                        <span id="scannerStatusText">Checking scanner status...</span>
+                    </div>
+                    
+                    <div id="scannerOptions" style="display: none;">
+                        <div class="mb-3">
+                            <label for="scanClientSelect" class="form-label">Client</label>
+                            <select class="form-select" id="scanClientSelect">
+                                <option value="">Select Client</option>
+                                {% for client in clients %}
+                                    <option value="{{ client['id'] }}">{{ client['name'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="scanDocumentName" class="form-label">Document Name</label>
+                            <input type="text" class="form-control" id="scanDocumentName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="scanDocumentDate" class="form-label">Document Date</label>
+                            <input type="date" class="form-control" id="scanDocumentDate">
+                        </div>
+                        <div class="mb-3">
+                            <label for="scanMode" class="form-label">Scan Mode</label>
+                            <select class="form-select" id="scanMode">
+                                <option value="feeder">Auto Feeder</option>
+                                <option value="flatbed">Flatbed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Select Scanner</label>
+                            <div id="scannerList"></div>
+                        </div>
+                        
+                        <div id="scanProgress" style="display: none;" class="text-center my-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Scanning...</span>
+                            </div>
+                            <p class="mt-2">Scanning document...</p>
+                        </div>
+                        
+                        <div id="scanResult"></div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary" id="refreshScannersBtn">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh
+                            </button>
+                            <button type="button" class="btn btn-primary" id="startScanBtn" disabled>
+                                <i class="bi bi-play"></i> Start Scan
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="scannerNotAvailable" style="display: none;">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> Scanner not available. Please make sure a scanner is connected and powered on.
+                        </div>
+                        <button type="button" class="btn btn-secondary" id="refreshScannersBtn2">
+                            <i class="bi bi-arrow-clockwise"></i> Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function calculateExpiryDate() {
+            const doc = document.getElementById('hi_doc').value;
+            const year = document.getElementById('hi_year').value;
+            const expiryDate = document.getElementById('hi_expiry_date');
+            if (doc && year) {
+                const docDate = new Date(doc);
+                docDate.setFullYear(docDate.getFullYear() + parseInt(year));
+                docDate.setDate(docDate.getDate() - 1);
+                expiryDate.value = docDate.toISOString().split('T')[0];
+            } else {
+                expiryDate.value = '';
+            }
+        }
+
+        function toggleSubtype(fundTypeId, subTypeSectionId, subTypeId) {
+            const fundType = document.getElementById(fundTypeId).value;
+            const subTypeSection = document.getElementById(subTypeSectionId);
+            const subType = document.getElementById(subTypeId);
+            if (fundType === 'Dividend') {
+                subTypeSection.style.display = 'block';
+                if (subType) subType.required = true;
+            } else {
+                subTypeSection.style.display = 'none';
+                if (subType) {
+                    subType.required = false;
+                    subType.value = '';
+                }
+            }
+        }
+
+        function handleClientSelect() {
+            const clientSelect = document.getElementById('client_id');
+            if (clientSelect.value) {
+                const selectedOption = clientSelect.options[clientSelect.selectedIndex];
+                document.getElementById('client_name').value = selectedOption.getAttribute('data-name');
+            }
+        }
+
+        function selectInvestmentType(type, element) {
+            document.querySelectorAll('.investment-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('investment_type').value = type;
+            
+            const sections = ['lic_subtype_section', 'income_tax_section', 'health_insurance_section', 'mutual_fund_section', 'id_section', 'amount_note_section', 'note_only_section', 'sip_fields_section', 'death_trans_section', 'stp_period_section', 'switch_fund_section', 'address_change_section', 'bank_change_section', 'mf_main_fields', 'swp_fields_section'];
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.style.display = 'none';
+                    el.classList.remove('visible');
+                }
+            });
+
+            if (type === 'LIC' || type === 'Health Insurance' || type === 'Mutual Fund') {
+                const amountSec = document.getElementById('amount_note_section');
+                amountSec.style.display = 'block';
+                setTimeout(() => amountSec.classList.add('visible'), 50);
+            }
+
+            if (type === 'LIC') {
+                const sec = document.getElementById('lic_subtype_section');
+                sec.style.display = 'block';
+                setTimeout(() => sec.classList.add('visible'), 50);
+            }
+            else if (type === 'Income Tax') {
+                const sec = document.getElementById('income_tax_section');
+                sec.style.display = 'block';
+                setTimeout(() => sec.classList.add('visible'), 50);
+            }
+            else if (type === 'Health Insurance') {
+                const sec = document.getElementById('health_insurance_section');
+                sec.style.display = 'block';
+                setTimeout(() => sec.classList.add('visible'), 50);
+            }
+            else if (type === 'ID Section') {
+                const sec = document.getElementById('id_section');
+                sec.style.display = 'block';
+                setTimeout(() => sec.classList.add('visible'), 50);
+            }
+            else if (type === 'Mutual Fund') {
+                const mfSec = document.getElementById('mutual_fund_section');
+                mfSec.style.display = 'block';
+                setTimeout(() => mfSec.classList.add('visible'), 50);
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                loadCompanies();
+            }
+        }
+
+        function loadCompanies() {
+            fetch('/api/mf_companies')
+                .then(response => response.json())
+                .then(data => {
+                    const companySelects = ['mf_company', 'mf_company_1', 'mf_company_2', 'mf_company_3', 'mf_company_4', 'mf_company_5'];
+                    companySelects.forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        if (select) {
+                            select.innerHTML = '<option value="">Select Company</option>';
+                            data.forEach(company => {
+                                const option = new Option(company.name, company.id);
+                                select.appendChild(option);
+                            });
+                        }
+                    });
+                });
+        }
+
+        function toggleFundSubType() {
+            const fundType = document.getElementById('mf_fund_type').value;
+            const fundSubTypeDiv = document.getElementById('fund_subtype_div');
+            
+            if (fundType === 'Dividend') {
+                fundSubTypeDiv.style.display = 'block';
+            } else {
+                fundSubTypeDiv.style.display = 'none';
+                document.getElementById('mf_fund_subtype').value = '';
+            }
+        }
+
+        function toggleSTPFundSubType() {
+            const stpFundType = document.getElementById('stp_fund_type').value;
+            const stpFundSubTypeDiv = document.getElementById('stp_fund_subtype_div');
+            
+            if (stpFundType === 'Dividend') {
+                stpFundSubTypeDiv.style.display = 'block';
+            } else {
+                stpFundSubTypeDiv.style.display = 'none';
+                document.getElementById('stp_fund_subtype').value = '';
+            }
+        }
+
+        function toggleSwitchFundSubType() {
+            const switchFundType = document.getElementById('switch_fund_type').value;
+            const switchFundSubTypeDiv = document.getElementById('switch_fund_subtype_div');
+            
+            if (switchFundType === 'Dividend') {
+                switchFundSubTypeDiv.style.display = 'block';
+            } else {
+                switchFundSubTypeDiv.style.display = 'none';
+                document.getElementById('switch_fund_subtype').value = '';
+            }
+        }
+
+        function toggleDeathFundSubType(element) {
+            const row = element.closest('.death-fund-row');
+            const fundType = element.value;
+            const subTypeDiv = row.querySelector('.death-fund-subtype-div');
+            
+            if (fundType === 'Dividend') {
+                subTypeDiv.style.display = 'block';
+            } else {
+                subTypeDiv.style.display = 'none';
+                subTypeDiv.querySelector('.death-fund-subtype').value = '';
+            }
+        }
+
+        function addDeathFundRow() {
+            const container = document.getElementById('death_fund_details');
+            const row = document.createElement('div');
+            row.className = 'row g-3 mb-2 death-fund-row';
+            row.innerHTML = `
+                <div class="col-md-3">
+                    <select class="form-select death-company" name="death_company[]" onchange="loadDeathFundNames(this)">
+                        <option value="">Select Company</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select death-fund-name" name="death_fund_name[]">
+                        <option value="">Select Fund</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select death-fund-type" name="death_fund_type[]" onchange="toggleDeathFundSubType(this)">
+                        <option value="">Select Type</option>
+                        <option value="Growth">Growth</option>
+                        <option value="Dividend">Dividend</option>
+                    </select>
+                </div>
+                <div class="col-md-2 death-fund-subtype-div" style="display: none;">
+                    <select class="form-select death-fund-subtype" name="death_fund_subtype[]">
+                        <option value="">Select Sub Type</option>
+                        <option value="Re-investment">Re-investment</option>
+                        <option value="IDCW">IDCW</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-center">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeDeathFundRow(this)">-</button>
+                </div>
+            `;
+            container.appendChild(row);
+            loadDeathCompanies(row);
+        }
+
+        function removeDeathFundRow(button) {
+            const row = button.closest('.death-fund-row');
+            const container = document.getElementById('death_fund_details');
+            if (container.children.length > 1) {
+                row.remove();
+            }
+        }
+
+        function loadDeathCompanies(row) {
+            const companySelect = row.querySelector('.death-company');
+            fetch('/api/mf_companies')
+                .then(response => response.json())
+                .then(data => {
+                    companySelect.innerHTML = '<option value="">Select Company</option>';
+                    data.forEach(company => {
+                        const option = new Option(company.name, company.id);
+                        companySelect.appendChild(option);
+                    });
+                });
+        }
+
+        function loadDeathFundNames(selectElement) {
+            const companyId = selectElement.value;
+            const row = selectElement.closest('.death-fund-row');
+            const fundSelect = row.querySelector('.death-fund-name');
+            
+            if (!companyId) {
+                fundSelect.innerHTML = '<option value="">Select Company First</option>';
+                return;
+            }
+            
+            fetch(`/api/mf_funds/${companyId}`)
+                .then(response => response.json())
+                .then(data => {
+                    fundSelect.innerHTML = '<option value="">Select Fund</option>';
+                    if (data && data.length > 0) {
+                        data.forEach(fund => {
+                            const option = new Option(fund.name, fund.id);
+                            fundSelect.appendChild(option);
+                        });
+                    } else {
+                        fundSelect.innerHTML = '<option value="">No funds available</option>';
+                    }
+                });
+        }
+
+        function loadFundNames() {
+            const companyId = document.getElementById('mf_company').value;
+            const fundSelects = ['mf_fund_name', 'stp_fund_name_to', 'stp_fund_name', 'mf_switch_fund_from', 'mf_switch_fund_to'];
+            
+            if (!companyId) {
+                fundSelects.forEach(id => {
+                    const select = document.getElementById(id);
+                    if(select) select.innerHTML = '<option value="">Select Company First</option>';
+                });
+                return;
+            }
+            
+            fetch(`/api/mf_funds/${companyId}`)
+                .then(response => response.json())
+                .then(data => {
+                    fundSelects.forEach(id => {
+                        const select = document.getElementById(id);
+                        if (select) {
+                            select.innerHTML = '<option value="">Select Fund</option>';
+                            if(data && data.length > 0) {
+                                data.forEach(fund => {
+                                    const option = new Option(fund.fund_name, fund.id);
+                                    select.appendChild(option);
+                                });
+                            } else {
+                                select.innerHTML = '<option value="">No funds available</option>';
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error loading funds:', error));
+        }
+
+        function toggleMFFields() {
+            const subtype = document.getElementById('mf_subtype').value;
+            const sections = {
+                stp: ['stp_period_section', 'stp_fund_section'],
+                swp: ['swp_fields_section'],
+                switch: ['switch_fund_section'],
+                sip: ['sip_fields_section'],
+                death: ['death_trans_section'],
+                address: ['address_change_section'],
+                bank: ['bank_change_section'],
+                normal: ['mf_main_fields', 'amount_note_section']
+            };
+
+            // Hide all optional sections
+            ['sip_fields_section', 'stp_period_section', 'switch_fund_section', 'death_trans_section', 'address_change_section', 'bank_change_section', 'swp_fields_section'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+
+            // Show relevant sections
+            if (['Purchase', 'Add-Purchase', 'NFO', 'Redemption'].includes(subtype)) {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
+            } else if (subtype === 'STP') {
+                document.getElementById('stp_period_section').style.display = 'block';
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
+            } else if (subtype === 'SWP') {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('swp_fields_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'block';
+            } else if (subtype === 'Switch') {
+                document.getElementById('switch_fund_section').style.display = 'block';
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
+            } else if (['SIP', 'SIP Cancellation', 'SIP Pause'].includes(subtype)) {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('sip_fields_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'block';
+            } else if (subtype === 'Death Transmutation') {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('death_trans_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'block';
+                loadDeathCompanies(document.querySelector('.death-fund-row'));
+                loadCompanies();
+            } else if (subtype === 'Address Change') {
+                document.getElementById('address_change_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'block';
+            } else if (subtype === 'Bank Change') {
+                document.getElementById('bank_change_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'block';
+            }
+        }
+
+        function loadHIProducts() {
+            const companyId = document.getElementById('hi_company').value;
+            const productSelect = document.getElementById('hi_product');
+            if (!companyId) {
+                productSelect.innerHTML = '<option value="">Select Company First</option>';
+                return;
+            }
+            fetch(`/api/hi_products/${companyId}`)
+                .then(response => response.json())
+                .then(data => {
+                    productSelect.innerHTML = '<option value="">Select Product</option>';
+                    if (data && data.length > 0) {
+                        data.forEach(product => {
+                            productSelect.add(new Option(product.product_name, product.id));
+                        });
+                    }
+                });
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('entry_date_visible');
+            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+            
+            const serialInput = document.getElementById('entry_serial_no');
+            if (serialInput && !serialInput.value) serialInput.value = 'D-' + Date.now().toString().slice(-6);
+            
+            const scannerModal = document.getElementById('scannerModal');
+            if (scannerModal) {
+                scannerModal.addEventListener('shown.bs.modal', function() {
+                    const mainClientId = document.getElementById('client_id').value;
+                    if (mainClientId) document.getElementById('scanClientSelect').value = mainClientId;
+                    const clientName = document.getElementById('client_name').value;
+                    if (clientName) document.getElementById('scanDocumentName').value = clientName;
+                    const entryDate = document.getElementById('entry_date_visible').value;
+                    if (entryDate) document.getElementById('scanDocumentDate').value = entryDate;
+                    checkScannerStatus();
+                });
+            }
+            
+            const refreshBtn = document.getElementById('refreshScannersBtn');
+            if (refreshBtn) refreshBtn.addEventListener('click', loadScanners);
+            
+            const refreshBtn2 = document.getElementById('refreshScannersBtn2');
+            if (refreshBtn2) refreshBtn2.addEventListener('click', checkScannerStatus);
+            
+            const startScanBtn = document.getElementById('startScanBtn');
+            if (startScanBtn) startScanBtn.addEventListener('click', startScan);
+        });
+        
+        // Scanner functionality
+        let selectedScannerId = null;
+        let attachedFiles = [];
+        
+        async function checkScannerStatus() {
+            const statusEl = document.getElementById('scannerStatus');
+            const statusTextEl = document.getElementById('scannerStatusText');
+            const optionsEl = document.getElementById('scannerOptions');
+            const notAvailableEl = document.getElementById('scannerNotAvailable');
+            if (!statusEl) return;
+            statusEl.className = 'scanner-status not-ready';
+            statusTextEl.textContent = 'Checking scanner status...';
+            try {
+                const response = await fetch('/api/scanner/status');
+                const data = await response.json();
+                if (data.available) {
+                    statusEl.className = 'scanner-status ready';
+                    statusTextEl.textContent = 'Scanner ready! Loading scanner list...';
+                    optionsEl.style.display = 'block';
+                    notAvailableEl.style.display = 'none';
+                    await loadScanners();
+                } else {
+                    statusEl.className = 'scanner-status not-ready';
+                    statusTextEl.textContent = data.message || 'Scanner not available';
+                    optionsEl.style.display = 'none';
+                    notAvailableEl.style.display = 'block';
+                }
+            } catch (error) {
+                statusTextEl.textContent = 'Error checking scanner: ' + error.message;
+                optionsEl.style.display = 'none';
+                notAvailableEl.style.display = 'block';
+            }
+        }
+        
+        async function loadScanners() {
+            const scannerList = document.getElementById('scannerList');
+            const startBtn = document.getElementById('startScanBtn');
+            if (!scannerList) return false;
+            scannerList.innerHTML = '<p class="text-muted text-center">Loading scanners...</p>';
+            try {
+                const response = await fetch('/api/scanners');
+                const data = await response.json();
+                if (data.success && data.scanners.length > 0) {
+                    scannerList.innerHTML = '';
+                    data.scanners.forEach(scanner => {
+                        const div = document.createElement('div');
+                        div.className = 'scanner-item';
+                        div.innerHTML = `<strong><i class="bi bi-printer"></i> ${scanner.name}</strong>`;
+                        div.dataset.scannerId = scanner.id;
+                        div.onclick = function() {
+                            document.querySelectorAll('.scanner-item').forEach(el => el.classList.remove('selected'));
+                            div.classList.add('selected');
+                            selectedScannerId = div.dataset.scannerId;
+                            startBtn.disabled = false;
+                        };
+                        scannerList.appendChild(div);
+                    });
+                    if (data.scanners.length === 1) {
+                        const firstScannerItem = scannerList.querySelector('.scanner-item');
+                        if (firstScannerItem) {
+                            document.querySelectorAll('.scanner-item').forEach(el => el.classList.remove('selected'));
+                            firstScannerItem.classList.add('selected');
+                            selectedScannerId = firstScannerItem.dataset.scannerId;
+                            startBtn.disabled = false;
+                            return true;
+                        }
+                    }
+                } else {
+                    scannerList.innerHTML = '<p class="text-muted text-center">No scanners found</p>';
+                    startBtn.disabled = true;
+                }
+            } catch (error) {
+                scannerList.innerHTML = '<p class="text-danger text-center">Error loading scanners</p>';
+                startBtn.disabled = true;
+            }
+            return false;
+        }
+        
+        async function startScan() {
+            const clientId = document.getElementById('scanClientSelect').value;
+            const documentName = document.getElementById('scanDocumentName').value || 'Scanned Document';
+            const documentDate = document.getElementById('scanDocumentDate').value;
+            const scanMode = document.getElementById('scanMode').value;
+            const progressEl = document.getElementById('scanProgress');
+            const resultEl = document.getElementById('scanResult');
+            const startBtn = document.getElementById('startScanBtn');
+            if (!clientId) return alert('Please select a client!');
+            if (!selectedScannerId) return alert('Please select a scanner!');
+            progressEl.style.display = 'block';
+            resultEl.innerHTML = '';
+            startBtn.disabled = true;
+            try {
+                const response = await fetch('/api/scan_and_save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        scanner_id: selectedScannerId,
+                        document_name: documentName,
+                        document_date: documentDate,
+                        format: 'jpg',
+                        multiscan: scanMode === 'flatbed',
+                        scan_mode: scanMode
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    attachedFiles = attachedFiles.concat(data.scanned_files);
+                    document.getElementById('scanned_documents').value = JSON.stringify(attachedFiles);
+                    const listEl = document.getElementById('attached_scans_list');
+                    let listHtml = '<h6><i class="bi bi-paperclip"></i> Attached Scans:</h6><ul class="list-group list-group-flush">';
+                    attachedFiles.forEach(file => {
+                        listHtml += `<li class="list-group-item">${file.document_name}</li>`;
+                    });
+                    listHtml += '</ul>';
+                    listEl.innerHTML = listHtml;
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('scannerModal'));
+                    modal.hide();
+                } else {
+                    resultEl.innerHTML = `<div class="alert alert-danger">${data.error || 'Scan failed.'}</div>`;
+                }
+            } catch (error) {
+                console.error('Scan error:', error);
+                resultEl.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            } finally {
+                progressEl.style.display = 'none';
+                startBtn.disabled = false;
+            }
+        }
+    </script>
+ </body>
+ </html>

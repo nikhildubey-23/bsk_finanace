@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Upload - InsureVault Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .navbar {
+            background: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #1e40af !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .nav-link {
+            color: #64748b !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #3b82f6 !important;
+        }
+        
+        .nav-link.active {
+            background: #3b82f6;
+            color: white !important;
+        }
+        
+        .upload-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+        
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .alert-success-custom {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            color: #166534;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .alert-icon {
+            font-size: 1.25rem;
+            margin-right: 0.5rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-primary-custom {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+        
+        .btn-secondary-custom {
+            background: #f1f5f9;
+            border: 1px solid #d1d5db;
+            color: #64748b;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-secondary-custom:hover {
+            background: #e2e8f0;
+            color: #475569;
+            text-decoration: none;
+        }
+        
+        .tips-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .tips-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tip-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+            font-size: 0.875rem;
+        }
+        
+        .tip-icon {
+            color: #3b82f6;
+            flex-shrink: 0;
+        }
+        
+        .btn-scanner {
+            background: #06b6d4;
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-scanner:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+            color: white;
+            background: #0891b2;
+        }
+        
+        .scanner-section {
+            background: #f0fdfa;
+            border: 2px dashed #5eead4;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .scanner-section:hover {
+            border-color: #14b8a6;
+            background: #ccfbf1;
+        }
+        
+        .scanner-icon {
+            font-size: 2.5rem;
+            color: #0d9488;
+            margin-bottom: 0.5rem;
+        }
+        
+        .modal-header {
+            background: #06b6d4;
+            color: white;
+        }
+        
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+        
+        .scanner-status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .scanner-status.ready {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .scanner-status.not-ready {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .scanner-status.scanning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .scanner-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .scanner-item {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .scanner-item:hover {
+            background: #f1f5f9;
+            border-color: #06b6d4;
+        }
+        
+        .scanner-item.selected {
+            background: #cffafe;
+            border-color: #06b6d4;
+        }
+        
+        @media (max-width: 768px) {
+            .upload-container {
+                padding: 1.5rem;
+                margin-top: 1rem;
+            }
+            
+            .file-upload-area {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+{% set active_page = 'upload' %}
+{% include '_navbar.html' %}
+
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="upload-container">
+                    <h1 class="page-title">
+                        <i class="bi bi-lightning-charge"></i>
+                        Quick Document Upload
+                    </h1>
+                    <p class="page-subtitle">Select client and upload documents instantly</p>
+                    
+                    <div class="alert-success-custom">
+                        <i class="bi bi-lightning-charge alert-icon"></i>
+                        <strong>Fast Upload:</strong> Select client from dropdown and upload document instantly without searching!
+                    </div>
+
+                    <!-- Scanner Section -->
+                    <div class="scanner-section" data-bs-toggle="modal" data-bs-target="#scannerModal">
+                        <div class="scanner-icon">
+                            <i class="bi bi-scanner"></i>
+                        </div>
+                        <h5>Scan from Scanner</h5>
+                        <p class="text-muted mb-0">Click to scan documents directly from your scanner</p>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="client_id" class="form-label">Select Client *</label>
+                                    <select class="form-select" id="client_id" name="client_id" required>
+                                        <option value="">Choose a client...</option>
+                                        {% for client in clients %}
+                                            <option value="{{ client['id'] }}">{{ client['name'] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="document_name" class="form-label">Document Name *</label>
+                                    <input type="text" class="form-control" id="document_name" name="document_name" 
+                                           placeholder="e.g., Insurance Policy, PAN Card" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="document_date" class="form-label">Document Date</label>
+                                    <input type="date" class="form-control" id="document_date" name="document_date">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Select File *</label>
+                                    <div class="file-upload-area">
+                                        <input type="file" class="form-control" id="file" name="file" required 
+                                               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt,.xls,.xlsx,.zip"
+                                               style="border: none; background: transparent; padding: 0;">
+                                        <div class="upload-icon">
+                                            <i class="bi bi-cloud-upload"></i>
+                                        </div>
+                                        <p class="mb-0 text-muted">Click to browse or drag and drop</p>
+                                        <small class="text-muted">PDF, Images, Docs, Excel (Max: 50MB)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary-custom">
+                                <i class="bi bi-cloud-upload"></i> Upload Document
+                            </button>
+                            <a href="/client_list" class="btn btn-secondary-custom">
+                                <i class="bi bi-people"></i> View All Clients
+                            </a>
+                        </div>
+                    </form>
+
+                    <div class="tips-card">
+                        <div class="tips-title">
+                            <i class="bi bi-lightbulb"></i>
+                            Quick Tips
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="tip-item">
+                                    <i class="bi bi-check-circle-fill tip-icon"></i>
+                                    <span>No need to search - just select from dropdown</span>
+                                </div>
+                                <div class="tip-item">
+                                    <i class="bi bi-check-circle-fill tip-icon"></i>
+                                    <span>Supports all document formats</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="tip-item">
+                                    <i class="bi bi-check-circle-fill tip-icon"></i>
+                                    <span>Automatic folder organization</span>
+                                </div>
+                                <div class="tip-item">
+                                    <i class="bi bi-check-circle-fill tip-icon"></i>
+                                    <span>Secure local storage only</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanner Modal -->
+    <div class="modal fade" id="scannerModal" tabindex="-1" aria-labelledby="scannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scannerModalLabel">
+                        <i class="bi bi-scanner"></i> Scan Document
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="scannerStatus" class="scanner-status not-ready">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span id="scannerStatusText">Checking scanner status...</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="scanClientSelect" class="form-label">Select Client *</label>
+                        <select class="form-select" id="scanClientSelect">
+                            <option value="">Choose a client...</option>
+                            {% for client in clients %}
+                                <option value="{{ client['id'] }}">{{ client['name'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="scanDocumentName" class="form-label">Document Name</label>
+                        <input type="text" class="form-control" id="scanDocumentName" placeholder="e.g., Scanned Policy">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="scanDocumentDate" class="form-label">Document Date</label>
+                        <input type="date" class="form-control" id="scanDocumentDate">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="scanMode" class="form-label">Scan Mode</label>
+                        <select class="form-select" id="scanMode">
+                            <option value="dialog">Single Page (shows dialog)</option>
+                            <option value="flatbed">Multi-page (Flatbed - prompts for each page)</option>
+                        </select>
+                        <small class="text-muted">For flatbed: place each page and click Scan to continue</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Available Scanners</label>
+                        <div class="scanner-list" id="scannerList">
+                            <p class="text-muted text-center">Click "Refresh Scanners" to find available scanners</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary" id="refreshScannersBtn">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh Scanners
+                        </button>
+                        <button type="button" class="btn btn-scanner" id="startScanBtn" disabled>
+                            <i class="bi bi-play-fill"></i> Start Scan
+                        </button>
+                    </div>
+                    
+                    <div id="scanProgress" class="mt-3" style="display: none;">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <span>Scanning document(s)... This may take a moment.</span>
+                        </div>
+                    </div>
+                    
+                    <div id="scanResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedScannerId = null;
+        
+        // Check scanner status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkScannerStatus();
+        });
+        
+        async function checkScannerStatus() {
+            const statusEl = document.getElementById('scannerStatus');
+            const statusTextEl = document.getElementById('scannerStatusText');
+            
+            try {
+                const response = await fetch('/api/scanner/status');
+                const data = await response.json();
+                
+                if (data.available) {
+                    statusEl.className = 'scanner-status ready';
+                    statusTextEl.innerHTML = '<i class="bi bi-check-circle"></i> Scanner ready!';
+                    loadScanners();
+                } else {
+                    statusEl.className = 'scanner-status not-ready';
+                    statusTextEl.innerHTML = '<i class="bi bi-x-circle"></i> ' + data.message;
+                }
+            } catch (error) {
+                statusEl.className = 'scanner-status not-ready';
+                statusTextEl.innerHTML = '<i class="bi bi-x-circle"></i> Error checking scanner status';
+            }
+        }
+        
+        async function loadScanners() {
+            const scannerList = document.getElementById('scannerList');
+            scannerList.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
+            
+            try {
+                const response = await fetch('/api/scanners');
+                const data = await response.json();
+                
+                if (data.success && data.scanners && data.scanners.length > 0) {
+                    scannerList.innerHTML = '';
+                    data.scanners.forEach(function(scanner) {
+                        const item = document.createElement('div');
+                        item.className = 'scanner-item';
+                        item.innerHTML = '<i class="bi bi-printer"></i> ' + scanner.name;
+                        item.onclick = function() {
+                            document.querySelectorAll('.scanner-item').forEach(function(el) {
+                                el.classList.remove('selected');
+                            });
+                            item.classList.add('selected');
+                            selectedScannerId = scanner.id;
+                            document.getElementById('startScanBtn').disabled = false;
+                        };
+                        scannerList.appendChild(item);
+                    });
+                } else {
+                    scannerList.innerHTML = '<p class="text-muted text-center">No scanners found. Make sure your scanner is connected and powered on.</p>';
+                }
+            } catch (error) {
+                scannerList.innerHTML = '<p class="text-danger text-center">Error loading scanners</p>';
+            }
+        }
+        
+        // Refresh scanners button
+        document.getElementById('refreshScannersBtn').addEventListener('click', function() {
+            loadScanners();
+        });
+        
+        // Start scan button
+        document.getElementById('startScanBtn').addEventListener('click', async function() {
+            const clientId = document.getElementById('scanClientSelect').value;
+            const documentName = document.getElementById('scanDocumentName').value || 'Scanned Document';
+            const documentDate = document.getElementById('scanDocumentDate').value;
+            const scanMode = document.getElementById('scanMode').value;
+            
+            if (!clientId) {
+                alert('Please select a client!');
+                return;
+            }
+            
+            if (!selectedScannerId) {
+                alert('Please select a scanner!');
+                return;
+            }
+            
+            const progressEl = document.getElementById('scanProgress');
+            const resultEl = document.getElementById('scanResult');
+            const startBtn = document.getElementById('startScanBtn');
+            
+            progressEl.style.display = 'block';
+            resultEl.innerHTML = '';
+            startBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/scan_and_save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        client_id: clientId,
+                        scanner_id: selectedScannerId,
+                        document_name: documentName,
+                        document_date: documentDate,
+                        format: 'jpg',
+                        multiscan: scanMode === 'flatbed',
+                        scan_mode: scanMode
+                    })
+                });
+                
+                const data = await response.json();
+                
+                progressEl.style.display = 'none';
+                startBtn.disabled = false;
+                
+                if (data.success) {
+                    resultEl.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle"></i> ${data.message}</div>`;
+                    // Reset form
+                    document.getElementById('scanClientSelect').value = '';
+                    document.getElementById('scanDocumentName').value = '';
+                    document.getElementById('scanDocumentDate').value = '';
+                    document.getElementById('scanMode').value = 'dialog';
+                    document.querySelectorAll('.scanner-item').forEach(function(el) {
+                        el.classList.remove('selected');
+                    });
+                    selectedScannerId = null;
+                    document.getElementById('startScanBtn').disabled = true;
+                } else {
+                    resultEl.innerHTML = '<div class="alert alert-danger"><i class="bi bi-x-circle"></i> ' + data.error + '</div>';
+                }
+            } catch (error) {
+                progressEl.style.display = 'none';
+                startBtn.disabled = false;
+                resultEl.innerHTML = '<div class="alert alert-danger"><i class="bi bi-x-circle"></i> Error: ' + error.message + '</div>';
+            }
+        });
+        
+        // Reset scanner modal when closed
+        document.getElementById('scannerModal').addEventListener('hidden.bs.modal', function() {
+            document.getElementById('scanResult').innerHTML = '';
+            document.getElementById('scanProgress').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
