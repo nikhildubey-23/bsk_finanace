@@ -498,6 +498,7 @@
                         </div>
                     </div>
                     <input type="hidden" id="investment_type" name="investment_type" value="">
+                    <input type="hidden" id="entry_id" name="entry_id" value="{{ edit_entry['id'] if edit_entry else '' }}">
                 </div>
                 
                 <!-- LIC Section -->
@@ -653,9 +654,23 @@
                                 <option value="Contact Update">Contact Update</option>
                                 <option value="Nominee Update">Nominee Update</option>
                                 <option value="Bank Change">Bank Change</option>
-                                <option value="Signature Update">Signature Update</option>
+                            <option value="Signature Update">Signature Update</option>
                             </select>
                         </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="mf_arn" class="form-label">ARN</label>
+                            <select class="form-select" id="mf_arn" name="mf_arn">
+                                <option value="">Select ARN</option>
+                                <option value="ARN-61661">ARN-61661 [MOHD.SHAHNAWAZ RAZVE]</option>
+                                <option value="ARN-133000">ARN-133000 [FARIDA BANO]</option>
+                                <option value="ARN-276511">ARN-276511 [SMITA JAIN]</option>
+                                <option value="ARN-314305">ARN-314305 [MOHD.SUFIYAN RAZVI]</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- MF Basic Fields Row -->
+                    <div class="row g-3" id="mf_basic_fields">
                         <div class="col-md-2 mb-3">
                             <label for="mf_folio" class="form-label">Folio Number</label>
                             <input type="text" class="form-control" id="mf_folio" name="mf_folio">
@@ -687,6 +702,19 @@
                                 <option value="Re-investment">Re-investment</option>
                                 <option value="IDCW">IDCW</option>
                             </select>
+                        </div>
+                        <div class="col-md-2 mb-3" id="applicant_div" style="display: none;">
+                            <label for="mf_applicant" class="form-label">Applicant</label>
+                            <select class="form-select" id="mf_applicant" name="mf_applicant">
+                                <option value="">Select Applicant</option>
+                                <option value="First Applicant">First Applicant</option>
+                                <option value="Second Applicant">Second Applicant</option>
+                                <option value="Third Applicant">Third Applicant</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3" id="applicant_name_div" style="display: none;">
+                            <label for="applicant_name" class="form-label">Applicant Name</label>
+                            <input type="text" class="form-control" id="applicant_name" name="applicant_name" placeholder="Enter applicant name">
                         </div>
                     </div>
                     
@@ -799,6 +827,10 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
+                                <label for="mf_sip_date_current" class="form-label">SIP Date (1-31)</label>
+                                <input type="number" class="form-control" id="mf_sip_date_current" name="mf_sip_date_current" min="1" max="31">
+                            </div>
+                            <div class="col-md-6 mb-3">
                                 <label for="mf_sip_start_date" class="form-label">SIP Start Date</label>
                                 <input type="date" class="form-control" id="mf_sip_start_date" name="mf_sip_start_date">
                             </div>
@@ -836,8 +868,8 @@
                                 <input type="number" class="form-control" id="mf_new_sip_amount" name="mf_new_sip_amount">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="mf_new_sip_start_date" class="form-label">New SIP Start Date</label>
-                                <input type="date" class="form-control" id="mf_new_sip_start_date" name="mf_new_sip_start_date">
+                                <label for="mf_sip_date" class="form-label">SIP Date (1-31)</label>
+                                <input type="number" class="form-control" id="mf_sip_date" name="mf_sip_date" min="1" max="31">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="mf_sip_end_date" class="form-label">New SIP End Date</label>
@@ -1369,6 +1401,133 @@
                 .catch(error => console.error('Error loading funds:', error));
         }
 
+        function populateEditForm(data) {
+            // Set basic fields
+            if (data.entry_date) document.getElementById('entry_date_visible').value = data.entry_date;
+            if (data.client_id) {
+                document.getElementById('client_id').value = data.client_id;
+                handleClientSelect();
+            }
+            if (data.client_name) document.getElementById('client_name').value = data.client_name;
+            if (data.investment_type) {
+                document.getElementById('investment_type').value = data.investment_type;
+                showInvestmentSection(data.investment_type);
+            }
+            
+            // LIC fields
+            if (data.lic_subtype) {
+                document.getElementById('lic_subtype').value = data.lic_subtype;
+            }
+            if (data.lic_policy_number) {
+                document.getElementById('lic_policy_number').value = data.lic_policy_number;
+            }
+            if (data.lic_plan_term) {
+                document.getElementById('lic_plan_term').value = data.lic_plan_term;
+            }
+            
+            // HI fields
+            if (data.hi_company_id) {
+                document.getElementById('hi_company').value = data.hi_company_id;
+                loadHIProducts().then(() => {
+                    if (data.hi_product_id) {
+                        document.getElementById('hi_product').value = data.hi_product_id;
+                    }
+                });
+            }
+            if (data.hi_policy) document.getElementById('hi_policy').value = data.hi_policy;
+            if (data.hi_dob) document.getElementById('hi_dob').value = data.hi_dob;
+            if (data.hi_plan_term) document.getElementById('hi_plan_term').value = data.hi_plan_term;
+            if (data.hi_doc) document.getElementById('hi_doc').value = data.hi_doc;
+            if (data.hi_year) document.getElementById('hi_year').value = data.hi_year;
+            if (data.hi_sum_assured) document.getElementById('hi_sum_assured').value = data.hi_sum_assured;
+            if (data.hi_expiry_date) document.getElementById('hi_expiry_date').value = data.hi_expiry_date;
+            
+            // IT fields
+            if (data.pan_card) document.getElementById('pan_card').value = data.pan_card;
+            if (data.file_no) document.getElementById('file_no').value = data.file_no;
+            if (data.it_address) document.getElementById('it_address').value = data.it_address;
+            
+            // ID fields
+            if (data.id_type) document.getElementById('id_type').value = data.id_type;
+            
+            // MF fields
+            if (data.mf_subtype) {
+                document.getElementById('mf_subtype').value = data.mf_subtype;
+                toggleMFFields();
+            }
+            if (data.mf_folio) document.getElementById('mf_folio').value = data.mf_folio;
+            if (data.mf_company_id) {
+                document.getElementById('mf_company').value = data.mf_company_id;
+                loadFundNames().then(() => {
+                    if (data.mf_fund_id) {
+                        document.getElementById('mf_fund_name').value = data.mf_fund_id;
+                    }
+                });
+            }
+            if (data.mf_fund_type) {
+                document.getElementById('mf_fund_type').value = data.mf_fund_type;
+                toggleFundSubType();
+            }
+            if (data.mf_fund_subtype) {
+                document.getElementById('mf_fund_subtype').value = data.mf_fund_subtype;
+            }
+            if (data.mf_applicant) document.getElementById('mf_applicant').value = data.mf_applicant;
+            if (data.applicant_name) document.getElementById('applicant_name').value = data.applicant_name;
+            if (data.mf_arn) document.getElementById('mf_arn').value = data.mf_arn;
+            
+            // SIP fields
+            if (data.mf_sip_amount) document.getElementById('mf_sip_amount').value = data.mf_sip_amount;
+            if (data.mf_sip_date) document.getElementById('mf_sip_date').value = data.mf_sip_date;
+            if (data.mf_sip_frequency) document.getElementById('mf_sip_frequency').value = data.mf_sip_frequency;
+            if (data.mf_sip_start_date) document.getElementById('mf_sip_start_date').value = data.mf_sip_start_date;
+            if (data.mf_sip_end_date) document.getElementById('mf_sip_end_date').value = data.mf_sip_end_date;
+            
+            // STP fields
+            if (data.mf_stp_start_date) document.getElementById('mf_stp_start_date').value = data.mf_stp_start_date;
+            if (data.mf_stp_end_date) document.getElementById('mf_stp_end_date').value = data.mf_stp_end_date;
+            if (data.mf_fund_id_to) document.getElementById('stp_fund_name_to').value = data.mf_fund_id_to;
+            if (data.stp_fund_type) document.getElementById('stp_fund_type').value = data.stp_fund_type;
+            if (data.stp_fund_subtype) document.getElementById('stp_fund_subtype').value = data.stp_fund_subtype;
+            
+            // SWP fields
+            if (data.mf_swp_amount) document.getElementById('mf_swp_amount').value = data.mf_swp_amount;
+            if (data.mf_swp_start_date) document.getElementById('mf_swp_start_date').value = data.mf_swp_start_date;
+            if (data.mf_swp_end_date) document.getElementById('mf_swp_end_date').value = data.mf_swp_end_date;
+            
+            // SIP Modification fields
+            if (data.mf_current_scheme) document.getElementById('mf_current_scheme').value = data.mf_current_scheme;
+            if (data.mf_sip_plan) document.getElementById('mf_sip_plan').value = data.mf_sip_plan;
+            if (data.mf_sip_modification_amount) document.getElementById('mf_sip_modification_amount').value = data.mf_sip_modification_amount;
+            if (data.mf_sip_frequency_mod) document.getElementById('mf_sip_frequency_mod').value = data.mf_sip_frequency_mod;
+            if (data.mf_sip_date_current) document.getElementById('mf_sip_date_current').value = data.mf_sip_date_current;
+            if (data.mf_new_scheme_plan) document.getElementById('mf_new_scheme_plan').value = data.mf_new_scheme_plan;
+            if (data.mf_new_sip_amount) document.getElementById('mf_new_sip_amount').value = data.mf_new_sip_amount;
+            
+            // Switch fields
+            if (data.mf_switch_fund_from) document.getElementById('mf_switch_fund_from').value = data.mf_switch_fund_from;
+            if (data.mf_switch_fund_to) document.getElementById('mf_switch_fund_to').value = data.mf_switch_fund_to;
+            if (data.switch_fund_type) document.getElementById('switch_fund_type').value = data.switch_fund_type;
+            if (data.switch_fund_subtype) document.getElementById('switch_fund_subtype').value = data.switch_fund_subtype;
+            
+            // Transmission fields
+            if (data.mf_transmission_type) document.getElementById('mf_transmission_type').value = data.mf_transmission_type;
+            if (data.mf_claimant_name) document.getElementById('mf_claimant_name').value = data.mf_claimant_name;
+            if (data.mf_claimant_relation) document.getElementById('mf_claimant_relation').value = data.mf_claimant_relation;
+            
+            // Address & Bank Change
+            if (data.mf_new_address) document.getElementById('mf_new_address').value = data.mf_new_address;
+            if (data.mf_old_bank_detail) document.getElementById('mf_old_bank_detail').value = data.mf_old_bank_detail;
+            if (data.mf_new_bank_detail) document.getElementById('mf_new_bank_detail').value = data.mf_new_bank_detail;
+            
+            // Amount & Note
+            if (data.amount) document.getElementById('amount').value = data.amount;
+            if (data.note) document.getElementById('note').value = data.note;
+            
+            // Show MF basic fields row
+            const mfBasicFields = document.getElementById('mf_basic_fields');
+            if (mfBasicFields) mfBasicFields.style.display = 'flex';
+        }
+
         function toggleMFFields() {
             const subtype = document.getElementById('mf_subtype').value;
             const sections = {
@@ -1383,35 +1542,52 @@
             };
 
             // Hide all optional sections
-            ['sip_fields_section', 'stp_period_section', 'switch_fund_section', 'death_trans_section', 'address_change_section', 'bank_change_section', 'swp_fields_section', 'sip_modification_fields_section'].forEach(id => {
+            ['sip_fields_section', 'stp_period_section', 'switch_fund_section', 'death_trans_section', 'address_change_section', 'bank_change_section', 'swp_fields_section', 'sip_modification_fields_section', 'mf_basic_fields'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
 
+            // Show/Hide Applicant fields for Purchase, Add-Purchase, SIP, SIP Pause, SIP Cancellation
+            const applicantDiv = document.getElementById('applicant_div');
+            const applicantNameDiv = document.getElementById('applicant_name_div');
+            if (['Purchase', 'Add-Purchase', 'SIP', 'SIP Pause', 'SIP Cancellation'].includes(subtype)) {
+                applicantDiv.style.display = 'block';
+                applicantNameDiv.style.display = 'block';
+            } else {
+                applicantDiv.style.display = 'none';
+                applicantNameDiv.style.display = 'none';
+            }
+
             // Show relevant sections
             if (['Purchase', 'Add-Purchase', 'NFO', 'Redemption'].includes(subtype)) {
                 document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('amount_note_section').style.display = 'block';
             } else if (subtype === 'STP') {
                 document.getElementById('stp_period_section').style.display = 'block';
                 document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('amount_note_section').style.display = 'block';
             } else if (subtype === 'SWP') {
                 document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('swp_fields_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'block';
             } else if (subtype === 'Switch') {
                 document.getElementById('switch_fund_section').style.display = 'block';
                 document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('amount_note_section').style.display = 'block';
             } else if (['SIP', 'SIP Cancellation', 'SIP Pause'].includes(subtype)) {
                 document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('sip_fields_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'block';
             } else if (subtype === 'SIP Modification') {
                 document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.querySelectorAll('#mf_main_fields > div').forEach((div, index) => {
-                    if (index === 0 || index === 1 || index === 2 || index === 3 || index === 4 || index === 5) {
+                    if (index === 0 || index === 3 || index === 4 || index === 5 || index === 6) {
                         div.style.display = 'block';
                     } else {
                         div.style.display = 'none';
@@ -1420,13 +1596,18 @@
                 document.getElementById('sip_modification_fields_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'none';
             } else if (subtype === 'Bank Change') {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('bank_change_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'block';
             } else if (subtype === 'Address Change') {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('address_change_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'block';
             } else if (subtype === 'Death Transmission') {
                 document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('death_trans_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'block';
             }
@@ -1452,6 +1633,15 @@
         }
         
         document.addEventListener('DOMContentLoaded', function() {
+            const editEntryId = document.getElementById('entry_id').value;
+            if (editEntryId) {
+                // Load edit entry data
+                const editData = {{ edit_entry|tojson if edit_entry else 'null' }};
+                if (editData) {
+                    populateEditForm(editData);
+                }
+            }
+            
             const dateInput = document.getElementById('entry_date_visible');
             if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
             

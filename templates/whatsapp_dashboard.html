@@ -515,6 +515,9 @@
                     <h5 class="card-title-custom">
                         <i class="bi bi-chat-text"></i>
                         Select Message Template
+                        <button class="btn btn-sm btn-success ms-2" data-bs-toggle="modal" data-bs-target="#customMessageModal">
+                            <i class="bi bi-plus-lg"></i> Custom Message
+                        </button>
                     </h5>
                     
                     <div class="template-grid">
@@ -773,14 +776,20 @@
             }
             
             if (!selectedTemplate) {
-                alert('Please select a message template');
+                alert('Please select a message template or create a custom message');
                 return;
             }
             
             const loading = document.getElementById('loading');
             loading.style.display = 'block';
 
-            const templateContent = editedTemplateContent || (templates[selectedTemplate] ? templates[selectedTemplate].message : '');
+            // Use custom message if selected, otherwise use template
+            let templateContent;
+            if (selectedTemplate === 'custom') {
+                templateContent = customMessageText;
+            } else {
+                templateContent = editedTemplateContent || (templates[selectedTemplate] ? templates[selectedTemplate].message : '');
+            }
 
             // This fetch seems to be for logging/history on the backend
             fetch('/send_whatsapp', {
@@ -791,8 +800,7 @@
                 body: JSON.stringify({
                     client_ids: Array.from(selectedClients),
                     template_id: selectedTemplate,
-                    // Send custom message if it exists
-                    message: editedTemplateContent 
+                    custom_message: selectedTemplate === 'custom' ? customMessageText : ''
                 })
             })
             .then(response => response.json())
@@ -941,6 +949,56 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateMessagePreview();
         });
+
+        // Custom message functions
+        let customMessageText = '';
+
+        function useCustomMessage() {
+            const customMsg = document.getElementById('customMessageText').value;
+            if (!customMsg.trim()) {
+                alert('Please enter a message');
+                return;
+            }
+            customMessageText = customMsg;
+            document.getElementById('messagePreview').innerText = customMsg;
+            document.getElementById('messageTextarea').value = customMsg;
+            var modal = bootstrap.Modal.getInstance(document.getElementById('customMessageModal'));
+            modal.hide();
+            selectedTemplate = 'custom';
+            document.querySelectorAll('.template-card').forEach(card => card.classList.remove('selected'));
+        }
+
+        function clearCustomMessage() {
+            document.getElementById('customMessageText').value = '';
+            customMessageText = '';
+        }
     </script>
+
+    <!-- Custom Message Modal -->
+    <div class="modal fade" id="customMessageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-plus-lg"></i> Create Custom Message</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="clearCustomMessage()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Your Message</label>
+                        <textarea class="form-control" id="customMessageText" rows="8" placeholder="Type your custom message here..."></textarea>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> <strong>Tips:</strong> You can type any message you want. No template required!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearCustomMessage()">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="useCustomMessage()">
+                        <i class="bi bi-check-lg"></i> Use This Message
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -363,6 +363,22 @@ def init_db():
         conn.execute('ALTER TABLE daily_entries ADD COLUMN client_category TEXT')
     except:
         pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_applicant TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN applicant_name TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_arn TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_sip_date_current INTEGER')
+    except:
+        pass
 
     # Create MF companies table
     conn.execute('''
@@ -634,13 +650,17 @@ def client_details(client_id):
             'SELECT * FROM documents WHERE client_id = ? ORDER BY upload_date DESC',
             (client_id,)
         ).fetchall()
+        id_entries = conn.execute(
+            "SELECT * FROM daily_entries WHERE client_id = ? AND investment_type = 'ID Section' ORDER BY entry_date DESC, id DESC",
+            (client_id,)
+        ).fetchall()
         conn.close()
         
         if client is None:
             flash('Client not found!')
             return redirect(url_for('search_client'))
         
-        return render_template('client_details.html', client=client, documents=documents)
+        return render_template('client_details.html', client=client, documents=documents, id_entries=id_entries)
     except Exception as e:
         logger.error(f"Error in client_details: {e}")
         flash("Error loading client details", "error")
@@ -901,9 +921,12 @@ def send_whatsapp():
         client = conn.execute('SELECT * FROM clients WHERE id = ?', (client_id,)).fetchone()
         
         if client and client['phone']:
-            # Get template
-            template = WHATSAPP_TEMPLATES.get(template_id, {})
-            message = template.get('message', custom_message)
+            # Get template or use custom message
+            if template_id == 'custom' and custom_message:
+                message = custom_message
+            else:
+                template = WHATSAPP_TEMPLATES.get(template_id, {})
+                message = template.get('message', custom_message if custom_message else '')
             
             # Replace placeholders
             if message:
@@ -969,6 +992,9 @@ import shutil
 def daily_entry():
     if request.method == 'POST':
         try:
+            entry_id = request.form.get('entry_id')
+            is_edit = entry_id and entry_id.strip() != ''
+            
             # ... (existing form data retrieval) ...
             entry_date = request.form.get('entry_date_visible')
             client_name = request.form.get('client_name')
@@ -996,6 +1022,9 @@ def daily_entry():
             mf_fund_id = request.form.get('mf_fund_name')
             mf_fund_id_to = request.form.get('mf_fund_name_to')
             mf_subtype = request.form.get('mf_subtype')
+            mf_applicant = request.form.get('mf_applicant')
+            applicant_name = request.form.get('applicant_name')
+            mf_arn = request.form.get('mf_arn')
             mf_stp_start_date = request.form.get('mf_stp_start_date')
             mf_stp_end_date = request.form.get('mf_stp_end_date')
             mf_sip_amount = request.form.get('mf_sip_amount')
@@ -1027,6 +1056,7 @@ def daily_entry():
             mf_sip_plan = request.form.get('mf_sip_plan')
             mf_sip_modification_amount = request.form.get('mf_sip_modification_amount')
             mf_sip_frequency_mod = request.form.get('mf_sip_frequency_mod')
+            mf_sip_date_current = request.form.get('mf_sip_date_current')
             mf_new_scheme_plan = request.form.get('mf_new_scheme_plan')
             mf_new_sip_amount = request.form.get('mf_new_sip_amount')
             death_companies = request.form.getlist('death_company[]')
@@ -1070,6 +1100,9 @@ def daily_entry():
                         'mf_fund_id': mf_fund_id,
                         'mf_fund_id_to': mf_fund_id_to,
                         'mf_subtype': mf_subtype,
+                        'mf_applicant': mf_applicant,
+                        'applicant_name': applicant_name,
+                        'mf_arn': mf_arn,
                         'mf_stp_start_date': mf_stp_start_date,
                         'mf_stp_end_date': mf_stp_end_date,
                         'mf_sip_amount': mf_sip_amount,
@@ -1105,6 +1138,8 @@ def daily_entry():
                         'mf_sip_plan': mf_sip_plan,
                         'mf_sip_modification_amount': mf_sip_modification_amount,
                         'mf_sip_frequency_mod': mf_sip_frequency_mod,
+                        'mf_sip_date_current': mf_sip_date_current,
+                        'mf_sip_date': mf_sip_date,
                         'mf_new_scheme_plan': mf_new_scheme_plan,
                         'mf_new_sip_amount': mf_new_sip_amount,
                         'death_companies': ','.join(death_companies) if death_companies else None,
@@ -1117,14 +1152,21 @@ def daily_entry():
                     # Filter out None and empty values
                     valid_fields = {k: v for k, v in fields.items() if v not in (None, '', 'None')}
                     
-                    columns = ', '.join(valid_fields.keys())
-                    placeholders = ', '.join(['?'] * len(valid_fields))
-                    values = list(valid_fields.values())
-                    
-                    cursor = conn.execute(f'INSERT INTO daily_entries ({columns}) VALUES ({placeholders})', values)
-
-                    entry_id = cursor.lastrowid
-                    logger.info(f"Daily entry saved with ID: {entry_id}, client: {client_name}, type: {investment_type}")
+                    if is_edit:
+                        # Update existing entry
+                        set_clause = ', '.join([f"{k} = ?" for k in valid_fields.keys()])
+                        update_values = list(valid_fields.values())
+                        update_values.append(int(entry_id))
+                        conn.execute(f'UPDATE daily_entries SET {set_clause} WHERE id = ?', update_values)
+                        logger.info(f"Daily entry updated with ID: {entry_id}, client: {client_name}, type: {investment_type}")
+                    else:
+                        # Insert new entry
+                        columns = ', '.join(valid_fields.keys())
+                        placeholders = ', '.join(['?'] * len(valid_fields))
+                        values = list(valid_fields.values())
+                        cursor = conn.execute(f'INSERT INTO daily_entries ({columns}) VALUES ({placeholders})', values)
+                        entry_id = cursor.lastrowid
+                        logger.info(f"Daily entry saved with ID: {entry_id}, client: {client_name}, type: {investment_type}")
 
                     # Process attached scans
                     if scanned_docs_json and client_id:
@@ -1170,19 +1212,270 @@ def daily_entry():
             flash(f"Error saving daily entry: {str(e)}", "error")
         
     # GET request - load form
+    edit_entry_id = request.args.get('edit')
+    edit_entry = None
+    
     try:
         conn = get_db_connection()
         if conn is None:
-            return render_template('daily_entry.html', hi_companies=[], clients=[])
+            return render_template('daily_entry.html', hi_companies=[], clients=[], edit_entry=None)
         try:
             hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()
             clients = conn.execute('SELECT * FROM clients ORDER BY name').fetchall()
-            return render_template('daily_entry.html', hi_companies=hi_companies, clients=clients)
+            
+            if edit_entry_id:
+                edit_entry = conn.execute('SELECT * FROM daily_entries WHERE id = ?', (edit_entry_id,)).fetchone()
+                if edit_entry:
+                    edit_entry = dict(edit_entry)
+            
+            return render_template('daily_entry.html', hi_companies=hi_companies, clients=clients, edit_entry=edit_entry)
         finally:
             conn.close()
     except Exception as e:
         logger.error(f"Error loading daily_entry: {e}")
-        return render_template('daily_entry.html', hi_companies=[], clients=[])
+        return render_template('daily_entry.html', hi_companies=[], clients=[], edit_entry=None)
+
+@app.route('/edit_daily_entry/<int:entry_id>', methods=['GET', 'POST'])
+def edit_daily_entry(entry_id):
+    if request.method == 'POST':
+        try:
+            entry_id_val = str(entry_id)
+            
+            # Get all form data
+            entry_date = request.form.get('entry_date_visible')
+            client_name = request.form.get('client_name')
+            client_id = request.form.get('client_id')
+            investment_type = request.form.get('investment_type')
+            lic_subtype = request.form.get('lic_subtype')
+            lic_policy_number = request.form.get('lic_policy_number')
+            lic_plan_term = request.form.get('lic_plan_term')
+            amount = request.form.get('amount')
+            note = request.form.get('note')
+            file_no = request.form.get('file_no')
+            pan_card = request.form.get('pan_card')
+            address = request.form.get('address')
+            hi_policy = request.form.get('hi_policy')
+            hi_dob = request.form.get('hi_dob')
+            hi_plan_term = request.form.get('hi_plan_term')
+            hi_doc = request.form.get('hi_doc')
+            hi_year = request.form.get('hi_year')
+            hi_sum_assured = request.form.get('hi_sum_assured')
+            hi_company = request.form.get('hi_company')
+            hi_product = request.form.get('hi_product')
+            mf_folio = request.form.get('mf_folio')
+            mf_company_id = request.form.get('mf_company')
+            mf_fund_id = request.form.get('mf_fund_name')
+            mf_fund_id_to = request.form.get('mf_fund_name_to')
+            mf_subtype = request.form.get('mf_subtype')
+            mf_applicant = request.form.get('mf_applicant')
+            applicant_name = request.form.get('applicant_name')
+            mf_arn = request.form.get('mf_arn')
+            mf_stp_start_date = request.form.get('mf_stp_start_date')
+            mf_stp_end_date = request.form.get('mf_stp_end_date')
+            mf_sip_amount = request.form.get('mf_sip_amount')
+            mf_sip_date = request.form.get('mf_sip_date')
+            mf_sip_start_date = request.form.get('mf_sip_start_date')
+            mf_sip_end_date = request.form.get('mf_sip_end_date')
+            mf_transmission_type = request.form.get('mf_transmission_type')
+            mf_claimant_name = request.form.get('mf_claimant_name')
+            mf_claimant_relation = request.form.get('mf_claimant_relation')
+            mf_sip_frequency = request.form.get('mf_sip_frequency')
+            mf_switch_fund_from = request.form.get('mf_switch_fund_from')
+            mf_switch_fund_to = request.form.get('mf_switch_fund_to')
+            mf_new_address = request.form.get('mf_new_address')
+            mf_old_bank_detail = request.form.get('mf_old_bank_detail')
+            mf_new_bank_detail = request.form.get('mf_new_bank_detail')
+            mf_fund_type = request.form.get('mf_fund_type')
+            mf_fund_subtype = request.form.get('mf_fund_subtype')
+            it_address = request.form.get('it_address')
+            id_type = request.form.get('id_type')
+            stp_fund_type = request.form.get('stp_fund_type')
+            stp_fund_subtype = request.form.get('stp_fund_subtype')
+            switch_fund_type = request.form.get('switch_fund_type')
+            switch_fund_subtype = request.form.get('switch_fund_subtype')
+            mf_swp_amount = request.form.get('mf_swp_amount')
+            mf_swp_start_date = request.form.get('mf_swp_start_date')
+            mf_swp_end_date = request.form.get('mf_swp_end_date')
+            hi_expiry_date = request.form.get('hi_expiry_date')
+            mf_current_scheme = request.form.get('mf_current_scheme')
+            mf_sip_plan = request.form.get('mf_sip_plan')
+            mf_sip_modification_amount = request.form.get('mf_sip_modification_amount')
+            mf_sip_frequency_mod = request.form.get('mf_sip_frequency_mod')
+            mf_sip_date_current = request.form.get('mf_sip_date_current')
+            mf_new_scheme_plan = request.form.get('mf_new_scheme_plan')
+            mf_new_sip_amount = request.form.get('mf_new_sip_amount')
+            death_companies = request.form.getlist('death_company[]')
+            death_fund_names = request.form.getlist('death_fund_name[]')
+            death_fund_types = request.form.getlist('death_fund_type[]')
+            death_fund_subtypes = request.form.getlist('death_fund_subtype[]')
+            stp_fund_name_to = request.form.get('stp_fund_name_to')
+            scanned_docs_json = request.form.get('scanned_documents')
+            
+            conn = get_db_connection()
+            if conn is not None:
+                try:
+                    # Get client category
+                    client_category = ''
+                    if client_id:
+                        client_data = conn.execute('SELECT client_type FROM clients WHERE id = ?', (client_id,)).fetchone()
+                        if client_data:
+                            client_category = client_data['client_type'] or ''
+                    
+                    fields = {
+                        'entry_date': entry_date,
+                        'client_name': client_name,
+                        'investment_type': investment_type,
+                        'client_category': client_category,
+                        'lic_subtype': lic_subtype,
+                        'lic_policy_number': lic_policy_number,
+                        'lic_plan_term': lic_plan_term,
+                        'amount': amount,
+                        'note': note,
+                        'file_no': file_no,
+                        'pan_card': pan_card,
+                        'address': address,
+                        'hi_policy': hi_policy,
+                        'hi_dob': hi_dob,
+                        'hi_plan_term': hi_plan_term,
+                        'hi_doc': hi_doc,
+                        'hi_year': hi_year,
+                        'hi_sum_assured': hi_sum_assured,
+                        'mf_folio': mf_folio,
+                        'mf_company_id': mf_company_id,
+                        'mf_fund_id': mf_fund_id,
+                        'mf_fund_id_to': mf_fund_id_to,
+                        'mf_subtype': mf_subtype,
+                        'mf_applicant': mf_applicant,
+                        'applicant_name': applicant_name,
+                        'mf_arn': mf_arn,
+                        'mf_stp_start_date': mf_stp_start_date,
+                        'mf_stp_end_date': mf_stp_end_date,
+                        'mf_sip_amount': mf_sip_amount,
+                        'mf_sip_date': mf_sip_date,
+                        'mf_sip_start_date': mf_sip_start_date,
+                        'mf_sip_end_date': mf_sip_end_date,
+                        'mf_transmission_type': mf_transmission_type,
+                        'mf_claimant_name': mf_claimant_name,
+                        'mf_claimant_relation': mf_claimant_relation,
+                        'mf_sip_frequency': mf_sip_frequency,
+                        'mf_switch_fund_from': mf_switch_fund_from,
+                        'mf_switch_fund_to': mf_switch_fund_to,
+                        'mf_new_address': mf_new_address,
+                        'mf_old_bank_detail': mf_old_bank_detail,
+                        'mf_new_bank_detail': mf_new_bank_detail,
+                        'mf_fund_type': mf_fund_type,
+                        'mf_fund_subtype': mf_fund_subtype,
+                        'client_id': client_id,
+                        'hi_company_id': hi_company,
+                        'hi_product_id': hi_product,
+                        'it_address': it_address,
+                        'id_type': id_type,
+                        'stp_fund_type': stp_fund_type,
+                        'stp_fund_subtype': stp_fund_subtype,
+                        'switch_fund_type': switch_fund_type,
+                        'switch_fund_subtype': switch_fund_subtype,
+                        'mf_swp_amount': mf_swp_amount,
+                        'mf_swp_start_date': mf_swp_start_date,
+                        'mf_swp_end_date': mf_swp_end_date,
+                        'hi_expiry_date': hi_expiry_date,
+                        'mf_current_scheme': mf_current_scheme,
+                        'mf_sip_plan': mf_sip_plan,
+                        'mf_sip_modification_amount': mf_sip_modification_amount,
+                        'mf_sip_frequency_mod': mf_sip_frequency_mod,
+                        'mf_sip_date_current': mf_sip_date_current,
+                        'mf_new_scheme_plan': mf_new_scheme_plan,
+                        'mf_new_sip_amount': mf_new_sip_amount,
+                        'death_companies': ','.join(death_companies) if death_companies else None,
+                        'death_fund_names': ','.join(death_fund_names) if death_fund_names else None,
+                        'death_fund_types': ','.join(death_fund_types) if death_fund_types else None,
+                        'death_fund_subtypes': ','.join(death_fund_subtypes) if death_fund_subtypes else None,
+                        'stp_fund_name_to': stp_fund_name_to,
+                    }
+                    
+                    valid_fields = {k: v for k, v in fields.items() if v not in (None, '', 'None')}
+                    
+                    set_clause = ', '.join([f"{k} = ?" for k in valid_fields.keys()])
+                    update_values = list(valid_fields.values())
+                    update_values.append(entry_id)
+                    conn.execute(f'UPDATE daily_entries SET {set_clause} WHERE id = ?', update_values)
+                    
+                    # Process attached scans
+                    if scanned_docs_json and client_id:
+                        scanned_docs = json.loads(scanned_docs_json)
+                        client_folder_path = get_client_folder_path(int(client_id), client_name, conn)
+                        folder_name = os.path.basename(client_folder_path)
+                        
+                        if not os.path.exists(client_folder_path):
+                            os.makedirs(client_folder_path)
+
+                        for doc in scanned_docs:
+                            temp_path_full = os.path.join(app.config['UPLOAD_FOLDER'], doc['temp_path'])
+                            if os.path.exists(temp_path_full):
+                                original_filename = doc['original_filename']
+                                final_filename = str(uuid.uuid4()) + '_' + secure_filename(original_filename)
+                                dest_path_full = os.path.join(client_folder_path, final_filename)
+                                
+                                shutil.move(temp_path_full, dest_path_full)
+                                
+                                relative_filename = f"{folder_name}/{final_filename}".replace('\\','/')
+                                
+                                conn.execute(
+                                    'INSERT INTO documents (client_id, daily_entry_id, filename, original_filename, file_type, document_name, document_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                    (int(client_id), entry_id, relative_filename, original_filename, doc['file_type'], doc['document_name'], doc['document_date'])
+                                )
+                    
+                    conn.commit()
+                    conn.close()
+                    flash('Entry updated successfully!')
+                    return redirect(url_for('daily_report'))
+                except Exception as e:
+                    try:
+                        conn.rollback()
+                    except:
+                        pass
+                    conn.close()
+                    logger.error(f"Error updating daily entry: {e}")
+                    flash(f"Error updating entry: {str(e)}", "error")
+            else:
+                flash('Database error. Please try again.', 'error')
+        except Exception as e:
+            logger.error(f"Error in edit_daily_entry: {e}")
+            flash(f"Error updating entry: {str(e)}", "error")
+    
+    # GET request - show edit form
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return redirect(url_for('daily_report'))
+        
+        edit_entry = conn.execute('SELECT * FROM daily_entries WHERE id = ?', (entry_id,)).fetchone()
+        hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()
+        clients = conn.execute('SELECT * FROM clients ORDER BY name').fetchall()
+        companies = conn.execute('SELECT * FROM mf_companies ORDER BY name').fetchall()
+        mf_funds = conn.execute('SELECT * FROM mf_funds ORDER BY fund_name').fetchall()
+        hi_products = conn.execute('SELECT * FROM hi_products ORDER BY product_name').fetchall()
+        conn.close()
+        
+        if edit_entry:
+            edit_entry = dict(edit_entry)
+            companies = [dict(row) for row in companies]
+            mf_funds = [dict(row) for row in mf_funds]
+            hi_companies = [dict(row) for row in hi_companies]
+            hi_products = [dict(row) for row in hi_products]
+            return render_template('edit_daily_entry.html', 
+                                  edit_entry=edit_entry, 
+                                  hi_companies=hi_companies, 
+                                  clients=clients,
+                                  companies=companies,
+                                  mf_funds=mf_funds,
+                                  hi_products=hi_products,
+                                  entries=[])
+        else:
+            flash('Entry not found!')
+            return redirect(url_for('daily_report'))
+    except Exception as e:
+        logger.error(f"Error loading edit_daily_entry: {e}")
+        return redirect(url_for('daily_report'))
 
 @app.route('/daily_report')
 def daily_report():
@@ -1193,6 +1486,16 @@ def daily_report():
             return render_template('daily_report.html', entries=[], companies=[], hi_companies=[], mf_funds=[], hi_products=[], clients=[])
         
         try:
+            # First backfill client_category for existing entries
+            conn.execute('''
+                UPDATE daily_entries 
+                SET client_category = (
+                    SELECT client_type FROM clients WHERE clients.id = daily_entries.client_id
+                )
+                WHERE client_category IS NULL OR client_category = ''
+            ''')
+            conn.commit()
+            
             entries = conn.execute('''
                 SELECT de.*, 
                 COALESCE(c.client_images, '') as client_images,
@@ -1213,16 +1516,6 @@ def daily_report():
                 ORDER BY de.entry_date DESC, de.id DESC
             ''').fetchall()
             
-            # Backfill client_category for existing entries
-            conn.execute('''
-                UPDATE daily_entries 
-                SET client_category = (
-                    SELECT client_type FROM clients WHERE clients.id = daily_entries.client_id
-                )
-                WHERE client_category IS NULL OR client_category = ''
-            ''')
-            conn.commit()
-
             companies = conn.execute('SELECT * FROM mf_companies ORDER BY name').fetchall()
             hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()
             mf_funds = conn.execute('SELECT * FROM mf_funds ORDER BY fund_name').fetchall()
@@ -1699,4 +1992,4 @@ if __name__ == '__main__':
     if not os.path.exists('uploads/temp'):
         os.makedirs('uploads/temp')
     init_db()
-    app.run(debug=False, host='0.0.0.0', port=5000, use_reloader=False)
+    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=True)

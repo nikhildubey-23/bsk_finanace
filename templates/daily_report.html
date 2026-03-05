@@ -164,6 +164,18 @@
         
         .btn-view:hover { background-color: #d0e3ff; }
         
+        .btn-edit {
+            background-color: #fff3e0;
+            color: #f97316;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            margin: 0 2px;
+        }
+        
+        .btn-edit:hover { background-color: #ffe0b2; }
+        
         .btn-delete {
             background-color: #ffe7e7;
             color: #dc3545;
@@ -310,6 +322,25 @@
                     </div>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label">Category</label>
+                    <select id="filterCategory" class="form-select">
+                        <option value="">All Categories</option>
+                        <option value="Hot">Hot</option>
+                        <option value="New">New</option>
+                        <option value="Old">Old</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">ARN</label>
+                    <select id="filterArn" class="form-select">
+                        <option value="">All ARN</option>
+                        <option value="ARN-61661">ARN-61661 [MOHD.SHAHNAWAZ RAZVE]</option>
+                        <option value="ARN-133000">ARN-133000 [FARIDA BANO]</option>
+                        <option value="ARN-276511">ARN-276511 [SMITA JAIN]</option>
+                        <option value="ARN-314305">ARN-314305 [MOHD.SUFIYAN RAZVI]</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <label class="form-label">Investment Type</label>
                     <select id="filterType" class="form-select">
                         <option value="">All Types</option>
@@ -350,6 +381,7 @@
                             <th>Date</th>
                             <th>Client Name</th>
                             <th>Category</th>
+                            <th>ARN</th>
                             <th>Type</th>
                             <th>Subtype</th>
                             <th>Policy/ Folio No.</th>
@@ -390,8 +422,10 @@
                         <tr data-id="{{ entry['id'] }}" 
                             data-date="{{ entry['entry_date'] or '' }}"
                             data-client="{{ entry['client_name'] or '' }}"
+                            data-category="{{ entry['client_category'] or '' }}"
+                            data-arn="{{ entry['mf_arn'] or '' }}"
                             data-type="{{ entry['investment_type'] or '' }}"
-                            data-all="{{ entry|tojson }}">
+                            data-all="{{ entry['client_name'] or '' }} {{ entry['investment_type'] or '' }} {{ entry['lic_subtype'] or '' }} {{ entry['mf_subtype'] or '' }} {{ entry['mf_folio'] or '' }} {{ entry['lic_policy_number'] or '' }} {{ entry['hi_policy'] or '' }} {{ entry['pan_card'] or '' }} {{ entry['file_no'] or '' }} {{ entry['note'] or '' }} {{ entry['mf_arn'] or '' }}">
                             <td>{{ loop.index }}</td>
                             <td>{{ entry['entry_date'] or 'N/A' }}</td>
                             <td><strong>{{ entry['client_name'] or 'N/A' }}</strong></td>
@@ -401,6 +435,7 @@
                                 {% elif entry['client_category'] == 'Old' %}<span class="badge" style="background-color: #8B4513; color: white;">Old</span>
                                 {% else %}{{ entry['client_category'] or 'N/A' }}{% endif %}
                             </td>
+                            <td>{{ entry['mf_arn'] or 'N/A' }}</td>
                             <td>
                                 {% if entry['investment_type'] == 'LIC' %}<span class="badge bg-primary badge-type">LIC</span>
                                 {% elif entry['investment_type'] == 'Mutual Fund' %}<span class="badge bg-success badge-type">MF</span>
@@ -457,6 +492,9 @@
                             <td>
                                 <button class="btn-view" onclick="viewEntryDetails('{{ entry['id'] }}')" title="View Details">
                                     <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="editEntry('{{ entry['id'] }}')" title="Edit">
+                                    <i class="bi bi-pencil"></i>
                                 </button>
                                 <button class="btn-delete" onclick="deleteEntry('{{ entry['id'] }}')" title="Delete">
                                     <i class="bi bi-trash"></i>
@@ -532,18 +570,37 @@
     }
 
     function filterTable() {
-        const search = document.getElementById('searchAll').value.toLowerCase();
-        const type = document.getElementById('filterType').value;
-        const dateFrom = document.getElementById('filterDateFrom').value;
-        const dateTo = document.getElementById('filterDateTo').value;
+        var search = document.getElementById('searchAll').value.toLowerCase().trim();
+        var category = document.getElementById('filterCategory').value;
+        var arn = document.getElementById('filterArn').value;
+        var type = document.getElementById('filterType').value;
+        var dateFrom = document.getElementById('filterDateFrom').value;
+        var dateTo = document.getElementById('filterDateTo').value;
+        var rows = document.querySelectorAll('#reportTable tbody tr');
+        
+        rows.forEach(function(row) {
+            var rowClient = row.getAttribute('data-client') || '';
+            var rowCategory = row.getAttribute('data-category') || '';
+            var rowArn = row.getAttribute('data-arn') || '';
+            var rowType = row.getAttribute('data-type') || '';
+            var rowDate = row.getAttribute('data-date') || '';
+            var allData = row.getAttribute('data-all') || '';
 
-        document.querySelectorAll('#reportTable tbody tr').forEach(row => {
-            const allData = row.getAttribute('data-all').toLowerCase();
-            const rowType = row.getAttribute('data-type') || '';
-            const rowDate = row.getAttribute('data-date') || '';
-
-            let show = true;
-            if (search && !allData.includes(search)) show = false;
+            var show = true;
+            
+            if (search) {
+                var searchInClient = rowClient.toLowerCase().indexOf(search) > -1;
+                var searchInAll = allData.toLowerCase().indexOf(search) > -1;
+                var searchInType = rowType.toLowerCase().indexOf(search) > -1;
+                var searchInDate = rowDate.indexOf(search) > -1;
+                
+                if (!searchInClient && !searchInAll && !searchInType && !searchInDate) {
+                    show = false;
+                }
+            }
+            
+            if (category && rowCategory !== category) show = false;
+            if (arn && rowArn !== arn) show = false;
             if (type && rowType !== type) show = false;
             if (dateFrom && rowDate < dateFrom) show = false;
             if (dateTo && rowDate > dateTo) show = false;
@@ -555,6 +612,8 @@
 
     function clearFilters() {
         document.getElementById('searchAll').value = '';
+        document.getElementById('filterCategory').value = '';
+        document.getElementById('filterArn').value = '';
         document.getElementById('filterType').value = '';
         document.getElementById('filterDateFrom').value = '';
         document.getElementById('filterDateTo').value = '';
@@ -568,10 +627,15 @@
         });
     }
 
-    document.getElementById('searchAll').addEventListener('keyup', filterTable);
-    document.getElementById('filterType').addEventListener('change', filterTable);
-    document.getElementById('filterDateFrom').addEventListener('change', filterTable);
-    document.getElementById('filterDateTo').addEventListener('change', filterTable);
+    // Add event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('searchAll').addEventListener('keyup', filterTable);
+        document.getElementById('filterCategory').addEventListener('change', filterTable);
+        document.getElementById('filterArn').addEventListener('change', filterTable);
+        document.getElementById('filterType').addEventListener('change', filterTable);
+        document.getElementById('filterDateFrom').addEventListener('change', filterTable);
+        document.getElementById('filterDateTo').addEventListener('change', filterTable);
+    });
 
     function deleteEntry(entryId) {
         if (confirm('Are you sure you want to delete this entry?')) {
@@ -589,6 +653,10 @@
         }
     }
 
+    function editEntry(entryId) {
+        window.location.href = '/edit_daily_entry/' + entryId;
+    }
+
     function viewEntryDetails(entryId) {
         const entry = allEntries.find(e => e.id == entryId);
         if (!entry) return;
@@ -599,15 +667,19 @@
         html += `<div class="detail-section">
             <div class="detail-section-title"><i class="bi bi-person me-2"></i>Basic Information</div>
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="detail-label">Entry Date</div>
                     <div class="detail-value ${!entry.entry_date ? 'na' : ''}">${na(entry.entry_date)}</div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="detail-label">Client Name</div>
                     <div class="detail-value ${!entry.client_name ? 'na' : ''}">${na(entry.client_name)}</div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="detail-label">Client Category</div>
+                    <div class="detail-value ${!entry.client_category ? 'na' : ''}">${na(entry.client_category)}</div>
+                </div>
+                <div class="col-md-3">
                     <div class="detail-label">Investment Type</div>
                     <div class="detail-value ${!entry.investment_type ? 'na' : ''}">${na(entry.investment_type)}</div>
                 </div>
@@ -631,6 +703,10 @@
                         <div class="detail-label">Plan Term</div>
                         <div class="detail-value ${!entry.lic_plan_term ? 'na' : ''}">${na(entry.lic_plan_term)}</div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="detail-label">Address</div>
+                        <div class="detail-value ${!entry.address ? 'na' : ''}">${na(entry.address)}</div>
+                    </div>
                 </div>
             </div>`;
         }
@@ -644,6 +720,20 @@
                         <div class="detail-label">Investment Subtype</div>
                         <div class="detail-value ${!entry.mf_subtype ? 'na' : ''}">${na(entry.mf_subtype)}</div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">ARN</div>
+                        <div class="detail-value ${!entry.mf_arn ? 'na' : ''}">${na(entry.mf_arn)}</div>
+                    </div>
+                    ${entry.mf_applicant || entry.applicant_name ? `
+                    <div class="col-md-4">
+                        <div class="detail-label">Applicant</div>
+                        <div class="detail-value ${!entry.mf_applicant ? 'na' : ''}">${na(entry.mf_applicant)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Applicant Name</div>
+                        <div class="detail-value ${!entry.applicant_name ? 'na' : ''}">${na(entry.applicant_name)}</div>
+                    </div>
+                    ` : ''}
                     <div class="col-md-4">
                         <div class="detail-label">Folio Number</div>
                         <div class="detail-value ${!entry.mf_folio ? 'na' : ''}">${na(entry.mf_folio)}</div>

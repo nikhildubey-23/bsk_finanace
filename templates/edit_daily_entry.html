@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Entry - InsureVault Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+        .navbar { background: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1rem 0; }
+        .navbar-brand { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1.5rem; color: #1e40af !important; display: flex; align-items: center; gap: 0.5rem; }
+        .navbar-brand i { background: #3b82f6; color: white; padding: 0.5rem; border-radius: 8px; }
+        .nav-link { color: #64748b !important; font-weight: 500; padding: 0.5rem 1rem !important; border-radius: 8px; transition: all 0.3s ease; margin: 0 0.25rem; }
+        .nav-link:hover { background: #f1f5f9; color: #3b82f6 !important; }
+        .nav-link.active { background: #3b82f6; color: white !important; }
+        
+        .edit-header { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); padding: 1.5rem; color: white; margin-bottom: 1.5rem; border-radius: 12px; }
+        .edit-header h2 { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.5rem; }
+        .edit-header p { opacity: 0.9; margin-bottom: 0; }
+        
+        .page-container { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.07); border: 1px solid #e2e8f0; margin-bottom: 2rem; }
+        .section-card { background: #f8fafc; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; border: 1px solid #e2e8f0; }
+        .section-title { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; color: #1e40af; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .form-label { font-weight: 500; font-size: 0.85rem; color: #374151; margin-bottom: 0.35rem; }
+        .form-control, .form-select { border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.9rem; transition: all 0.2s; }
+        .form-control:focus, .form-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        
+        .btn-primary-custom { background: #3b82f6; color: white; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 500; transition: all 0.2s; }
+        .btn-primary-custom:hover { background: #2563eb; color: white; }
+        .btn-success-custom { background: #10b981; color: white; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 500; transition: all 0.2s; }
+        .btn-success-custom:hover { background: #059669; color: white; }
+        .btn-secondary-custom { background: #6b7280; color: white; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 500; }
+        .btn-secondary-custom:hover { background: #4b5563; color: white; }
+        
+        .form-check-input:checked { background-color: #3b82f6; border-color: #3b82f6; }
+        
+        .scanner-status { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .scanner-status.ready { background: #dcfce7; color: #166534; }
+        .scanner-status.not-ready { background: #fee2e2; color: #991b1b; }
+        .scanner-item { padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s; }
+        .scanner-item:hover { background: #f1f5f9; }
+        .scanner-item.selected { border-color: #3b82f6; background: #dbeafe; }
+        
+        @media (max-width: 768px) {
+            .page-container { padding: 1rem; }
+            .section-card { padding: 1rem; }
+        }
+    </style>
+</head>
+{% set active_page = 'daily_entry' %}
+{% include '_navbar.html' %}
+
+<main class="container py-4">
+    <div class="edit-header">
+        <h2><i class="bi bi-pencil-square me-2"></i>Edit Entry</h2>
+        <p>Update the entry details below and click Save to update the record.</p>
+    </div>
+
+    <form id="dailyEntryForm" method="POST" action="/edit_daily_entry/{{ edit_entry['id'] }}">
+        <input type="hidden" id="entry_id" name="entry_id" value="{{ edit_entry['id'] }}">
+        
+        <div class="page-container">
+            <div class="section-card">
+                <div class="section-title"><i class="bi bi-calendar-check"></i> Basic Information</div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="entry_date_visible" class="form-label">Entry Date</label>
+                        <input type="date" class="form-control" id="entry_date_visible" name="entry_date_visible" value="{{ edit_entry['entry_date'] or '' }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="client_id" class="form-label">Select Client</label>
+                        <select class="form-select" id="client_id" name="client_id" onchange="handleClientSelect()">
+                            <option value="">Select a client...</option>
+                            {% for client in clients %}
+                                <option value="{{ client['id'] }}" data-name="{{ client['name'] }}" data-category="{{ client['client_type'] or '' }}" {% if edit_entry['client_id']|string == client['id']|string %}selected{% endif %}>{{ client['name'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label for="client_name" class="form-label">Client Name</label>
+                        <input type="text" class="form-control" id="client_name" name="client_name" value="{{ edit_entry['client_name'] or '' }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="bi bi-folder"></i> Investment Type</div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="investment_type_radio" id="lic" value="LIC" {% if edit_entry['investment_type'] == 'LIC' %}checked{% endif %} onchange="showSection('lic')">
+                            <label class="btn btn-outline-primary" for="lic">LIC</label>
+                            
+                            <input type="radio" class="btn-check" name="investment_type_radio" id="mf" value="Mutual Fund" {% if edit_entry['investment_type'] == 'Mutual Fund' %}checked{% endif %} onchange="showSection('mf')">
+                            <label class="btn btn-outline-primary" for="mf">Mutual Fund</label>
+                            
+                            <input type="radio" class="btn-check" name="investment_type_radio" id="hi" value="Health Insurance" {% if edit_entry['investment_type'] == 'Health Insurance' %}checked{% endif %} onchange="showSection('hi')">
+                            <label class="btn btn-outline-primary" for="hi">Health Insurance</label>
+                            
+                            <input type="radio" class="btn-check" name="investment_type_radio" id="it" value="Income Tax" {% if edit_entry['investment_type'] == 'Income Tax' %}checked{% endif %} onchange="showSection('it')">
+                            <label class="btn btn-outline-primary" for="it">Income Tax</label>
+                            
+                            <input type="radio" class="btn-check" name="investment_type_radio" id="id" value="ID Section" {% if edit_entry['investment_type'] == 'ID Section' %}checked{% endif %} onchange="showSection('id')">
+                            <label class="btn btn-outline-primary" for="id">ID Section</label>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="investment_type" name="investment_type" value="{{ edit_entry['investment_type'] or '' }}">
+            </div>
+
+            <!-- LIC Section -->
+            <div class="section-card" id="lic_subtype_section" data-section="lic" style="display: {% if edit_entry['investment_type'] == 'LIC' %}block{% else %}none{% endif %};">
+                <div class="section-title"><i class="bi bi-shield-plus"></i> LIC Details</div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="lic_subtype" class="form-label">LIC Type</label>
+                        <select class="form-select" id="lic_subtype" name="lic_subtype">
+                            <option value="">Select Type</option>
+                            <option value="New Policy" {% if edit_entry['lic_subtype'] == 'New Policy' %}selected{% endif %}>New Policy</option>
+                            <option value="Renewal" {% if edit_entry['lic_subtype'] == 'Renewal' %}selected{% endif %}>Renewal</option>
+                            <option value="Claim" {% if edit_entry['lic_subtype'] == 'Claim' %}selected{% endif %}>Claim</option>
+                            <option value="Revival" {% if edit_entry['lic_subtype'] == 'Revival' %}selected{% endif %}>Revival</option>
+                            <option value="Loan" {% if edit_entry['lic_subtype'] == 'Loan' %}selected{% endif %}>Loan</option>
+                            <option value="NACH" {% if edit_entry['lic_subtype'] == 'NACH' %}selected{% endif %}>NACH</option>
+                            <option value="Other" {% if edit_entry['lic_subtype'] == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="lic_policy_number" class="form-label">Policy Number</label>
+                        <input type="text" class="form-control" id="lic_policy_number" name="lic_policy_number" value="{{ edit_entry['lic_policy_number'] or '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="lic_plan_term" class="form-label">Plan Term</label>
+                        <input type="text" class="form-control" id="lic_plan_term" name="lic_plan_term" value="{{ edit_entry['lic_plan_term'] or '' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health Insurance Section -->
+            <div class="section-card" id="hi_subtype_section" data-section="hi" style="display: {% if edit_entry['investment_type'] == 'Health Insurance' %}block{% else %}none{% endif %};">
+                <div class="section-title"><i class="bi bi-heart-pulse"></i> Health Insurance Details</div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_company" class="form-label">Insurance Company</label>
+                        <select class="form-select" id="hi_company" name="hi_company" onchange="loadHIProducts()">
+                            <option value="">Select Company</option>
+                            {% for company in hi_companies %}
+                                <option value="{{ company['id'] }}" {% if edit_entry['hi_company_id']|string == company['id']|string %}selected{% endif %}>{{ company['name'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_product" class="form-label">Product</label>
+                        <select class="form-select" id="hi_product" name="hi_product">
+                            <option value="">Select Product</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_policy" class="form-label">Policy Number</label>
+                        <input type="text" class="form-control" id="hi_policy" name="hi_policy" value="{{ edit_entry['hi_policy'] or '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_dob" class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" id="hi_dob" name="hi_dob" value="{{ edit_entry['hi_dob'] or '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_plan_term" class="form-label">Plan Term</label>
+                        <input type="number" class="form-control" id="hi_plan_term" name="hi_plan_term" value="{{ edit_entry['hi_plan_term'] or '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_doc" class="form-label">Policy Start Date</label>
+                        <input type="date" class="form-control" id="hi_doc" name="hi_doc" value="{{ edit_entry['hi_doc'] or '' }}" onchange="calculateExpiryDate()">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_year" class="form-label">Policy Years</label>
+                        <input type="number" class="form-control" id="hi_year" name="hi_year" value="{{ edit_entry['hi_year'] or '' }}" onchange="calculateExpiryDate()">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control" id="hi_expiry_date" name="hi_expiry_date" value="{{ edit_entry['hi_expiry_date'] or '' }}" readonly>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="hi_sum_assured" class="form-label">Sum Assured</label>
+                        <input type="number" class="form-control" id="hi_sum_assured" name="hi_sum_assured" value="{{ edit_entry['hi_sum_assured'] or '' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Income Tax Section -->
+            <div class="section-card" id="it_section" data-section="it" style="display: {% if edit_entry['investment_type'] == 'Income Tax' %}block{% else %}none{% endif %};">
+                <div class="section-title"><i class="bi bi-calculator"></i> Income Tax Details</div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="pan_card" class="form-label">PAN Card</label>
+                        <input type="text" class="form-control" id="pan_card" name="pan_card" placeholder="ABCDE1234F" value="{{ edit_entry['pan_card'] or '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="file_no" class="form-label">File Number</label>
+                        <input type="text" class="form-control" id="file_no" name="file_no" value="{{ edit_entry['file_no'] or '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="it_address" class="form-label">Address</label>
+                        <textarea class="form-control" id="it_address" name="it_address" rows="2">{{ edit_entry['it_address'] or '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ID Section -->
+            <div class="section-card" id="id_section" data-section="id" style="display: {% if edit_entry['investment_type'] == 'ID Section' %}block{% else %}none{% endif %};">
+                <div class="section-title"><i class="bi bi-person-badge"></i> ID Details</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_type" class="form-label">ID Type</label>
+                        <input class="form-select" list="id_type_options" id="id_type" name="id_type" placeholder="Select or type ID Type" value="{{ edit_entry['id_type'] or '' }}">
+                        <datalist id="id_type_options">
+                            <option value="Aadhar Card">
+                            <option value="Voter ID">
+                            <option value="Driving License">
+                            <option value="Passport">
+                            <option value="Ration Card">
+                        </datalist>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mutual Fund Section -->
+            <div class="section-card" id="mutual_fund_section" data-section="mf" style="display: {% if edit_entry['investment_type'] == 'Mutual Fund' %}block{% else %}none{% endif %};">
+                <div class="section-title"><i class="bi bi-graph-up-arrow"></i> Mutual Fund Details</div>
+                
+                <div class="row g-3" id="mf_main_fields" style="display: flex;">
+                    <div class="col-md-3 mb-3">
+                        <label for="mf_subtype" class="form-label">Investment Subtype</label>
+                        <select class="form-select" id="mf_subtype" name="mf_subtype" onchange="toggleMFFields()">
+                            <option value="">Select Type</option>
+                            <option value="Purchase" {% if edit_entry['mf_subtype'] == 'Purchase' %}selected{% endif %}>Purchase</option>
+                            <option value="Add-Purchase" {% if edit_entry['mf_subtype'] == 'Add-Purchase' %}selected{% endif %}>Add-Purchase</option>
+                            <option value="NFO" {% if edit_entry['mf_subtype'] == 'NFO' %}selected{% endif %}>NFO</option>
+                            <option value="Redemption" {% if edit_entry['mf_subtype'] == 'Redemption' %}selected{% endif %}>Redemption</option>
+                            <option value="SIP" {% if edit_entry['mf_subtype'] == 'SIP' %}selected{% endif %}>SIP</option>
+                            <option value="SIP Cancellation" {% if edit_entry['mf_subtype'] == 'SIP Cancellation' %}selected{% endif %}>SIP Cancellation</option>
+                            <option value="SIP Pause" {% if edit_entry['mf_subtype'] == 'SIP Pause' %}selected{% endif %}>SIP Pause</option>
+                            <option value="SIP Modification" {% if edit_entry['mf_subtype'] == 'SIP Modification' %}selected{% endif %}>SIP Modification</option>
+                            <option value="STP" {% if edit_entry['mf_subtype'] == 'STP' %}selected{% endif %}>STP</option>
+                            <option value="SWP" {% if edit_entry['mf_subtype'] == 'SWP' %}selected{% endif %}>SWP</option>
+                            <option value="Switch" {% if edit_entry['mf_subtype'] == 'Switch' %}selected{% endif %}>Switch</option>
+                            <option value="Death Transmission" {% if edit_entry['mf_subtype'] == 'Death Transmission' %}selected{% endif %}>Death Transmission</option>
+                            <option value="Address Change" {% if edit_entry['mf_subtype'] == 'Address Change' %}selected{% endif %}>Address Change</option>
+                            <option value="Contact Update" {% if edit_entry['mf_subtype'] == 'Contact Update' %}selected{% endif %}>Contact Update</option>
+                            <option value="Nominee Update" {% if edit_entry['mf_subtype'] == 'Nominee Update' %}selected{% endif %}>Nominee Update</option>
+                            <option value="Bank Change" {% if edit_entry['mf_subtype'] == 'Bank Change' %}selected{% endif %}>Bank Change</option>
+                            <option value="Signature Update" {% if edit_entry['mf_subtype'] == 'Signature Update' %}selected{% endif %}>Signature Update</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="mf_arn" class="form-label">ARN</label>
+                        <select class="form-select" id="mf_arn" name="mf_arn">
+                            <option value="">Select ARN</option>
+                            <option value="ARN-61661" {% if edit_entry['mf_arn'] == 'ARN-61661' %}selected{% endif %}>ARN-61661 [MOHD.SHAHNAWAZ RAZVE]</option>
+                            <option value="ARN-133000" {% if edit_entry['mf_arn'] == 'ARN-133000' %}selected{% endif %}>ARN-133000 [FARIDA BANO]</option>
+                            <option value="ARN-276511" {% if edit_entry['mf_arn'] == 'ARN-276511' %}selected{% endif %}>ARN-276511 [SMITA JAIN]</option>
+                            <option value="ARN-314305" {% if edit_entry['mf_arn'] == 'ARN-314305' %}selected{% endif %}>ARN-314305 [MOHD.SUFIYAN RAZVI]</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row g-3" id="mf_basic_fields" style="display: flex;">
+                    <div class="col-md-2 mb-3">
+                        <label for="mf_folio" class="form-label">Folio Number</label>
+                        <input type="text" class="form-control" id="mf_folio" name="mf_folio" value="{{ edit_entry['mf_folio'] or '' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="mf_company" class="form-label">Company</label>
+                        <select class="form-select" id="mf_company" name="mf_company" onchange="loadFundNames()">
+                            <option value="">Select Company</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="mf_fund_name" class="form-label">Fund Name</label>
+                        <select class="form-select" id="mf_fund_name" name="mf_fund_name">
+                            <option value="">Select Fund</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="mf_fund_type" class="form-label">Fund Type</label>
+                        <select class="form-select" id="mf_fund_type" name="mf_fund_type" onchange="toggleFundSubType()">
+                            <option value="">Select Type</option>
+                            <option value="Growth" {% if edit_entry['mf_fund_type'] == 'Growth' %}selected{% endif %}>Growth</option>
+                            <option value="Dividend" {% if edit_entry['mf_fund_type'] == 'Dividend' %}selected{% endif %}>Dividend</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3" id="fund_subtype_div" style="display: {% if edit_entry['mf_fund_type'] == 'Dividend' %}block{% else %}none{% endif %};">
+                        <label for="mf_fund_subtype" class="form-label">Fund Sub Type</label>
+                        <select class="form-select" id="mf_fund_subtype" name="mf_fund_subtype">
+                            <option value="">Select Sub Type</option>
+                            <option value="Re-investment" {% if edit_entry['mf_fund_subtype'] == 'Re-investment' %}selected{% endif %}>Re-investment</option>
+                            <option value="IDCW" {% if edit_entry['mf_fund_subtype'] == 'IDCW' %}selected{% endif %}>IDCW</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3" id="applicant_div" style="display: {% if edit_entry['mf_applicant'] %}block{% else %}none{% endif %};">
+                        <label for="mf_applicant" class="form-label">Applicant</label>
+                        <select class="form-select" id="mf_applicant" name="mf_applicant">
+                            <option value="">Select Applicant</option>
+                            <option value="First Applicant" {% if edit_entry['mf_applicant'] == 'First Applicant' %}selected{% endif %}>First Applicant</option>
+                            <option value="Second Applicant" {% if edit_entry['mf_applicant'] == 'Second Applicant' %}selected{% endif %}>Second Applicant</option>
+                            <option value="Third Applicant" {% if edit_entry['mf_applicant'] == 'Third Applicant' %}selected{% endif %}>Third Applicant</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3" id="applicant_name_div" style="display: {% if edit_entry['applicant_name'] %}block{% else %}none{% endif %};">
+                        <label for="applicant_name" class="form-label">Applicant Name</label>
+                        <input type="text" class="form-control" id="applicant_name" name="applicant_name" value="{{ edit_entry['applicant_name'] or '' }}">
+                    </div>
+                </div>
+                
+                <!-- SIP Fields -->
+                <div id="sip_fields_section" style="display: {% if edit_entry['mf_subtype'] in ['SIP', 'SIP Cancellation', 'SIP Pause'] %}block{% else %}none{% endif %};">
+                    <div class="row g-3">
+                        <div class="col-md-4 mb-3">
+                            <label for="mf_sip_amount" class="form-label">SIP Amount</label>
+                            <input type="number" class="form-control" id="mf_sip_amount" name="mf_sip_amount" value="{{ edit_entry['mf_sip_amount'] or '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="mf_sip_date" class="form-label">SIP Date</label>
+                            <input type="number" class="form-control" id="mf_sip_date" name="mf_sip_date" placeholder="1-31" value="{{ edit_entry['mf_sip_date'] or '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="mf_sip_frequency" class="form-label">SIP Frequency</label>
+                            <select class="form-select" id="mf_sip_frequency" name="mf_sip_frequency">
+                                <option value="">Select Frequency</option>
+                                <option value="Daily" {% if edit_entry['mf_sip_frequency'] == 'Daily' %}selected{% endif %}>Daily</option>
+                                <option value="Weekly" {% if edit_entry['mf_sip_frequency'] == 'Weekly' %}selected{% endif %}>Weekly</option>
+                                <option value="Monthly" {% if edit_entry['mf_sip_frequency'] == 'Monthly' %}selected{% endif %}>Monthly</option>
+                                <option value="Quarterly" {% if edit_entry['mf_sip_frequency'] == 'Quarterly' %}selected{% endif %}>Quarterly</option>
+                                <option value="Nightly" {% if edit_entry['mf_sip_frequency'] == 'Nightly' %}selected{% endif %}>Nightly</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="mf_sip_start_date" class="form-label">SIP Start Date</label>
+                            <input type="date" class="form-control" id="mf_sip_start_date" name="mf_sip_start_date" value="{{ edit_entry['mf_sip_start_date'] or '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="mf_sip_end_date" class="form-label">SIP End Date</label>
+                            <input type="date" class="form-control" id="mf_sip_end_date" name="mf_sip_end_date" value="{{ edit_entry['mf_sip_end_date'] or '' }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Amount & Note -->
+                <div class="row mt-3" id="amount_note_section" style="display: {% if edit_entry['investment_type'] == 'Mutual Fund' and edit_entry['mf_subtype'] != 'SIP Modification' %}block{% else %}none{% endif %};">
+                    <div class="col-md-4 mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="text" class="form-control" id="amount" name="amount" value="{{ edit_entry['amount'] or '' }}">
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label for="note" class="form-label">Note</label>
+                        <input type="text" class="form-control" id="note" name="note" value="{{ edit_entry['note'] or '' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Scanning -->
+            <div class="section-card mt-3">
+                <div class="section-title"><i class="bi bi-scanner"></i> Document Scanning</div>
+                <input type="hidden" id="scanned_documents" name="scanned_documents" value="">
+                <div id="attached_scans_list" class="mt-3"></div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success-custom">
+                    <i class="bi bi-check-lg me-2"></i>Save Changes
+                </button>
+                <button type="button" class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#scannerModal">
+                    <i class="bi bi-scanner me-2"></i>Scan Document
+                </button>
+                <a href="/daily_report" class="btn btn-secondary-custom">
+                    <i class="bi bi-x-lg me-2"></i>Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Scanner Modal -->
+<div class="modal fade" id="scannerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-scanner"></i> Scan Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="scannerStatus" class="scanner-status not-ready">
+                    <span id="scannerStatusText">Checking scanner status...</span>
+                </div>
+                
+                <div id="scannerOptions" style="display: none;">
+                    <div class="mb-3">
+                        <label for="scanClientSelect" class="form-label">Client</label>
+                        <select class="form-select" id="scanClientSelect">
+                            <option value="">Select Client</option>
+                            {% for client in clients %}
+                                <option value="{{ client['id'] }}">{{ client['name'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="scanDocumentName" class="form-label">Document Name</label>
+                        <input type="text" class="form-control" id="scanDocumentName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="scanDocumentDate" class="form-label">Document Date</label>
+                        <input type="date" class="form-control" id="scanDocumentDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="scanMode" class="form-label">Scan Mode</label>
+                        <select class="form-select" id="scanMode">
+                            <option value="feeder">Auto Feeder</option>
+                            <option value="flatbed">Flatbed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Select Scanner</label>
+                        <div id="scannerList"></div>
+                    </div>
+                    
+                    <div id="scanProgress" style="display: none;" class="text-center my-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Scanning...</span>
+                        </div>
+                        <p class="mt-2">Scanning document...</p>
+                    </div>
+                    
+                    <div id="scanResult"></div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary" id="refreshScannersBtn">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                        <button type="button" class="btn btn-primary" id="startScanBtn" disabled>
+                            <i class="bi bi-play"></i> Start Scan
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="scannerNotAvailable" style="display: none;">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Scanner not available. Please make sure a scanner is connected and powered on.
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="refreshScannersBtn2">
+                        <i class="bi bi-arrow-clockwise"></i> Retry
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Scanner functionality
+    let selectedScannerId = null;
+    let attachedFiles = [];
+    
+    async function checkScannerStatus() {
+        const statusEl = document.getElementById('scannerStatus');
+        const statusTextEl = document.getElementById('scannerStatusText');
+        const optionsEl = document.getElementById('scannerOptions');
+        const notAvailableEl = document.getElementById('scannerNotAvailable');
+        if (!statusEl) return;
+        statusEl.className = 'scanner-status not-ready';
+        statusTextEl.textContent = 'Checking scanner status...';
+        try {
+            const response = await fetch('/api/scanner/status');
+            const data = await response.json();
+            if (data.available) {
+                statusEl.className = 'scanner-status ready';
+                statusTextEl.textContent = 'Scanner ready! Loading scanner list...';
+                optionsEl.style.display = 'block';
+                notAvailableEl.style.display = 'none';
+                await loadScanners();
+            } else {
+                statusEl.className = 'scanner-status not-ready';
+                statusTextEl.textContent = data.message || 'Scanner not available';
+                optionsEl.style.display = 'none';
+                notAvailableEl.style.display = 'block';
+            }
+        } catch (error) {
+            statusTextEl.textContent = 'Error checking scanner: ' + error.message;
+            optionsEl.style.display = 'none';
+            notAvailableEl.style.display = 'block';
+        }
+    }
+    
+    async function loadScanners() {
+        const scannerList = document.getElementById('scannerList');
+        const startBtn = document.getElementById('startScanBtn');
+        if (!scannerList) return false;
+        scannerList.innerHTML = '<p class="text-muted text-center">Loading scanners...</p>';
+        try {
+            const response = await fetch('/api/scanners');
+            const data = await response.json();
+            if (data.success && data.scanners.length > 0) {
+                scannerList.innerHTML = '';
+                data.scanners.forEach(scanner => {
+                    const div = document.createElement('div');
+                    div.className = 'scanner-item';
+                    div.innerHTML = `<strong><i class="bi bi-printer"></i> ${scanner.name}</strong>`;
+                    div.dataset.scannerId = scanner.id;
+                    div.onclick = function() {
+                        document.querySelectorAll('.scanner-item').forEach(el => el.classList.remove('selected'));
+                        div.classList.add('selected');
+                        selectedScannerId = div.dataset.scannerId;
+                        startBtn.disabled = false;
+                    };
+                    scannerList.appendChild(div);
+                });
+                if (data.scanners.length === 1) {
+                    const firstScannerItem = scannerList.querySelector('.scanner-item');
+                    if (firstScannerItem) {
+                        document.querySelectorAll('.scanner-item').forEach(el => el.classList.remove('selected'));
+                        firstScannerItem.classList.add('selected');
+                        selectedScannerId = firstScannerItem.dataset.scannerId;
+                        startBtn.disabled = false;
+                        return true;
+                    }
+                }
+            } else {
+                scannerList.innerHTML = '<p class="text-muted text-center">No scanners found</p>';
+                startBtn.disabled = true;
+            }
+        } catch (error) {
+            scannerList.innerHTML = '<p class="text-danger text-center">Error loading scanners</p>';
+            startBtn.disabled = true;
+        }
+        return false;
+    }
+    
+    async function startScan() {
+        const clientId = document.getElementById('scanClientSelect').value;
+        const documentName = document.getElementById('scanDocumentName').value || 'Scanned Document';
+        const documentDate = document.getElementById('scanDocumentDate').value;
+        const scanMode = document.getElementById('scanMode').value;
+        const progressEl = document.getElementById('scanProgress');
+        const resultEl = document.getElementById('scanResult');
+        const startBtn = document.getElementById('startScanBtn');
+        if (!clientId) return alert('Please select a client!');
+        if (!selectedScannerId) return alert('Please select a scanner!');
+        progressEl.style.display = 'block';
+        resultEl.innerHTML = '';
+        startBtn.disabled = true;
+        try {
+            const response = await fetch('/api/scan_and_save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    scanner_id: selectedScannerId,
+                    document_name: documentName,
+                    document_date: documentDate,
+                    format: 'jpg',
+                    multiscan: scanMode === 'flatbed',
+                    scan_mode: scanMode
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                attachedFiles = attachedFiles.concat(data.scanned_files);
+                document.getElementById('scanned_documents').value = JSON.stringify(attachedFiles);
+                const listEl = document.getElementById('attached_scans_list');
+                let listHtml = '<h6><i class="bi bi-paperclip"></i> Attached Scans:</h6><ul class="list-group list-group-flush">';
+                attachedFiles.forEach(file => {
+                    listHtml += `<li class="list-group-item">${file.document_name}</li>`;
+                });
+                listHtml += '</ul>';
+                listEl.innerHTML = listHtml;
+                const modal = bootstrap.Modal.getInstance(document.getElementById('scannerModal'));
+                modal.hide();
+            } else {
+                resultEl.innerHTML = `<div class="alert alert-danger">${data.error || 'Scan failed.'}</div>`;
+            }
+        } catch (error) {
+            console.error('Scan error:', error);
+            resultEl.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        } finally {
+            progressEl.style.display = 'none';
+            startBtn.disabled = false;
+        }
+    }
+
+    // Scanner modal events
+    document.addEventListener('DOMContentLoaded', function() {
+        const scannerModal = document.getElementById('scannerModal');
+        if (scannerModal) {
+            scannerModal.addEventListener('shown.bs.modal', function() {
+                const mainClientId = document.getElementById('client_id').value;
+                if (mainClientId) document.getElementById('scanClientSelect').value = mainClientId;
+                const clientName = document.getElementById('client_name').value;
+                if (clientName) document.getElementById('scanDocumentName').value = clientName;
+                const entryDate = document.getElementById('entry_date_visible').value;
+                if (entryDate) document.getElementById('scanDocumentDate').value = entryDate;
+                checkScannerStatus();
+            });
+        }
+        
+        const refreshBtn = document.getElementById('refreshScannersBtn');
+        if (refreshBtn) refreshBtn.addEventListener('click', loadScanners);
+        
+        const refreshBtn2 = document.getElementById('refreshScannersBtn2');
+        if (refreshBtn2) refreshBtn2.addEventListener('click', checkScannerStatus);
+        
+        const startScanBtn = document.getElementById('startScanBtn');
+        if (startScanBtn) startScanBtn.addEventListener('click', startScan);
+    });
+</script>
+</body>
+</html>

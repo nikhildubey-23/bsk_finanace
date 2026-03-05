@@ -315,9 +315,6 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="d-grid gap-3">
-                                    <a href="{{ url_for('upload_document', client_id=client['id']) }}" class="btn btn-success-custom">
-                                        <i class="bi bi-cloud-upload"></i> Upload Document
-                                    </a>
                                     <a href="{{ url_for('edit_client', client_id=client['id']) }}" class="btn btn-warning-custom">
                                         <i class="bi bi-pencil"></i> Edit Client
                                     </a>
@@ -330,73 +327,32 @@
 
                         <hr>
 
+                        {% if id_entries %}
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #1e293b;">
-                                <i class="bi bi-folder2-open"></i> Documents ({{ documents|length }})
+                                <i class="bi bi-person-badge"></i> ID Section ({{ id_entries|length }})
                             </h5>
-                            {% if documents %}
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-trash"></i> Client Actions
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="confirmDeleteClient()">
-                                            <i class="bi bi-trash"></i> Delete Client & All Documents
-                                        </a></li>
-                                    </ul>
-                                </div>
-                            {% endif %}
                         </div>
                         
-                        {% if documents %}
                             <div class="table-responsive modern-table">
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Document Name</th>
-                                        <th>Document Date</th>
-                                        <th>File Name</th>
-                                        <th>Type</th>
-                                        <th>Upload Date</th>
-                                        <th>Actions</th>
+                                        <th>ID Type</th>
+                                        <th>Entry Date</th>
+                                        <th>Created At</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for doc in documents %}
+                                    {% for entry in id_entries %}
                                     <tr>
-                                        <td><strong>{{ doc['document_name'] or doc['original_filename'] }}</strong></td>
-                                        <td>{{ doc['document_date'] or '-' }}</td>
-                                        <td><small class="text-muted">{{ doc['original_filename'] }}</small></td>
-                                        <td><span class="badge-modern badge-secondary">{{ doc['file_type'].upper() }}</span></td>
-                                        <td><small>{{ doc['upload_date'] }}</small></td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                {% if doc['file_type'] in ['pdf', 'jpg', 'jpeg', 'png'] %}
-                                                    <a href="{{ url_for('view_file', filename=doc['filename']) }}" class="btn btn-outline-primary btn-sm" target="_blank">
-                                                        <i class="bi bi-eye"></i> View
-                                                    </a>
-                                                {% endif %}
-                                                <a href="{{ url_for('download_file', filename=doc['filename']) }}" class="btn btn-outline-success btn-sm">
-                                                    <i class="bi bi-download"></i> Download
-                                                </a>
-                                                <button class="btn btn-outline-danger btn-sm" onclick="confirmDelete({{ doc['id'] }})">
-                                                    <i class="bi bi-trash"></i> Delete
-                                                </button>
-                                            </div>
-                                        </td>
+                                        <td><strong>{{ entry['id_type'] }}</strong></td>
+                                        <td>{{ entry['entry_date'] or '-' }}</td>
+                                        <td><small>{{ entry['created_at'] }}</small></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
-                            </div>
-                        {% else %}
-                            <div class="empty-state">
-                                <i class="bi bi-folder-x"></i>
-                                <h5>No documents uploaded yet</h5>
-                                <p class="mb-4">Start by uploading the first document for this client.</p>
-                                <a href="{{ url_for('upload_document', client_id=client['id']) }}" class="btn btn-primary-custom">
-                                    <i class="bi bi-plus-circle"></i> Add First Document
-                                </a>
                             </div>
                         {% endif %}
                     </div>
