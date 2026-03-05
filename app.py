@@ -308,7 +308,7 @@ def init_db():
         conn.execute('ALTER TABLE daily_entries ADD COLUMN hi_expiry_date DATE')
     except:
         pass
-    
+
     # Create MF companies table
     conn.execute('''
         CREATE TABLE IF NOT EXISTS mf_companies (

@@ -3,6 +3,7 @@
     <td>{{ loop.index }}</td>
     <td>{{ entry['entry_date'] }}</td>
     <td><strong>{{ entry['client_name'] }}</strong></td>
+    <td>{{ entry['client_category'] or '' }}</td>
     <td>
         {% if entry['investment_type'] == 'LIC' %}<span class="badge bg-primary">{{ entry['investment_type'] }}</span>
         {% elif entry['investment_type'] == 'Mutual Fund' %}<span class="badge bg-success">{{ entry['investment_type'] }}</span>

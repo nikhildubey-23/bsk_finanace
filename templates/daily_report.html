@@ -349,6 +349,7 @@
                             <th>S No.</th>
                             <th>Date</th>
                             <th>Client Name</th>
+                            <th>Category</th>
                             <th>Type</th>
                             <th>Subtype</th>
                             <th>Policy/ Folio No.</th>
@@ -394,6 +395,7 @@
                             <td>{{ loop.index }}</td>
                             <td>{{ entry['entry_date'] or 'N/A' }}</td>
                             <td><strong>{{ entry['client_name'] or 'N/A' }}</strong></td>
+                            <td>{{ entry['client_category'] or 'N/A' }}</td>
                             <td>
                                 {% if entry['investment_type'] == 'LIC' %}<span class="badge bg-primary badge-type">LIC</span>
                                 {% elif entry['investment_type'] == 'Mutual Fund' %}<span class="badge bg-success badge-type">MF</span>
