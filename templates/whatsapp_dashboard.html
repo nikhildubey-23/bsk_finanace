@@ -479,7 +479,12 @@
                             <div class="d-flex align-items-start">
                                 <input type="checkbox" class="client-checkbox" id="client_{{ client.id }}">
                                 <div class="flex-grow-1">
-                                    <div class="client-name">{{ client.name }}</div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="client-name">{{ client.name }}</div>
+                                        {% if client.client_type %}
+                                        <span class="badge bg-{% if client.client_type == 'New' %}primary{% elif client.client_type == 'Hot' %}danger{% else %}secondary{% endif %}">{{ client.client_type }}</span>
+                                        {% endif %}
+                                    </div>
                                     <div class="client-details">
                                         <i class="bi bi-telephone"></i> {{ client.phone or 'No phone' }}
                                         {% if client.email %}

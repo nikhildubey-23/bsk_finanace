@@ -665,10 +665,10 @@
                                 <option value="IDCW">IDCW</option>
                             </select>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label for="mf_subtype" class="form-label">Investment Subtype</label>
                             <select class="form-select" id="mf_subtype" name="mf_subtype" onchange="toggleMFFields()">
-                                <option value="">Select Type</option>
+                                <option value="">Select Type (16 options)</option>
                                 <option value="Purchase">Purchase</option>
                                 <option value="Add-Purchase">Add-Purchase</option>
                                 <option value="NFO">NFO</option>
@@ -680,7 +680,7 @@
                                 <option value="STP">STP</option>
                                 <option value="SWP">SWP</option>
                                 <option value="Switch">Switch</option>
-                                <option value="Death Transmutation">Death Transmutation</option>
+                                <option value="Death Transmission">Death Transmission</option>
                                 <option value="Address Change">Address Change</option>
                                 <option value="Bank Change">Bank Change</option>
                             </select>
@@ -701,9 +701,12 @@
                             <div class="col-md-4 mb-3">
                                 <label for="mf_sip_frequency" class="form-label">SIP Frequency</label>
                                 <select class="form-select" id="mf_sip_frequency" name="mf_sip_frequency">
-                                    <option value="Monthly">Monthly</option>
+                                    <option value="">Select Frequency</option>
+                                    <option value="Daily">Daily</option>
                                     <option value="Weekly">Weekly</option>
+                                    <option value="Monthly">Monthly</option>
                                     <option value="Quarterly">Quarterly</option>
+                                    <option value="Nightly">Nightly</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
@@ -798,13 +801,14 @@
                                 <input type="number" class="form-control" id="mf_sip_date" name="mf_sip_date" placeholder="1-31">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="mf_sip_frequency" class="form-label">Frequency</label>
-                                <select class="form-select" id="mf_sip_frequency" name="mf_sip_frequency">
+                                <label for="mf_sip_frequency_mod" class="form-label">Frequency</label>
+                                <select class="form-select" id="mf_sip_frequency_mod" name="mf_sip_frequency_mod">
                                     <option value="">Select Frequency</option>
                                     <option value="Daily">Daily</option>
                                     <option value="Weekly">Weekly</option>
                                     <option value="Monthly">Monthly</option>
                                     <option value="Quarterly">Quarterly</option>
+                                    <option value="Nightly">Nightly</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -1390,6 +1394,16 @@
                 });
                 document.getElementById('sip_modification_fields_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'none';
+            } else if (subtype === 'Bank Change') {
+                document.getElementById('bank_change_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'block';
+            } else if (subtype === 'Address Change') {
+                document.getElementById('address_change_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'block';
+            } else if (subtype === 'Death Transmission') {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('death_trans_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'block';
             }
         }
 
