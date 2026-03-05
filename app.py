@@ -308,6 +308,54 @@ def init_db():
         conn.execute('ALTER TABLE daily_entries ADD COLUMN hi_expiry_date DATE')
     except:
         pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_current_scheme TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_sip_plan TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_sip_modification_amount REAL')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_sip_frequency_mod TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_new_scheme_plan TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN mf_new_sip_amount REAL')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN death_companies TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN death_fund_names TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN death_fund_types TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN death_fund_subtypes TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN stp_fund_name_to INTEGER')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN client_category TEXT')
+    except:
+        pass
 
     # Create MF companies table
     conn.execute('''
@@ -944,12 +992,30 @@ def daily_entry():
             mf_swp_start_date = request.form.get('mf_swp_start_date')
             mf_swp_end_date = request.form.get('mf_swp_end_date')
             hi_expiry_date = request.form.get('hi_expiry_date')
+            mf_current_scheme = request.form.get('mf_current_scheme')
+            mf_sip_plan = request.form.get('mf_sip_plan')
+            mf_sip_modification_amount = request.form.get('mf_sip_modification_amount')
+            mf_sip_frequency_mod = request.form.get('mf_sip_frequency_mod')
+            mf_new_scheme_plan = request.form.get('mf_new_scheme_plan')
+            mf_new_sip_amount = request.form.get('mf_new_sip_amount')
+            death_companies = request.form.getlist('death_company[]')
+            death_fund_names = request.form.getlist('death_fund_name[]')
+            death_fund_types = request.form.getlist('death_fund_type[]')
+            death_fund_subtypes = request.form.getlist('death_fund_subtype[]')
+            stp_fund_name_to = request.form.get('stp_fund_name_to')
             
             scanned_docs_json = request.form.get('scanned_documents')
             
             conn = get_db_connection()
             if conn is not None:
                 try:
+                    # Get client category from clients table
+                    client_category = ''
+                    if client_id:
+                        client_data = conn.execute('SELECT client_type FROM clients WHERE id = ?', (client_id,)).fetchone()
+                        if client_data:
+                            client_category = client_data['client_type'] or ''
+                    
                     fields = {
                         'entry_date': entry_date,
                         'client_name': client_name,
@@ -991,6 +1057,7 @@ def daily_entry():
                         'mf_fund_type': mf_fund_type,
                         'mf_fund_subtype': mf_fund_subtype,
                         'client_id': client_id,
+                        'client_category': client_category,
                         'hi_company_id': hi_company,
                         'hi_product_id': hi_product,
                         'it_address': it_address,
@@ -1003,6 +1070,17 @@ def daily_entry():
                         'mf_swp_start_date': mf_swp_start_date,
                         'mf_swp_end_date': mf_swp_end_date,
                         'hi_expiry_date': hi_expiry_date,
+                        'mf_current_scheme': mf_current_scheme,
+                        'mf_sip_plan': mf_sip_plan,
+                        'mf_sip_modification_amount': mf_sip_modification_amount,
+                        'mf_sip_frequency_mod': mf_sip_frequency_mod,
+                        'mf_new_scheme_plan': mf_new_scheme_plan,
+                        'mf_new_sip_amount': mf_new_sip_amount,
+                        'death_companies': ','.join(death_companies) if death_companies else None,
+                        'death_fund_names': ','.join(death_fund_names) if death_fund_names else None,
+                        'death_fund_types': ','.join(death_fund_types) if death_fund_types else None,
+                        'death_fund_subtypes': ','.join(death_fund_subtypes) if death_fund_subtypes else None,
+                        'stp_fund_name_to': stp_fund_name_to,
                     }
                     
                     # Filter out None and empty values
@@ -1077,10 +1155,8 @@ def daily_report():
         entries = conn.execute('''
             SELECT de.*, 
             COALESCE(c.client_images, '') as client_images,
-            COALESCE(e.entry_images, '') as entry_images,
-            cl.client_type as client_category
+            COALESCE(e.entry_images, '') as entry_images
             FROM daily_entries de
-            LEFT JOIN clients cl ON de.client_id = cl.id
             LEFT JOIN (
                 SELECT client_id, GROUP_CONCAT(filename) as client_images
                 FROM documents
@@ -1095,6 +1171,16 @@ def daily_report():
             ) e ON de.id = e.daily_entry_id
             ORDER BY de.entry_date DESC, de.id DESC
         ''').fetchall()
+        
+        # Backfill client_category for existing entries
+        conn.execute('''
+            UPDATE daily_entries 
+            SET client_category = (
+                SELECT client_type FROM clients WHERE clients.id = daily_entries.client_id
+            )
+            WHERE client_category IS NULL OR client_category = ''
+        ''')
+        conn.commit()
 
         companies = conn.execute('SELECT * FROM mf_companies ORDER BY name').fetchall()
         hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()

@@ -1390,7 +1390,11 @@
             } else if (subtype === 'SIP Modification') {
                 document.getElementById('mf_main_fields').style.display = 'flex';
                 document.querySelectorAll('#mf_main_fields > div').forEach((div, index) => {
-                    div.style.display = index === 0 ? 'block' : 'none';
+                    if (index === 0 || index === 1 || index === 2 || index === 3 || index === 4 || index === 5) {
+                        div.style.display = 'block';
+                    } else {
+                        div.style.display = 'none';
+                    }
                 });
                 document.getElementById('sip_modification_fields_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'none';

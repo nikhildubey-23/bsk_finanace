@@ -395,7 +395,12 @@
                             <td>{{ loop.index }}</td>
                             <td>{{ entry['entry_date'] or 'N/A' }}</td>
                             <td><strong>{{ entry['client_name'] or 'N/A' }}</strong></td>
-                            <td>{{ entry['client_category'] or 'N/A' }}</td>
+                            <td>
+                                {% if entry['client_category'] == 'Hot' %}<span class="badge bg-danger badge-type">Hot</span>
+                                {% elif entry['client_category'] == 'New' %}<span class="badge bg-success badge-type">New</span>
+                                {% elif entry['client_category'] == 'Old' %}<span class="badge" style="background-color: #8B4513; color: white;">Old</span>
+                                {% else %}{{ entry['client_category'] or 'N/A' }}{% endif %}
+                            </td>
                             <td>
                                 {% if entry['investment_type'] == 'LIC' %}<span class="badge bg-primary badge-type">LIC</span>
                                 {% elif entry['investment_type'] == 'Mutual Fund' %}<span class="badge bg-success badge-type">MF</span>
@@ -676,8 +681,20 @@
                         <div class="detail-value ${!entry.mf_stp_start_date ? 'na' : ''}">${na(entry.mf_stp_start_date)}</div>
                     </div>
                     <div class="col-md-4">
+                        <div class="detail-label">STP To Fund</div>
+                        <div class="detail-value ${!entry.mf_fund_id_to ? 'na' : ''}">${getFundName(entry.mf_fund_id_to)}</div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="detail-label">STP End Date</div>
                         <div class="detail-value ${!entry.mf_stp_end_date ? 'na' : ''}">${na(entry.mf_stp_end_date)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">STP Fund Type</div>
+                        <div class="detail-value ${!entry.stp_fund_type ? 'na' : ''}">${na(entry.stp_fund_type)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">STP Fund Sub Type</div>
+                        <div class="detail-value ${!entry.stp_fund_subtype ? 'na' : ''}">${na(entry.stp_fund_subtype)}</div>
                     </div>
                     <div class="col-md-4">
                         <div class="detail-label">SWP Amount</div>
@@ -700,6 +717,14 @@
                         <div class="detail-value ${!entry.mf_switch_fund_to ? 'na' : ''}">${getFundName(entry.mf_switch_fund_to)}</div>
                     </div>
                     <div class="col-md-4">
+                        <div class="detail-label">Switch Fund Type</div>
+                        <div class="detail-value ${!entry.switch_fund_type ? 'na' : ''}">${na(entry.switch_fund_type)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Switch Fund Sub Type</div>
+                        <div class="detail-value ${!entry.switch_fund_subtype ? 'na' : ''}">${na(entry.switch_fund_subtype)}</div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="detail-label">Transmission Type</div>
                         <div class="detail-value ${!entry.mf_transmission_type ? 'na' : ''}">${na(entry.mf_transmission_type)}</div>
                     </div>
@@ -711,6 +736,22 @@
                         <div class="detail-label">Claimant Relation</div>
                         <div class="detail-value ${!entry.mf_claimant_relation ? 'na' : ''}">${na(entry.mf_claimant_relation)}</div>
                     </div>
+                    ${entry.death_companies ? `
+                    <div class="col-md-12 mt-3">
+                        <div class="detail-label fw-bold text-primary">Death Transmission Fund Details</div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="detail-value">${(entry.death_companies || '').split(',').map((c, i) => {
+                            const company = companiesData.find(comp => comp.id == c);
+                            const companyName = company ? company.name : c;
+                            const fundNames = entry.death_fund_names ? entry.death_fund_names.split(',') : [];
+                            const fundTypes = entry.death_fund_types ? entry.death_fund_types.split(',') : [];
+                            const fundName = fundNames[i] ? (mfFundsData.find(f => f.id == fundNames[i])?.fund_name || fundNames[i]) : '';
+                            const fundType = fundTypes[i] || '';
+                            return companyName + (fundName ? ' - ' + fundName : '') + (fundType ? ' (' + fundType + ')' : '');
+                        }).join('<br>')}</div>
+                    </div>
+                    ` : ''}
                     <div class="col-md-6">
                         <div class="detail-label">New Address</div>
                         <div class="detail-value ${!entry.mf_new_address ? 'na' : ''}">${na(entry.mf_new_address)}</div>
@@ -723,6 +764,35 @@
                         <div class="detail-label">New Bank Detail</div>
                         <div class="detail-value ${!entry.mf_new_bank_detail ? 'na' : ''}">${na(entry.mf_new_bank_detail)}</div>
                     </div>
+                    ${entry.mf_current_scheme || entry.mf_sip_plan || entry.mf_sip_modification_amount ? `
+                    <div class="col-md-12 mt-3">
+                        <div class="detail-label fw-bold text-primary">SIP Modification Details</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Current Scheme</div>
+                        <div class="detail-value ${!entry.mf_current_scheme ? 'na' : ''}">${na(entry.mf_current_scheme)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">SIP Plan</div>
+                        <div class="detail-value ${!entry.mf_sip_plan ? 'na' : ''}">${na(entry.mf_sip_plan)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Current SIP Amount</div>
+                        <div class="detail-value ${!entry.mf_sip_modification_amount ? 'na' : ''}">${formatAmount(entry.mf_sip_modification_amount)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Current SIP Frequency</div>
+                        <div class="detail-value ${!entry.mf_sip_frequency_mod ? 'na' : ''}">${na(entry.mf_sip_frequency_mod)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">New Scheme Plan</div>
+                        <div class="detail-value ${!entry.mf_new_scheme_plan ? 'na' : ''}">${na(entry.mf_new_scheme_plan)}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">New SIP Amount</div>
+                        <div class="detail-value ${!entry.mf_new_sip_amount ? 'na' : ''}">${formatAmount(entry.mf_new_sip_amount)}</div>
+                    </div>
+                    ` : ''}
                 </div>
             </div>`;
         }
