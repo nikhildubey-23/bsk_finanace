@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, send_file, jsonify
 from urllib.parse import unquote
 import os
 from werkzeug.utils import secure_filename
@@ -34,12 +33,14 @@ def allowed_file(filename):
 
 def get_db_connection():
     try:
-        conn = sqlite3.connect('documents.db')
+        conn = sqlite3.connect('documents.db', timeout=60)
         conn.row_factory = sqlite3.Row
+        conn.execute('PRAGMA journal_mode=WAL')
+        conn.execute('PRAGMA busy_timeout=60000')
+        conn.execute('PRAGMA synchronous=NORMAL')
         return conn
     except sqlite3.Error as e:
         logger.error(f"Database connection error: {e}")
-        flash("Database connection error. Please try again.", "error")
         return None
 
 # Helper function for safe database operations
@@ -105,9 +106,14 @@ def create_client_folder(client_name):
             return folder_name
         counter += 1
 
-def get_client_folder_path(client_id, client_name):
+def get_client_folder_path(client_id, client_name, existing_conn=None):
     # Get existing folder for this client or create new one
-    conn = get_db_connection()
+    own_conn = False
+    conn = existing_conn
+    if conn is None:
+        conn = get_db_connection()
+        own_conn = True
+    
     result = conn.execute('SELECT folder_name FROM clients WHERE id = ?', (client_id,)).fetchone()
     
     if result and result['folder_name']:
@@ -118,7 +124,8 @@ def get_client_folder_path(client_id, client_name):
         conn.execute('UPDATE clients SET folder_name = ? WHERE id = ?', (folder_name, client_id))
         conn.commit()
     
-    conn.close()
+    if own_conn:
+        conn.close()
     return os.path.join(app.config['UPLOAD_FOLDER'], folder_name)
 
 def init_db():
@@ -686,6 +693,13 @@ def upload_document(client_id):
     
     return render_template('upload_document.html', client_id=client_id)
 
+@app.route('/uploads/<path:filename>')
+def serve_upload(filename):
+    filename = unquote(filename)
+    filename = filename.replace('\\', '/')
+    filename = filename.lstrip('/')
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 @app.route('/download/<path:filename>')
 def download_file(filename):
     # Handle both forward and back slashes
@@ -693,6 +707,23 @@ def download_file(filename):
     filename = filename.replace('\\', '/')
     filename = filename.lstrip('/')
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+
+import subprocess
+
+@app.route('/open/<path:filename>')
+def open_file(filename):
+    filename = unquote(filename)
+    filename = filename.replace('\\', '/')
+    filename = filename.lstrip('/')
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    
+    try:
+        if platform.system() == 'Windows':
+            subprocess.Popen(['cmd', '/c', 'start', '', file_path], shell=True)
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error opening file: {e}")
+        return send_file(file_path, as_attachment=False, download_name=os.path.basename(filename))
 
 @app.route('/view/<path:filename>')
 def view_file(filename):
@@ -1098,8 +1129,11 @@ def daily_entry():
                     # Process attached scans
                     if scanned_docs_json and client_id:
                         scanned_docs = json.loads(scanned_docs_json)
-                        client_folder_path = get_client_folder_path(int(client_id), client_name)
+                        client_folder_path = get_client_folder_path(int(client_id), client_name, conn)
                         folder_name = os.path.basename(client_folder_path)
+                        
+                        if not os.path.exists(client_folder_path):
+                            os.makedirs(client_folder_path)
 
                         for doc in scanned_docs:
                             temp_path_full = os.path.join(app.config['UPLOAD_FOLDER'], doc['temp_path'])
@@ -1122,6 +1156,10 @@ def daily_entry():
                     flash('Daily entry saved successfully!')
                     return redirect(url_for('daily_entry'))
                 except Exception as e:
+                    try:
+                        conn.rollback()
+                    except:
+                        pass
                     conn.close()
                     logger.error(f"Error saving daily entry: {e}")
                     flash(f"Error saving daily entry: {str(e)}", "error")
@@ -1136,10 +1174,12 @@ def daily_entry():
         conn = get_db_connection()
         if conn is None:
             return render_template('daily_entry.html', hi_companies=[], clients=[])
-        hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()
-        clients = conn.execute('SELECT * FROM clients ORDER BY name').fetchall()
-        conn.close()
-        return render_template('daily_entry.html', hi_companies=hi_companies, clients=clients)
+        try:
+            hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()
+            clients = conn.execute('SELECT * FROM clients ORDER BY name').fetchall()
+            return render_template('daily_entry.html', hi_companies=hi_companies, clients=clients)
+        finally:
+            conn.close()
     except Exception as e:
         logger.error(f"Error loading daily_entry: {e}")
         return render_template('daily_entry.html', hi_companies=[], clients=[])
@@ -1152,49 +1192,51 @@ def daily_report():
             flash("Database error", "error")
             return render_template('daily_report.html', entries=[], companies=[], hi_companies=[], mf_funds=[], hi_products=[], clients=[])
         
-        entries = conn.execute('''
-            SELECT de.*, 
-            COALESCE(c.client_images, '') as client_images,
-            COALESCE(e.entry_images, '') as entry_images
-            FROM daily_entries de
-            LEFT JOIN (
-                SELECT client_id, GROUP_CONCAT(filename) as client_images
-                FROM documents
-                WHERE daily_entry_id IS NULL
-                GROUP BY client_id
-            ) c ON de.client_id = c.client_id
-            LEFT JOIN (
-                SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
-                FROM documents
-                WHERE daily_entry_id IS NOT NULL
-                GROUP BY daily_entry_id
-            ) e ON de.id = e.daily_entry_id
-            ORDER BY de.entry_date DESC, de.id DESC
-        ''').fetchall()
-        
-        # Backfill client_category for existing entries
-        conn.execute('''
-            UPDATE daily_entries 
-            SET client_category = (
-                SELECT client_type FROM clients WHERE clients.id = daily_entries.client_id
-            )
-            WHERE client_category IS NULL OR client_category = ''
-        ''')
-        conn.commit()
+        try:
+            entries = conn.execute('''
+                SELECT de.*, 
+                COALESCE(c.client_images, '') as client_images,
+                COALESCE(e.entry_images, '') as entry_images
+                FROM daily_entries de
+                LEFT JOIN (
+                    SELECT client_id, GROUP_CONCAT(filename) as client_images
+                    FROM documents
+                    WHERE daily_entry_id IS NULL
+                    GROUP BY client_id
+                ) c ON de.client_id = c.client_id
+                LEFT JOIN (
+                    SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
+                    FROM documents
+                    WHERE daily_entry_id IS NOT NULL
+                    GROUP BY daily_entry_id
+                ) e ON de.id = e.daily_entry_id
+                ORDER BY de.entry_date DESC, de.id DESC
+            ''').fetchall()
+            
+            # Backfill client_category for existing entries
+            conn.execute('''
+                UPDATE daily_entries 
+                SET client_category = (
+                    SELECT client_type FROM clients WHERE clients.id = daily_entries.client_id
+                )
+                WHERE client_category IS NULL OR client_category = ''
+            ''')
+            conn.commit()
 
-        companies = conn.execute('SELECT * FROM mf_companies ORDER BY name').fetchall()
-        hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()
-        mf_funds = conn.execute('SELECT * FROM mf_funds ORDER BY fund_name').fetchall()
-        hi_products = conn.execute('SELECT * FROM hi_products ORDER BY product_name').fetchall()
-        clients = conn.execute('SELECT * FROM clients ORDER BY name').fetchall()
-        conn.close()
-        
-        entries = [dict(row) for row in entries]
-        companies = [dict(row) for row in companies]
-        hi_companies = [dict(row) for row in hi_companies]
-        mf_funds = [dict(row) for row in mf_funds]
-        hi_products = [dict(row) for row in hi_products]
-        clients = [dict(row) for row in clients]
+            companies = conn.execute('SELECT * FROM mf_companies ORDER BY name').fetchall()
+            hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()
+            mf_funds = conn.execute('SELECT * FROM mf_funds ORDER BY fund_name').fetchall()
+            hi_products = conn.execute('SELECT * FROM hi_products ORDER BY product_name').fetchall()
+            clients = conn.execute('SELECT * FROM clients ORDER BY name').fetchall()
+            
+            entries = [dict(row) for row in entries]
+            companies = [dict(row) for row in companies]
+            hi_companies = [dict(row) for row in hi_companies]
+            mf_funds = [dict(row) for row in mf_funds]
+            hi_products = [dict(row) for row in hi_products]
+            clients = [dict(row) for row in clients]
+        finally:
+            conn.close()
         
         def get_company_name(company_id):
             if not company_id:
@@ -1657,4 +1699,4 @@ if __name__ == '__main__':
     if not os.path.exists('uploads/temp'):
         os.makedirs('uploads/temp')
     init_db()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000, use_reloader=False)

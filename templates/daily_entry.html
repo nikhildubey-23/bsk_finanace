@@ -480,7 +480,7 @@
                         </div>
                         <div class="col-2">
                             <div class="investment-card hi" onclick="selectInvestmentType('Health Insurance', this)">
-                                <i class="bi bi-heart-pulse"></i>
+                                <i class="bi bi-heart-fill"></i>
                                 <strong>Health Insurance</strong>
                             </div>
                         </div>
@@ -533,7 +533,7 @@
                 
                 <!-- Health Insurance Section -->
                 <div class="section-card" id="health_insurance_section" data-section="hi" style="display: none;">
-                    <div class="section-title"><i class="bi bi-heart-pulse"></i> Health Insurance Details</div>
+                    <div class="section-title"><i class="bi bi-heart-fill"></i> Health Insurance Details</div>
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="hi_company" class="form-label">Insurance Company</label>
@@ -633,6 +633,29 @@
                     
                     <!-- MF Main Fields -->
                     <div class="row g-3" id="mf_main_fields">
+                        <div class="col-md-3 mb-3">
+                            <label for="mf_subtype" class="form-label">Investment Subtype</label>
+                            <select class="form-select" id="mf_subtype" name="mf_subtype" onchange="toggleMFFields()">
+                                <option value="">Select Type (16 options)</option>
+                                <option value="Purchase">Purchase</option>
+                                <option value="Add-Purchase">Add-Purchase</option>
+                                <option value="NFO">NFO</option>
+                                <option value="Redemption">Redemption</option>
+                                <option value="SIP">SIP</option>
+                                <option value="SIP Cancellation">SIP Cancellation</option>
+                                <option value="SIP Pause">SIP Pause</option>
+                                <option value="SIP Modification">SIP Modification</option>
+                                <option value="STP">STP</option>
+                                <option value="SWP">SWP</option>
+                                <option value="Switch">Switch</option>
+                                <option value="Death Transmission">Death Transmission</option>
+                                <option value="Address Change">Address Change</option>
+                                <option value="Contact Update">Contact Update</option>
+                                <option value="Nominee Update">Nominee Update</option>
+                                <option value="Bank Change">Bank Change</option>
+                                <option value="Signature Update">Signature Update</option>
+                            </select>
+                        </div>
                         <div class="col-md-2 mb-3">
                             <label for="mf_folio" class="form-label">Folio Number</label>
                             <input type="text" class="form-control" id="mf_folio" name="mf_folio">
@@ -663,26 +686,6 @@
                                 <option value="">Select Sub Type</option>
                                 <option value="Re-investment">Re-investment</option>
                                 <option value="IDCW">IDCW</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="mf_subtype" class="form-label">Investment Subtype</label>
-                            <select class="form-select" id="mf_subtype" name="mf_subtype" onchange="toggleMFFields()">
-                                <option value="">Select Type (16 options)</option>
-                                <option value="Purchase">Purchase</option>
-                                <option value="Add-Purchase">Add-Purchase</option>
-                                <option value="NFO">NFO</option>
-                                <option value="Redemption">Redemption</option>
-                                <option value="SIP">SIP</option>
-                                <option value="SIP Cancellation">SIP Cancellation</option>
-                                <option value="SIP Pause">SIP Pause</option>
-                                <option value="SIP Modification">SIP Modification</option>
-                                <option value="STP">STP</option>
-                                <option value="SWP">SWP</option>
-                                <option value="Switch">Switch</option>
-                                <option value="Death Transmission">Death Transmission</option>
-                                <option value="Address Change">Address Change</option>
-                                <option value="Bank Change">Bank Change</option>
                             </select>
                         </div>
                     </div>
@@ -781,24 +784,8 @@
                                 <label class="form-label fw-bold">Current SIP Details</label>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="mf_current_scheme" class="form-label">SIP/Scheme/Option/Sub-option</label>
-                                <input type="text" class="form-control" id="mf_current_scheme" name="mf_current_scheme" placeholder="Enter current scheme name">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="mf_sip_plan" class="form-label">Plan</label>
-                                <select class="form-select" id="mf_sip_plan" name="mf_sip_plan">
-                                    <option value="">Select Plan</option>
-                                    <option value="Regular">Regular</option>
-                                    <option value="Direct">Direct</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
                                 <label for="mf_sip_modification_amount" class="form-label">Current SIP Amount</label>
                                 <input type="number" class="form-control" id="mf_sip_modification_amount" name="mf_sip_modification_amount">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="mf_sip_date" class="form-label">SIP Date</label>
-                                <input type="number" class="form-control" id="mf_sip_date" name="mf_sip_date" placeholder="1-31">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="mf_sip_frequency_mod" class="form-label">Frequency</label>
@@ -815,20 +802,42 @@
                                 <label for="mf_sip_start_date" class="form-label">SIP Start Date</label>
                                 <input type="date" class="form-control" id="mf_sip_start_date" name="mf_sip_start_date">
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_sip_end_date_current" class="form-label">SIP End Date</label>
+                                <input type="date" class="form-control" id="mf_sip_end_date_current" name="mf_sip_end_date_current">
+                            </div>
                             <div class="col-md-12 mb-3 mt-3">
                                 <label class="form-label fw-bold">New SIP Details</label>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="mf_new_scheme_plan" class="form-label">New Scheme Plan/Option</label>
-                                <select class="form-select" id="mf_new_scheme_plan" name="mf_new_scheme_plan">
-                                    <option value="">Select New Scheme Plan</option>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_new_fund_name" class="form-label">Fund Name</label>
+                                <select class="form-select" id="mf_new_fund_name" name="mf_new_fund_name">
+                                    <option value="">Select Fund</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="mf_new_fund_type" class="form-label">Fund Type</label>
+                                <select class="form-select" id="mf_new_fund_type" name="mf_new_fund_type" onchange="toggleNewFundSubType()">
+                                    <option value="">Select Type</option>
                                     <option value="Growth">Growth</option>
                                     <option value="Dividend">Dividend</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3" id="new_fund_subtype_div" style="display: none;">
+                                <label for="mf_new_fund_subtype" class="form-label">Fund Sub Type</label>
+                                <select class="form-select" id="mf_new_fund_subtype" name="mf_new_fund_subtype">
+                                    <option value="">Select Sub Type</option>
+                                    <option value="Re-investment">Re-investment</option>
+                                    <option value="IDCW">IDCW</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="mf_new_sip_amount" class="form-label">New SIP Amount</label>
                                 <input type="number" class="form-control" id="mf_new_sip_amount" name="mf_new_sip_amount">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_new_sip_start_date" class="form-label">New SIP Start Date</label>
+                                <input type="date" class="form-control" id="mf_new_sip_start_date" name="mf_new_sip_start_date">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="mf_sip_end_date" class="form-label">New SIP End Date</label>
@@ -1195,6 +1204,18 @@
             }
         }
 
+        function toggleNewFundSubType() {
+            const fundType = document.getElementById('mf_new_fund_type').value;
+            const fundSubTypeDiv = document.getElementById('new_fund_subtype_div');
+            
+            if (fundType === 'Dividend') {
+                fundSubTypeDiv.style.display = 'block';
+            } else {
+                fundSubTypeDiv.style.display = 'none';
+                document.getElementById('mf_new_fund_subtype').value = '';
+            }
+        }
+
         function toggleSTPFundSubType() {
             const stpFundType = document.getElementById('stp_fund_type').value;
             const stpFundSubTypeDiv = document.getElementById('stp_fund_subtype_div');
@@ -1317,7 +1338,7 @@
 
         function loadFundNames() {
             const companyId = document.getElementById('mf_company').value;
-            const fundSelects = ['mf_fund_name', 'stp_fund_name_to', 'stp_fund_name', 'mf_switch_fund_from', 'mf_switch_fund_to'];
+            const fundSelects = ['mf_fund_name', 'stp_fund_name_to', 'stp_fund_name', 'mf_switch_fund_from', 'mf_switch_fund_to', 'mf_new_fund_name'];
             
             if (!companyId) {
                 fundSelects.forEach(id => {
