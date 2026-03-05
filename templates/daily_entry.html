@@ -676,6 +676,7 @@
                                 <option value="SIP">SIP</option>
                                 <option value="SIP Cancellation">SIP Cancellation</option>
                                 <option value="SIP Pause">SIP Pause</option>
+                                <option value="SIP Modification">SIP Modification</option>
                                 <option value="STP">STP</option>
                                 <option value="SWP">SWP</option>
                                 <option value="Switch">Switch</option>
@@ -766,6 +767,68 @@
                             <div class="col-md-4 mb-3">
                                 <label for="mf_swp_end_date" class="form-label">SWP End Date</label>
                                 <input type="date" class="form-control" id="mf_swp_end_date" name="mf_swp_end_date">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SIP Modification Fields -->
+                    <div id="sip_modification_fields_section" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Current SIP Details</label>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_current_scheme" class="form-label">SIP/Scheme/Option/Sub-option</label>
+                                <input type="text" class="form-control" id="mf_current_scheme" name="mf_current_scheme" placeholder="Enter current scheme name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_sip_plan" class="form-label">Plan</label>
+                                <select class="form-select" id="mf_sip_plan" name="mf_sip_plan">
+                                    <option value="">Select Plan</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Direct">Direct</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_sip_modification_amount" class="form-label">Current SIP Amount</label>
+                                <input type="number" class="form-control" id="mf_sip_modification_amount" name="mf_sip_modification_amount">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_sip_date" class="form-label">SIP Date</label>
+                                <input type="number" class="form-control" id="mf_sip_date" name="mf_sip_date" placeholder="1-31">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_sip_frequency" class="form-label">Frequency</label>
+                                <select class="form-select" id="mf_sip_frequency" name="mf_sip_frequency">
+                                    <option value="">Select Frequency</option>
+                                    <option value="Daily">Daily</option>
+                                    <option value="Weekly">Weekly</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Quarterly">Quarterly</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_sip_start_date" class="form-label">SIP Start Date</label>
+                                <input type="date" class="form-control" id="mf_sip_start_date" name="mf_sip_start_date">
+                            </div>
+                            <div class="col-md-12 mb-3 mt-3">
+                                <label class="form-label fw-bold">New SIP Details</label>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_new_scheme_plan" class="form-label">New Scheme Plan/Option</label>
+                                <select class="form-select" id="mf_new_scheme_plan" name="mf_new_scheme_plan">
+                                    <option value="">Select New Scheme Plan</option>
+                                    <option value="Growth">Growth</option>
+                                    <option value="Dividend">Dividend</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_new_sip_amount" class="form-label">New SIP Amount</label>
+                                <input type="number" class="form-control" id="mf_new_sip_amount" name="mf_new_sip_amount">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mf_sip_end_date" class="form-label">New SIP End Date</label>
+                                <input type="date" class="form-control" id="mf_sip_end_date" name="mf_sip_end_date">
                             </div>
                         </div>
                     </div>
@@ -1054,7 +1117,7 @@
             element.classList.add('active');
             document.getElementById('investment_type').value = type;
             
-            const sections = ['lic_subtype_section', 'income_tax_section', 'health_insurance_section', 'mutual_fund_section', 'id_section', 'amount_note_section', 'note_only_section', 'sip_fields_section', 'death_trans_section', 'stp_period_section', 'switch_fund_section', 'address_change_section', 'bank_change_section', 'mf_main_fields', 'swp_fields_section'];
+            const sections = ['lic_subtype_section', 'income_tax_section', 'health_insurance_section', 'mutual_fund_section', 'id_section', 'amount_note_section', 'note_only_section', 'sip_fields_section', 'sip_modification_fields_section', 'death_trans_section', 'stp_period_section', 'switch_fund_section', 'address_change_section', 'bank_change_section', 'mf_main_fields', 'swp_fields_section'];
             sections.forEach(id => {
                 const el = document.getElementById(id);
                 if(el) {
@@ -1295,7 +1358,7 @@
             };
 
             // Hide all optional sections
-            ['sip_fields_section', 'stp_period_section', 'switch_fund_section', 'death_trans_section', 'address_change_section', 'bank_change_section', 'swp_fields_section'].forEach(id => {
+            ['sip_fields_section', 'stp_period_section', 'switch_fund_section', 'death_trans_section', 'address_change_section', 'bank_change_section', 'swp_fields_section', 'sip_modification_fields_section'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
@@ -1320,18 +1383,13 @@
                 document.getElementById('mf_main_fields').style.display = 'flex';
                 document.getElementById('sip_fields_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'block';
-            } else if (subtype === 'Death Transmutation') {
+            } else if (subtype === 'SIP Modification') {
                 document.getElementById('mf_main_fields').style.display = 'flex';
-                document.getElementById('death_trans_section').style.display = 'block';
-                document.getElementById('amount_note_section').style.display = 'block';
-                loadDeathCompanies(document.querySelector('.death-fund-row'));
-                loadCompanies();
-            } else if (subtype === 'Address Change') {
-                document.getElementById('address_change_section').style.display = 'block';
-                document.getElementById('amount_note_section').style.display = 'block';
-            } else if (subtype === 'Bank Change') {
-                document.getElementById('bank_change_section').style.display = 'block';
-                document.getElementById('amount_note_section').style.display = 'block';
+                document.querySelectorAll('#mf_main_fields > div').forEach((div, index) => {
+                    div.style.display = index === 0 ? 'block' : 'none';
+                });
+                document.getElementById('sip_modification_fields_section').style.display = 'block';
+                document.getElementById('amount_note_section').style.display = 'none';
             }
         }
 

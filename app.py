@@ -1042,7 +1042,7 @@ def daily_entry():
                     conn.commit()
                     conn.close()
                     flash('Daily entry saved successfully!')
-                    return redirect(url_for('daily_report'))  # Redirect to daily report
+                    return redirect(url_for('daily_entry'))
                 except Exception as e:
                     conn.close()
                     logger.error(f"Error saving daily entry: {e}")
