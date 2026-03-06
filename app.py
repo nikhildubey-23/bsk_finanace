@@ -650,17 +650,38 @@ def client_details(client_id):
             'SELECT * FROM documents WHERE client_id = ? ORDER BY upload_date DESC',
             (client_id,)
         ).fetchall()
+        
+        # Get ID entries with their scanned documents
         id_entries = conn.execute(
-            "SELECT * FROM daily_entries WHERE client_id = ? AND investment_type = 'ID Section' ORDER BY entry_date DESC, id DESC",
+            """SELECT de.*, GROUP_CONCAT(d.filename) as scanned_files, GROUP_CONCAT(d.original_filename) as scanned_original_names
+             FROM daily_entries de 
+             LEFT JOIN documents d ON d.daily_entry_id = de.id
+             WHERE de.client_id = ? AND de.investment_type = 'ID Section' 
+             GROUP BY de.id
+             ORDER BY de.entry_date DESC, de.id DESC""",
             (client_id,)
         ).fetchall()
+        
+        # Parse scanned files for each entry
+        id_entries_with_docs = []
+        for entry in id_entries:
+            entry_dict = dict(entry)
+            if entry['scanned_files']:
+                entry_dict['scanned_files_list'] = list(zip(
+                    entry['scanned_files'].split(','),
+                    entry['scanned_original_names'].split(',') if entry['scanned_original_names'] else []
+                ))
+            else:
+                entry_dict['scanned_files_list'] = []
+            id_entries_with_docs.append(entry_dict)
+        
         conn.close()
         
         if client is None:
             flash('Client not found!')
             return redirect(url_for('search_client'))
         
-        return render_template('client_details.html', client=client, documents=documents, id_entries=id_entries)
+        return render_template('client_details.html', client=client, documents=documents, id_entries=id_entries_with_docs)
     except Exception as e:
         logger.error(f"Error in client_details: {e}")
         flash("Error loading client details", "error")

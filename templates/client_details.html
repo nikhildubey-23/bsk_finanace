@@ -340,14 +340,28 @@
                                     <tr>
                                         <th>ID Type</th>
                                         <th>Entry Date</th>
+                                        <th>Scanned Documents</th>
                                         <th>Created At</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for entry in id_entries %}
                                     <tr>
-                                        <td><strong>{{ entry['id_type'] }}</strong></td>
+                                        <td><strong>{{ entry['id_type'] or 'N/A' }}</strong></td>
                                         <td>{{ entry['entry_date'] or '-' }}</td>
+                                        <td>
+                                            {% if entry.scanned_files_list %}
+                                                <div class="d-flex flex-wrap gap-1">
+                                                {% for file, orig_name in entry.scanned_files_list %}
+                                                    <a href="{{ url_for('view_file', filename=file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-file-earmark-image"></i> {{ orig_name or 'View' }}
+                                                    </a>
+                                                {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">No documents</span>
+                                            {% endif %}
+                                        </td>
                                         <td><small>{{ entry['created_at'] }}</small></td>
                                     </tr>
                                     {% endfor %}

@@ -472,10 +472,24 @@
                         </button>
                     </div>
                     
+                    <!-- Search and Filter -->
+                    <div class="mb-3 d-flex gap-2">
+                        <input type="text" id="clientSearch" class="form-control form-control-sm" placeholder="Search clients..." onkeyup="filterClients()">
+                        <select id="categoryFilter" class="form-select form-select-sm" style="max-width: 120px;" onchange="filterClients()">
+                            <option value="">All Categories</option>
+                            <option value="hot">Hot</option>
+                            <option value="new">New</option>
+                            <option value="old">Old</option>
+                        </select>
+                        <button class="btn btn-outline-success btn-sm" onclick="selectAllFiltered()">
+                            <i class="bi bi-check-all"></i> Select All
+                        </button>
+                    </div>
+                    
                     <!-- Client Grid -->
                     <div class="client-grid" id="clientGrid">
                         {% for client in all_clients %}
-                        <div class="client-item" data-client-id="{{ client.id }}" onclick="toggleClient({{ client.id }})">
+                        <div class="client-item" data-client-id="{{ client.id }}" data-category="{{ client.client_type|lower if client.client_type else '' }}" onclick="toggleClient({{ client.id }})">
                             <div class="d-flex align-items-start">
                                 <input type="checkbox" class="client-checkbox" id="client_{{ client.id }}">
                                 <div class="flex-grow-1">
@@ -645,10 +659,14 @@
         function selectClients(type) {
             selectedClients.clear();
             document.querySelectorAll('.client-item').forEach(item => {
-                item.classList.remove('selected');
+                if (item.style.display !== 'none') {
+                    item.classList.remove('selected');
+                }
             });
             document.querySelectorAll('.client-checkbox').forEach(cb => {
-                cb.checked = false;
+                if (cb.closest('.client-item').style.display !== 'none') {
+                    cb.checked = false;
+                }
             });
 
             let clientIds = [];
@@ -662,10 +680,46 @@
                 selectedClients.add(id);
                 const checkbox = document.getElementById(`client_${id}`);
                 const clientItem = document.querySelector(`[data-client-id="${id}"]`);
-                if (checkbox) checkbox.checked = true;
-                if (clientItem) clientItem.classList.add('selected');
+                if (checkbox && clientItem && clientItem.style.display !== 'none') {
+                    checkbox.checked = true;
+                    clientItem.classList.add('selected');
+                }
             });
 
+            updateMessagePreview();
+        }
+
+        function filterClients() {
+            const searchTerm = document.getElementById('clientSearch').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+            
+            document.querySelectorAll('.client-item').forEach(item => {
+                const clientName = item.querySelector('.client-name').textContent.toLowerCase();
+                const clientPhone = item.querySelector('.client-details').textContent.toLowerCase();
+                const category = item.dataset.category || '';
+                
+                const matchesSearch = clientName.includes(searchTerm) || clientPhone.includes(searchTerm);
+                const matchesCategory = categoryFilter === '' || category === categoryFilter;
+                
+                if (matchesSearch && matchesCategory) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function selectAllFiltered() {
+            document.querySelectorAll('.client-item').forEach(item => {
+                if (item.style.display !== 'none') {
+                    const clientId = parseInt(item.dataset.clientId);
+                    const checkbox = document.getElementById(`client_${clientId}`);
+                    
+                    selectedClients.add(clientId);
+                    if (checkbox) checkbox.checked = true;
+                    item.classList.add('selected');
+                }
+            });
             updateMessagePreview();
         }
 

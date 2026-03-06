@@ -303,10 +303,27 @@
                 </div>
             </div>
 
-            <!-- Search Bar -->
-            <div class="input-group mb-4">
-                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                <input type="text" id="clientSearch" class="form-control" placeholder="Search for clients by name, phone, email or policy number...">
+            <!-- Search Bar and Filters -->
+            <div class="row mb-4 g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" id="clientSearch" class="form-control" placeholder="Search for clients by name, phone, email or policy number...">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        <select id="categoryFilter" class="form-select" style="max-width: 150px;">
+                            <option value="">All Categories</option>
+                            <option value="hot">Hot</option>
+                            <option value="new">New</option>
+                            <option value="old">Old</option>
+                        </select>
+                        <button type="button" id="selectAllBtn" class="btn btn-outline-secondary">
+                            <i class="bi bi-check-all"></i> Select All
+                        </button>
+                    </div>
+                </div>
             </div>
             
             {% if clients %}
@@ -314,6 +331,7 @@
                     <table class="table">
                         <thead>
                             <tr>
+                                <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox"></th>
                                 <th>Client Name</th>
                                 <th>Phone</th>
                                 <th>Email</th>
@@ -324,7 +342,8 @@
                         </thead>
                         <tbody>
                             {% for client in clients %}
-                            <tr data-client-id="{{ client['id'] }}">
+                            <tr data-client-id="{{ client['id'] }}" data-category="{{ client['client_type']|lower if client['client_type'] else '' }}">
+                                <td><input type="checkbox" class="client-checkbox" value="{{ client['id'] }}"></td>
                                 <td>
                                     <div class="client-name">{{ client['name'] }}</div>
                                     {% if client['policy_number'] %}
@@ -413,27 +432,89 @@
                 });
             });
 
+        // Select All functionality
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const clientCheckboxes = document.querySelectorAll('.client-checkbox');
+        
+        selectAllCheckbox.addEventListener('change', function() {
+            clientCheckboxes.forEach(cb => {
+                if (cb.closest('tr').style.display !== 'none') {
+                    cb.checked = this.checked;
+                }
+            });
+            updateSelectAllButton();
+        });
+        
+        selectAllBtn.addEventListener('click', function() {
+            const allSelected = Array.from(clientCheckboxes).every(cb => cb.checked && cb.closest('tr').style.display !== 'none');
+            clientCheckboxes.forEach(cb => {
+                if (cb.closest('tr').style.display !== 'none') {
+                    cb.checked = !allSelected;
+                }
+            });
+            selectAllCheckbox.checked = !allSelected && Array.from(clientCheckboxes).some(cb => cb.checked && cb.closest('tr').style.display !== 'none');
+            updateSelectAllButton();
+        });
+        
+        clientCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                updateSelectAllButton();
+            });
+        });
+        
+        function updateSelectAllButton() {
+            const visibleCheckboxes = Array.from(clientCheckboxes).filter(cb => cb.closest('tr').style.display !== 'none');
+            const checkedCount = visibleCheckboxes.filter(cb => cb.checked).length;
+            if (checkedCount === visibleCheckboxes.length && checkedCount > 0) {
+                selectAllCheckbox.checked = true;
+                selectAllBtn.innerHTML = '<i class="bi bi-x-circle"></i> Deselect All';
+            } else if (checkedCount > 0) {
+                selectAllCheckbox.checked = false;
+                selectAllBtn.innerHTML = `<i class="bi bi-check-all"></i> Select All (${checkedCount})`;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllBtn.innerHTML = '<i class="bi bi-check-all"></i> Select All';
+            }
+        }
+
         // Client search functionality
         document.getElementById('clientSearch').addEventListener('keyup', function() {
-            let searchTerm = this.value.toLowerCase();
+            filterClients();
+        });
+
+        // Category filter functionality
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            filterClients();
+        });
+
+        function filterClients() {
+            let searchTerm = document.getElementById('clientSearch').value.toLowerCase();
+            let categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
             let tableRows = document.querySelectorAll('.table-container .table tbody tr');
 
             tableRows.forEach(row => {
-                let clientName = row.cells[0].textContent.toLowerCase();
-                let clientPhone = row.cells[1].textContent.toLowerCase();
-                let clientEmail = row.cells[2].textContent.toLowerCase();
+                let clientName = row.cells[1].textContent.toLowerCase();
+                let clientPhone = row.cells[2].textContent.toLowerCase();
+                let clientEmail = row.cells[3].textContent.toLowerCase();
+                let category = row.dataset.category;
                 let policyNumberText = row.querySelector('.text-muted') ? row.querySelector('.text-muted').textContent.toLowerCase() : '';
 
-                if (clientName.includes(searchTerm) || 
+                let matchesSearch = clientName.includes(searchTerm) || 
                     clientPhone.includes(searchTerm) || 
                     clientEmail.includes(searchTerm) ||
-                    policyNumberText.includes(searchTerm)) {
+                    policyNumberText.includes(searchTerm);
+                
+                let matchesCategory = categoryFilter === '' || category === categoryFilter;
+
+                if (matchesSearch && matchesCategory) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
                 }
             });
-        });
+            updateSelectAllButton();
+        }
 
         function deleteClient(clientId, clientName) {
             if (confirm(`Are you sure you want to delete the client "${clientName}"? This action cannot be undone.`)) {
