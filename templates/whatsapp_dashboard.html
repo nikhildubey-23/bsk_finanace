@@ -484,6 +484,9 @@
                         <button class="btn btn-outline-success btn-sm" onclick="selectAllFiltered()">
                             <i class="bi bi-check-all"></i> Select All
                         </button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deselectAllFiltered()">
+                            <i class="bi bi-x-lg"></i> Deselect All
+                        </button>
                     </div>
                     
                     <!-- Client Grid -->
@@ -718,6 +721,20 @@
                     selectedClients.add(clientId);
                     if (checkbox) checkbox.checked = true;
                     item.classList.add('selected');
+                }
+            });
+            updateMessagePreview();
+        }
+
+        function deselectAllFiltered() {
+            document.querySelectorAll('.client-item').forEach(item => {
+                if (item.style.display !== 'none') {
+                    const clientId = parseInt(item.dataset.clientId);
+                    const checkbox = document.getElementById(`client_${clientId}`);
+                    
+                    selectedClients.delete(clientId);
+                    if (checkbox) checkbox.checked = false;
+                    item.classList.remove('selected');
                 }
             });
             updateMessagePreview();
