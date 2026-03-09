@@ -220,6 +220,11 @@
         .investment-card.id:hover i { color: #06b6d4; }
         .investment-card.id.active { background: #06b6d4; border-color: #06b6d4; box-shadow: 0 15px 30px rgba(6, 182, 212, 0.4); }
         
+        .investment-card.cu { border-color: #e0e7ff; }
+        .investment-card.cu:hover { border-color: #6366f1; box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2); }
+        .investment-card.cu:hover i { color: #6366f1; }
+        .investment-card.cu.active { background: #6366f1; border-color: #6366f1; box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4); }
+        
         .investment-card i { color: #64748b; }
         
         .investment-card.active::before {
@@ -457,7 +462,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="client_name" class="form-label">Client Name</label>
-                            <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Auto-filled from selection">
+                            <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Auto-filled from selection" oninput="handleClientNameInput()">
                         </div>
                     </div>
                 </div>
@@ -506,14 +511,6 @@
                     <div class="section-title"><i class="bi bi-shield-plus"></i> LIC Details</div>
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label for="lic_policy_number" class="form-label">Policy Number</label>
-                            <input type="text" class="form-control" id="lic_policy_number" name="lic_policy_number">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="lic_plan_term" class="form-label">Plan Term (Years)</label>
-                            <input type="text" class="form-control" id="lic_plan_term" name="lic_plan_term">
-                        </div>
-                        <div class="col-md-4 mb-3">
                             <label for="lic_subtype" class="form-label">Investment Type</label>
                             <select class="form-select" id="lic_subtype" name="lic_subtype">
                                 <option value="">Select Type</option>
@@ -528,6 +525,14 @@
                                 <option value="Death Claim">Death Claim</option>
                                 <option value="Other">Other</option>
                             </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="lic_policy_number" class="form-label">Policy Number</label>
+                            <input type="text" class="form-control" id="lic_policy_number" name="lic_policy_number">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="lic_plan_term" class="form-label">Plan Term (Years)</label>
+                            <input type="text" class="form-control" id="lic_plan_term" name="lic_plan_term">
                         </div>
                     </div>
                 </div>
@@ -622,7 +627,8 @@
                                 <option value="Voter ID">
                                 <option value="Driving License">
                                 <option value="Passport">
-                                <option value="Ration Card">
+                                <option value="CHEQUE/PASSBOOK">
+                                <option value="PAN CARD">
                             </datalist>
                         </div>
                     </div>
@@ -661,7 +667,7 @@
                             <label for="mf_arn" class="form-label">ARN</label>
                             <select class="form-select" id="mf_arn" name="mf_arn">
                                 <option value="">Select ARN</option>
-                                <option value="ARN-61661">ARN-61661 [MOHD.SHAHNAWAZ RAZVE]</option>
+                                <option value="ARN-61661">ARN-61661 [MOHD.SHAHANAWAZ RAZVI]</option>
                                 <option value="ARN-133000">ARN-133000 [FARIDA BANO]</option>
                                 <option value="ARN-276511">ARN-276511 [SMITA JAIN]</option>
                                 <option value="ARN-314305">ARN-314305 [MOHD.SUFIYAN RAZVI]</option>
@@ -703,9 +709,23 @@
                                 <option value="IDCW">IDCW</option>
                             </select>
                         </div>
+                        <div class="col-md-2 mb-3" id="mf_amount_div" style="display: none;">
+                            <label for="mf_amount" class="form-label">Amount</label>
+                            <input type="number" class="form-control" id="mf_amount" name="mf_amount" placeholder="Enter amount" onchange="calculateTotalAmount()">
+                        </div>
+                        <div class="col-md-1 mb-3" id="add_fund_row_div" style="display: none; align-self: flex-end;">
+                            <button type="button" class="btn btn-success btn-sm" onclick="addMFFundRow()">+</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Fund Rows Container -->
+                    <div id="mf_additional_funds"></div>
+                    
+                    <!-- Applicant Fields (after + button fields) -->
+                    <div class="row g-3">
                         <div class="col-md-2 mb-3" id="applicant_div" style="display: none;">
                             <label for="mf_applicant" class="form-label">Applicant</label>
-                            <select class="form-select" id="mf_applicant" name="mf_applicant">
+                            <select class="form-select" id="mf_applicant" name="mf_applicant" onchange="toggleMFApplicantNames()">
                                 <option value="">Select Applicant</option>
                                 <option value="First Applicant">First Applicant</option>
                                 <option value="Second Applicant">Second Applicant</option>
@@ -716,7 +736,28 @@
                             <label for="applicant_name" class="form-label">Applicant Name</label>
                             <input type="text" class="form-control" id="applicant_name" name="applicant_name" placeholder="Enter applicant name">
                         </div>
+                        <div class="col-md-3 mb-3" id="applicant_name_2_div" style="display: none;">
+                            <label for="applicant_name_2" class="form-label">Applicant Name 2</label>
+                            <input type="text" class="form-control" id="applicant_name_2" name="applicant_name_2" placeholder="Enter 2nd applicant name">
+                        </div>
                     </div>
+                    
+                    <!-- Contact Update Fields (inside Mutual Fund) -->
+                    <div id="mf_contact_update_fields" style="display: none;">
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6 mb-3">
+                                <label for="cu_mobile" class="form-label">Mobile Number</label>
+                                <input type="tel" class="form-control" id="cu_mobile" name="cu_mobile" placeholder="Enter Mobile Number">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cu_email" class="form-label">Email ID</label>
+                                <input type="email" class="form-control" id="cu_email" name="cu_email" placeholder="Enter Email ID">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional MF Fund Rows -->
+                    <div id="mf_additional_funds"></div>
                     
                     <!-- SIP Fields -->
                     <div id="sip_fields_section" style="display: none;">
@@ -882,12 +923,6 @@
                     <div id="switch_fund_section" style="display: none;">
                         <div class="row g-3">
                             <div class="col-md-4 mb-3">
-                                <label for="mf_switch_fund_from" class="form-label">Switch From Fund</label>
-                                <select class="form-select" id="mf_switch_fund_from" name="mf_switch_fund_from">
-                                    <option value="">Select Fund</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
                                 <label for="mf_switch_fund_to" class="form-label">Switch To Fund</label>
                                 <select class="form-select" id="mf_switch_fund_to" name="mf_switch_fund_to">
                                     <option value="">Select Fund</option>
@@ -964,12 +999,26 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="mf_claimant_relation" class="form-label">Relation</label>
-                                <select class="form-select" id="mf_claimant_relation" name="mf_claimant_relation">
+                                <select class="form-select" id="mf_claimant_relation" name="mf_claimant_relation" onchange="toggleApplicantNames()">
                                     <option value="">Select</option>
                                     <option value="Nominee">Nominee</option>
                                     <option value="2nd Applicant">2nd Applicant</option>
+                                    <option value="3rd Applicant">3rd Applicant</option>
                                     <option value="Joint Holder">Joint Holder</option>
                                 </select>
+                            </div>
+                            <!-- Applicant Name Section -->
+                            <div class="col-md-12 mb-3" id="applicant_name_section" style="display: none;">
+                                <div class="row g-3">
+                                    <div class="col-md-6" id="applicant_name_1_div" style="display: none;">
+                                        <label for="mf_applicant_name_1" class="form-label">Applicant Name 1</label>
+                                        <input type="text" class="form-control" id="mf_applicant_name_1" name="mf_applicant_name_1">
+                                    </div>
+                                    <div class="col-md-6" id="mf_claim_applicant_name_2_div" style="display: none;">
+                                        <label for="mf_claim_applicant_name_2" class="form-label">Applicant Name 2</label>
+                                        <input type="text" class="form-control" id="mf_claim_applicant_name_2" name="mf_claim_applicant_name_2">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -989,11 +1038,11 @@
                         <div class="row g-3">
                             <div class="col-md-6 mb-3">
                                 <label for="mf_old_bank_detail" class="form-label">Old Bank Detail</label>
-                                <input type="text" class="form-control" id="mf_old_bank_detail" name="mf_old_bank_detail">
+                                <textarea class="form-control" id="mf_old_bank_detail" name="mf_old_bank_detail" rows="2" placeholder="Enter old bank account details"></textarea>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="mf_new_bank_detail" class="form-label">New Bank Detail</label>
-                                <input type="text" class="form-control" id="mf_new_bank_detail" name="mf_new_bank_detail">
+                                <textarea class="form-control" id="mf_new_bank_detail" name="mf_new_bank_detail" rows="2" placeholder="Enter new bank account details"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1014,22 +1063,28 @@
                     </div>
                 </div>
                 
-                <!-- Document Scanning -->
-                <div class="section-card">
+                <!-- Dynamic Scan Button -->
+                <div class="section-card" id="document_scanning_section">
                     <div class="section-title"><i class="bi bi-scanner"></i> Document Scanning</div>
                     <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-12 mb-2">
                             <input type="hidden" id="scanned_documents" name="scanned_documents" value="">
-                            <button type="button" class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#scannerModal">
-                                <i class="bi bi-scanner"></i> Scan Document
+                            <input type="hidden" id="lic_scanned_documents" name="lic_scanned_documents" value="">
+                            <input type="hidden" id="mf_scanned_documents" name="mf_scanned_documents" value="">
+                            <input type="hidden" id="hi_scanned_documents" name="hi_scanned_documents" value="">
+                            <button type="button" class="btn btn-primary-custom" id="dynamicScanBtn" onclick="openDynamicScanner()">
+                                <i class="bi bi-scanner"></i> <span id="scanBtnText">Scan Document</span>
                             </button>
-                            <div id="attached_scans_list" class="mt-3"></div>
+                            <div id="scan_file_count_badge" class="mt-2" style="display:none;">
+                                <span class="badge bg-success fs-6"><i class="bi bi-paperclip"></i> <span id="scan_file_count_text">0</span> file(s) scanned</span>
+                            </div>
+                            <div id="current_scans_list" class="mt-2"></div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Submit Buttons -->
-                <div class="d-flex gap-2 justify-content-end">
+                <div class="d-flex gap-2 justify-content-end" id="submit_buttons_section">
                     <button type="reset" class="btn btn-secondary-custom">
                         <i class="bi bi-arrow-counterclockwise"></i> Reset
                     </button>
@@ -1056,13 +1111,18 @@
                     
                     <div id="scannerOptions" style="display: none;">
                         <div class="mb-3">
-                            <label for="scanClientSelect" class="form-label">Client</label>
-                            <select class="form-select" id="scanClientSelect">
-                                <option value="">Select Client</option>
-                                {% for client in clients %}
-                                    <option value="{{ client['id'] }}">{{ client['name'] }}</option>
-                                {% endfor %}
-                            </select>
+                            <label class="form-label">Client</label>
+                            <div class="input-group">
+                                <select class="form-select" id="scanClientSelect" style="flex: 1;" onchange="handleScanClientSelect()">
+                                    <option value="">Select Client</option>
+                                    {% for client in clients %}
+                                        <option value="{{ client['id'] }}" data-name="{{ client['name'] }}">{{ client['name'] }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="input-group-text">OR</span>
+                                <input type="text" class="form-control" id="scanClientManual" placeholder="Enter Client Name" style="flex: 1;">
+                            </div>
+                            <small class="text-muted">Select from dropdown or enter manually</small>
                         </div>
                         <div class="mb-3">
                             <label for="scanDocumentName" class="form-label">Document Name</label>
@@ -1157,12 +1217,29 @@
             }
         }
 
+        function handleClientNameInput() {
+            const clientNameInput = document.getElementById('client_name').value.toLowerCase().trim();
+            const clientSelect = document.getElementById('client_id');
+            
+            if (!clientNameInput) return;
+            
+            for (let i = 0; i < clientSelect.options.length; i++) {
+                const option = clientSelect.options[i];
+                if (option.text.toLowerCase().trim() === clientNameInput) {
+                    clientSelect.value = option.value;
+                    break;
+                }
+            }
+        }
+
         function selectInvestmentType(type, element) {
             document.querySelectorAll('.investment-card').forEach(card => card.classList.remove('active'));
             element.classList.add('active');
             document.getElementById('investment_type').value = type;
             
-            const sections = ['lic_subtype_section', 'income_tax_section', 'health_insurance_section', 'mutual_fund_section', 'id_section', 'amount_note_section', 'note_only_section', 'sip_fields_section', 'sip_modification_fields_section', 'death_trans_section', 'stp_period_section', 'switch_fund_section', 'address_change_section', 'bank_change_section', 'mf_main_fields', 'swp_fields_section'];
+            updateScanButtonText();
+            
+            const sections = ['lic_subtype_section', 'income_tax_section', 'health_insurance_section', 'mutual_fund_section', 'id_section', 'amount_note_section', 'note_only_section', 'sip_fields_section', 'sip_modification_fields_section', 'death_trans_section', 'stp_period_section', 'switch_fund_section', 'address_change_section', 'bank_change_section', 'mf_main_fields', 'swp_fields_section', 'applicant_name_section'];
             sections.forEach(id => {
                 const el = document.getElementById(id);
                 if(el) {
@@ -1170,6 +1247,9 @@
                     el.classList.remove('visible');
                 }
             });
+            
+            document.getElementById('document_scanning_section').style.display = 'block';
+            document.getElementById('submit_buttons_section').style.display = 'block';
 
             if (type === 'LIC' || type === 'Health Insurance' || type === 'Mutual Fund') {
                 const amountSec = document.getElementById('amount_note_section');
@@ -1236,6 +1316,126 @@
             }
         }
 
+        let mfFundRowCount = 0;
+
+        function addMFFundRow() {
+            mfFundRowCount++;
+            const container = document.getElementById('mf_additional_funds');
+            const row = document.createElement('div');
+            row.className = 'row g-3 mb-2 mf-fund-row';
+            row.id = 'mf_fund_row_' + mfFundRowCount;
+            row.innerHTML = `
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Fund Name</label>
+                    <select class="form-select mf-fund-name" name="mf_fund_name_${mfFundRowCount}">
+                        <option value="">Select Fund</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Fund Type</label>
+                    <select class="form-select mf-fund-type" name="mf_fund_type_${mfFundRowCount}" onchange="toggleAdditionalFundSubType(this)">
+                        <option value="">Select Type</option>
+                        <option value="Growth">Growth</option>
+                        <option value="Dividend">Dividend</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 mf-fund-subtype-div" style="display: none;">
+                    <label class="form-label">Fund Sub Type</label>
+                    <select class="form-select mf-fund-subtype" name="mf_fund_subtype_${mfFundRowCount}">
+                        <option value="">Select Sub Type</option>
+                        <option value="Re-investment">Re-investment</option>
+                        <option value="IDCW">IDCW</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Amount</label>
+                    <input type="number" class="form-control mf-row-amount" name="mf_amount_${mfFundRowCount}" placeholder="Enter amount" onchange="calculateTotalAmount()">
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeMFFundRow('mf_fund_row_${mfFundRowCount}')">-</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function calculateTotalAmount() {
+            let total = 0;
+            // Get main amount field value
+            const mainAmount = document.getElementById('mf_amount');
+            if (mainAmount && mainAmount.value) {
+                total += parseFloat(mainAmount.value) || 0;
+            }
+            // Get all additional fund row amounts
+            const rowAmounts = document.querySelectorAll('.mf-row-amount');
+            rowAmounts.forEach(input => {
+                if (input.value) {
+                    total += parseFloat(input.value) || 0;
+                }
+            });
+            // Set the total to the common amount field
+            const commonAmount = document.getElementById('amount');
+            if (commonAmount) {
+                commonAmount.value = total;
+            }
+        }
+
+        function removeMFFundRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
+            // Recalculate total after removing a row
+            calculateTotalAmount();
+        }
+
+        function loadCompaniesForFundRow(row) {
+            const companySelect = row.querySelector('.mf-company');
+            fetch('/api/mf_companies')
+                .then(response => response.json())
+                .then(data => {
+                    companySelect.innerHTML = '<option value="">Select Company</option>';
+                    data.forEach(company => {
+                        const option = new Option(company.name, company.id);
+                        companySelect.appendChild(option);
+                    });
+                });
+        }
+
+        function loadAdditionalFundNames(selectElement) {
+            const companyId = selectElement.value;
+            const row = selectElement.closest('.mf-fund-row');
+            const fundSelect = row.querySelector('.mf-fund-name');
+            
+            if (!companyId) {
+                fundSelect.innerHTML = '<option value="">Select Company First</option>';
+                return;
+            }
+            
+            fetch(`/api/mf_funds/${companyId}`)
+                .then(response => response.json())
+                .then(data => {
+                    fundSelect.innerHTML = '<option value="">Select Fund</option>';
+                    if (data && data.length > 0) {
+                        data.forEach(fund => {
+                            const option = new Option(fund.fund_name, fund.id);
+                            fundSelect.appendChild(option);
+                        });
+                    } else {
+                        fundSelect.innerHTML = '<option value="">No funds available</option>';
+                    }
+                });
+        }
+
+        function toggleAdditionalFundSubType(selectElement) {
+            const row = selectElement.closest('.mf-fund-row');
+            const subTypeDiv = row.querySelector('.mf-fund-subtype-div');
+            
+            if (selectElement.value === 'Dividend') {
+                subTypeDiv.style.display = 'block';
+            } else {
+                subTypeDiv.style.display = 'none';
+                row.querySelector('.mf-fund-subtype').value = '';
+            }
+        }
+
         function toggleNewFundSubType() {
             const fundType = document.getElementById('mf_new_fund_type').value;
             const fundSubTypeDiv = document.getElementById('new_fund_subtype_div');
@@ -1285,6 +1485,44 @@
             }
         }
 
+        function toggleApplicantNames() {
+            const relation = document.getElementById('mf_claimant_relation').value;
+            const applicantSection = document.getElementById('applicant_name_section');
+            const applicant1Div = document.getElementById('applicant_name_1_div');
+            const applicant2Div = document.getElementById('mf_claim_applicant_name_2_div');
+            
+            if (relation === '2nd Applicant') {
+                applicantSection.style.display = 'block';
+                applicant1Div.style.display = 'block';
+                applicant2Div.style.display = 'none';
+            } else if (relation === '3rd Applicant' || relation === 'Joint Holder') {
+                applicantSection.style.display = 'block';
+                applicant1Div.style.display = 'block';
+                applicant2Div.style.display = 'block';
+            } else {
+                applicantSection.style.display = 'none';
+                applicant1Div.style.display = 'none';
+                applicant2Div.style.display = 'none';
+            }
+        }
+
+        function toggleMFApplicantNames() {
+            const applicant = document.getElementById('mf_applicant').value;
+            const applicantNameDiv = document.getElementById('applicant_name_div');
+            const applicantName2Div = document.getElementById('applicant_name_2_div');
+            
+            if (applicant === 'Second Applicant') {
+                applicantNameDiv.style.display = 'block';
+                applicantName2Div.style.display = 'none';
+            } else if (applicant === 'Third Applicant') {
+                applicantNameDiv.style.display = 'block';
+                applicantName2Div.style.display = 'block';
+            } else {
+                applicantNameDiv.style.display = 'none';
+                applicantName2Div.style.display = 'none';
+            }
+        }
+
         function addDeathFundRow() {
             const container = document.getElementById('death_fund_details');
             const row = document.createElement('div');
@@ -1330,6 +1568,24 @@
             }
         }
 
+        function loadDeathCompaniesForFirstRow() {
+            const firstRow = document.querySelector('#death_fund_details .death-fund-row');
+            if (firstRow) {
+                const companySelect = firstRow.querySelector('.death-company');
+                if (companySelect && companySelect.options.length <= 1) {
+                    fetch('/api/mf_companies')
+                        .then(response => response.json())
+                        .then(data => {
+                            companySelect.innerHTML = '<option value="">Select Company</option>';
+                            data.forEach(company => {
+                                const option = new Option(company.name, company.id);
+                                companySelect.appendChild(option);
+                            });
+                        });
+                }
+            }
+        }
+
         function loadDeathCompanies(row) {
             const companySelect = row.querySelector('.death-company');
             fetch('/api/mf_companies')
@@ -1359,7 +1615,7 @@
                     fundSelect.innerHTML = '<option value="">Select Fund</option>';
                     if (data && data.length > 0) {
                         data.forEach(fund => {
-                            const option = new Option(fund.name, fund.id);
+                            const option = new Option(fund.fund_name, fund.id);
                             fundSelect.appendChild(option);
                         });
                     } else {
@@ -1370,17 +1626,17 @@
 
         function loadFundNames() {
             const companyId = document.getElementById('mf_company').value;
-            const fundSelects = ['mf_fund_name', 'stp_fund_name_to', 'stp_fund_name', 'mf_switch_fund_from', 'mf_switch_fund_to', 'mf_new_fund_name'];
+            const fundSelects = ['mf_fund_name', 'stp_fund_name_to', 'stp_fund_name', 'mf_switch_fund_to', 'mf_new_fund_name'];
             
             if (!companyId) {
                 fundSelects.forEach(id => {
                     const select = document.getElementById(id);
                     if(select) select.innerHTML = '<option value="">Select Company First</option>';
                 });
-                return;
+                return Promise.resolve();
             }
             
-            fetch(`/api/mf_funds/${companyId}`)
+            return fetch(`/api/mf_funds/${companyId}`)
                 .then(response => response.json())
                 .then(data => {
                     fundSelects.forEach(id => {
@@ -1471,8 +1727,12 @@
             if (data.mf_fund_subtype) {
                 document.getElementById('mf_fund_subtype').value = data.mf_fund_subtype;
             }
-            if (data.mf_applicant) document.getElementById('mf_applicant').value = data.mf_applicant;
+            if (data.mf_applicant) {
+                document.getElementById('mf_applicant').value = data.mf_applicant;
+                toggleMFApplicantNames(); // Update visibility of applicant name fields
+            }
             if (data.applicant_name) document.getElementById('applicant_name').value = data.applicant_name;
+            if (data.applicant_name_2) document.getElementById('applicant_name_2').value = data.applicant_name_2;
             if (data.mf_arn) document.getElementById('mf_arn').value = data.mf_arn;
             
             // SIP fields
@@ -1504,7 +1764,6 @@
             if (data.mf_new_sip_amount) document.getElementById('mf_new_sip_amount').value = data.mf_new_sip_amount;
             
             // Switch fields
-            if (data.mf_switch_fund_from) document.getElementById('mf_switch_fund_from').value = data.mf_switch_fund_from;
             if (data.mf_switch_fund_to) document.getElementById('mf_switch_fund_to').value = data.mf_switch_fund_to;
             if (data.switch_fund_type) document.getElementById('switch_fund_type').value = data.switch_fund_type;
             if (data.switch_fund_subtype) document.getElementById('switch_fund_subtype').value = data.switch_fund_subtype;
@@ -1512,7 +1771,12 @@
             // Transmission fields
             if (data.mf_transmission_type) document.getElementById('mf_transmission_type').value = data.mf_transmission_type;
             if (data.mf_claimant_name) document.getElementById('mf_claimant_name').value = data.mf_claimant_name;
-            if (data.mf_claimant_relation) document.getElementById('mf_claimant_relation').value = data.mf_claimant_relation;
+            if (data.mf_claimant_relation) {
+                document.getElementById('mf_claimant_relation').value = data.mf_claimant_relation;
+                toggleApplicantNames();
+            }
+            if (data.mf_applicant_name_1) document.getElementById('mf_applicant_name_1').value = data.mf_applicant_name_1;
+            if (data.mf_applicant_name_2) document.getElementById('mf_claim_applicant_name_2').value = data.mf_applicant_name_2;
             
             // Address & Bank Change
             if (data.mf_new_address) document.getElementById('mf_new_address').value = data.mf_new_address;
@@ -1521,6 +1785,7 @@
             
             // Amount & Note
             if (data.amount) document.getElementById('amount').value = data.amount;
+            if (data.mf_amount) document.getElementById('mf_amount').value = data.mf_amount;
             if (data.note) document.getElementById('note').value = data.note;
             
             // Show MF basic fields row
@@ -1530,75 +1795,126 @@
 
         function toggleMFFields() {
             const subtype = document.getElementById('mf_subtype').value;
-            const sections = {
-                stp: ['stp_period_section', 'stp_fund_section'],
-                swp: ['swp_fields_section'],
-                switch: ['switch_fund_section'],
-                sip: ['sip_fields_section'],
-                death: ['death_trans_section'],
-                address: ['address_change_section'],
-                bank: ['bank_change_section'],
-                normal: ['mf_main_fields', 'amount_note_section']
-            };
-
             // Hide all optional sections
-            ['sip_fields_section', 'stp_period_section', 'switch_fund_section', 'death_trans_section', 'address_change_section', 'bank_change_section', 'swp_fields_section', 'sip_modification_fields_section', 'mf_basic_fields'].forEach(id => {
+            ['sip_fields_section', 'stp_period_section', 'switch_fund_section', 'death_trans_section', 'address_change_section', 'bank_change_section', 'swp_fields_section', 'sip_modification_fields_section', 'mf_basic_fields', 'applicant_name_section'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
 
-            // Show/Hide Applicant fields for Purchase, Add-Purchase, SIP, SIP Pause, SIP Cancellation
             const applicantDiv = document.getElementById('applicant_div');
             const applicantNameDiv = document.getElementById('applicant_name_div');
+            const mfAmountDiv = document.getElementById('mf_amount_div');
+            const addFundRowDiv = document.getElementById('add_fund_row_div');
+
+            // Show/Hide Applicant fields for Purchase, Add-Purchase, SIP, SIP Pause, SIP Cancellation
             if (['Purchase', 'Add-Purchase', 'SIP', 'SIP Pause', 'SIP Cancellation'].includes(subtype)) {
+                document.getElementById('mf_basic_fields').style.display = 'flex';
+                // Show Amount field and + button for Purchase, Add-Purchase, and SIP
+                if (subtype === 'Purchase' || subtype === 'Add-Purchase' || subtype === 'SIP') {
+                    mfAmountDiv.style.display = 'block';
+                    addFundRowDiv.style.display = 'block';
+                } else {
+                    mfAmountDiv.style.display = 'none';
+                    addFundRowDiv.style.display = 'none';
+                }
                 applicantDiv.style.display = 'block';
-                applicantNameDiv.style.display = 'block';
+                // Don't show applicant name fields by default - they will be shown based on dropdown selection
+                applicantNameDiv.style.display = 'none';
+                // Also hide the second applicant name field
+                const applicantName2Div = document.getElementById('applicant_name_2_div');
+                if (applicantName2Div) applicantName2Div.style.display = 'none';
             } else {
                 applicantDiv.style.display = 'none';
                 applicantNameDiv.style.display = 'none';
+                mfAmountDiv.style.display = 'none';
+                addFundRowDiv.style.display = 'none';
+            }
+
+            // Show SIP fields section for SIP, SIP Pause, SIP Cancellation
+            if (['SIP', 'SIP Pause', 'SIP Cancellation'].includes(subtype)) {
+                const sipSec = document.getElementById('sip_fields_section');
+                sipSec.style.display = 'block';
+                setTimeout(() => sipSec.classList.add('visible'), 50);
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
+            }
+
+            // Show STP fields section for STP
+            if (subtype === 'STP') {
+                const stpSec = document.getElementById('stp_period_section');
+                stpSec.style.display = 'block';
+                setTimeout(() => stpSec.classList.add('visible'), 50);
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
+            }
+
+            // Show SWP fields section for SWP
+            if (subtype === 'SWP') {
+                const swpSec = document.getElementById('swp_fields_section');
+                swpSec.style.display = 'block';
+                setTimeout(() => swpSec.classList.add('visible'), 50);
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
+            }
+
+            // Show Switch fields section for Switch
+            if (subtype === 'Switch') {
+                const switchSec = document.getElementById('switch_fund_section');
+                switchSec.style.display = 'block';
+                setTimeout(() => switchSec.classList.add('visible'), 50);
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
+            }
+
+            // Show Contact Update fields section for Contact Update
+            if (subtype === 'Contact Update') {
+                const mfContactSec = document.getElementById('mf_contact_update_fields');
+                if (mfContactSec) {
+                    mfContactSec.style.display = 'block';
+                }
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
+            }
+
+            // Show basic fields for Nominee Update
+            if (subtype === 'Nominee Update') {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
             }
 
             // Show relevant sections
-            if (['Purchase', 'Add-Purchase', 'NFO', 'Redemption'].includes(subtype)) {
+            if (['Purchase', 'Add-Purchase', 'NFO', 'Redemption', 'SIP'].includes(subtype)) {
                 document.getElementById('mf_main_fields').style.display = 'flex';
                 document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('amount_note_section').style.display = 'block';
-            } else if (subtype === 'STP') {
-                document.getElementById('stp_period_section').style.display = 'block';
+                if (subtype === 'Purchase' || subtype === 'Add-Purchase' || subtype === 'SIP') {
+                    document.getElementById('add_fund_row_div').style.display = 'block';
+                } else {
+                    document.getElementById('add_fund_row_div').style.display = 'none';
+                    document.getElementById('mf_additional_funds').innerHTML = '';
+                }
+            } else {
+                document.getElementById('add_fund_row_div').style.display = 'none';
+                document.getElementById('mf_additional_funds').innerHTML = '';
+            }
+
+            // SIP Modification
+            if (subtype === 'SIP Modification') {
                 document.getElementById('mf_main_fields').style.display = 'flex';
                 document.getElementById('mf_basic_fields').style.display = 'flex';
-                document.getElementById('amount_note_section').style.display = 'block';
-            } else if (subtype === 'SWP') {
-                document.getElementById('mf_main_fields').style.display = 'flex';
-                document.getElementById('mf_basic_fields').style.display = 'flex';
-                document.getElementById('swp_fields_section').style.display = 'block';
-                document.getElementById('amount_note_section').style.display = 'block';
-            } else if (subtype === 'Switch') {
-                document.getElementById('switch_fund_section').style.display = 'block';
-                document.getElementById('mf_main_fields').style.display = 'flex';
-                document.getElementById('mf_basic_fields').style.display = 'flex';
-                document.getElementById('amount_note_section').style.display = 'block';
-            } else if (['SIP', 'SIP Cancellation', 'SIP Pause'].includes(subtype)) {
-                document.getElementById('mf_main_fields').style.display = 'flex';
-                document.getElementById('mf_basic_fields').style.display = 'flex';
-                document.getElementById('sip_fields_section').style.display = 'block';
-                document.getElementById('amount_note_section').style.display = 'block';
-            } else if (subtype === 'SIP Modification') {
-                document.getElementById('mf_main_fields').style.display = 'flex';
-                document.getElementById('mf_basic_fields').style.display = 'flex';
-                document.querySelectorAll('#mf_main_fields > div').forEach((div, index) => {
-                    if (index === 0 || index === 3 || index === 4 || index === 5 || index === 6) {
-                        div.style.display = 'block';
-                    } else {
-                        div.style.display = 'none';
-                    }
-                });
                 document.getElementById('sip_modification_fields_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'none';
             } else if (subtype === 'Bank Change') {
                 document.getElementById('mf_main_fields').style.display = 'flex';
                 document.getElementById('mf_basic_fields').style.display = 'flex';
-                document.getElementById('bank_change_section').style.display = 'block';
+                const bankChangeSec = document.getElementById('bank_change_section');
+                if (bankChangeSec) bankChangeSec.style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'block';
             } else if (subtype === 'Address Change') {
                 document.getElementById('mf_main_fields').style.display = 'flex';
@@ -1610,6 +1926,12 @@
                 document.getElementById('mf_basic_fields').style.display = 'flex';
                 document.getElementById('death_trans_section').style.display = 'block';
                 document.getElementById('amount_note_section').style.display = 'block';
+                loadDeathCompaniesForFirstRow();
+                toggleApplicantNames();
+            } else if (subtype === 'Signature Update') {
+                document.getElementById('mf_main_fields').style.display = 'flex';
+                document.getElementById('mf_basic_fields').style.display = 'flex';
+                document.getElementById('amount_note_section').style.display = 'block';
             }
         }
 
@@ -1618,9 +1940,9 @@
             const productSelect = document.getElementById('hi_product');
             if (!companyId) {
                 productSelect.innerHTML = '<option value="">Select Company First</option>';
-                return;
+                return Promise.resolve();
             }
-            fetch(`/api/hi_products/${companyId}`)
+            return fetch(`/api/hi_products/${companyId}`)
                 .then(response => response.json())
                 .then(data => {
                     productSelect.innerHTML = '<option value="">Select Product</option>';
@@ -1659,6 +1981,18 @@
                     if (entryDate) document.getElementById('scanDocumentDate').value = entryDate;
                     checkScannerStatus();
                 });
+                
+                const scanClientManual = document.getElementById('scanClientManual');
+                if (scanClientManual) {
+                    scanClientManual.addEventListener('input', function() {
+                        const manualName = this.value.trim();
+                        if (manualName) {
+                            document.getElementById('client_name').value = manualName;
+                            document.getElementById('client_id').value = '';
+                            document.getElementById('scanDocumentName').value = manualName;
+                        }
+                    });
+                }
             }
             
             const refreshBtn = document.getElementById('refreshScannersBtn');
@@ -1671,9 +2005,135 @@
             if (startScanBtn) startScanBtn.addEventListener('click', startScan);
         });
         
+        function handleScanClientSelect() {
+            const clientSelect = document.getElementById('scanClientSelect');
+            const manualInput = document.getElementById('scanClientManual');
+            if (clientSelect.value) {
+                const selectedOption = clientSelect.options[clientSelect.selectedIndex];
+                const clientName = selectedOption.getAttribute('data-name') || selectedOption.text;
+                document.getElementById('client_name').value = clientName;
+                document.getElementById('client_id').value = clientSelect.value;
+                document.getElementById('scanDocumentName').value = clientName;
+                if (manualInput) manualInput.value = '';
+            }
+        }
+        
         // Scanner functionality
         let selectedScannerId = null;
-        let attachedFiles = [];
+        let attachedFilesGeneral = [];
+        let attachedFilesLIC = [];
+        let attachedFilesMF = [];
+        let attachedFilesHI = [];
+        let currentDocType = 'general';
+        
+        function openScannerModal(docType) {
+            if (docType === 'LIC') {
+                currentDocType = 'LIC';
+            } else if (docType === 'Mutual Fund') {
+                currentDocType = 'MF';
+            } else if (docType === 'Health Insurance') {
+                currentDocType = 'HI';
+            } else {
+                currentDocType = 'general';
+            }
+            const modal = new bootstrap.Modal(document.getElementById('scannerModal'));
+            modal.show();
+        }
+        
+        function getScannedDocsField() {
+            const investmentType = document.getElementById('investment_type').value;
+            switch(investmentType) {
+                case 'LIC': return 'lic_scanned_documents';
+                case 'Mutual Fund': return 'mf_scanned_documents';
+                case 'Health Insurance': return 'hi_scanned_documents';
+                default: return 'scanned_documents';
+            }
+        }
+        
+        function getScansListId() {
+            const investmentType = document.getElementById('investment_type').value;
+            switch(investmentType) {
+                case 'LIC': return 'lic_scans_list';
+                case 'Mutual Fund': return 'mf_scans_list';
+                case 'Health Insurance': return 'hi_scans_list';
+                default: return 'attached_scans_list';
+            }
+        }
+        
+        function openDynamicScanner() {
+            const investmentType = document.getElementById('investment_type').value;
+            const clientName = document.getElementById('client_name').value;
+            if (clientName) document.getElementById('scanDocumentName').value = clientName;
+            openScannerModal(investmentType);
+        }
+        
+        function updateScanButtonText() {
+            const investmentType = document.getElementById('investment_type').value;
+            const btnText = document.getElementById('scanBtnText');
+            const scanList = document.getElementById('current_scans_list');
+            
+            let typeText = 'Document';
+            let listId = 'attached_scans_list';
+            
+            if (investmentType === 'LIC') {
+                typeText = 'LIC Document';
+                listId = 'lic_scans_list';
+            } else if (investmentType === 'Mutual Fund') {
+                typeText = 'Mutual Fund Document';
+                listId = 'mf_scans_list';
+            } else if (investmentType === 'Health Insurance') {
+                typeText = 'Health Insurance Document';
+                listId = 'hi_scans_list';
+            }
+            
+            if (btnText) btnText.textContent = 'Scan ' + typeText;
+            
+            if (scanList) {
+                let html = '';
+                const files = getAttachedFiles();
+                if (files && files.length > 0) {
+                    html = '<h6><i class="bi bi-paperclip"></i> Attached Scans:</h6><ul class="list-group list-group-flush">';
+                    files.forEach(file => {
+                        html += `<li class="list-group-item">${file.document_name}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                scanList.innerHTML = html;
+            }
+            
+            // Update file count badge
+            const allFiles = getAttachedFiles();
+            const countBadge = document.getElementById('scan_file_count_badge');
+            const countText = document.getElementById('scan_file_count_text');
+            if (countBadge && countText) {
+                if (allFiles && allFiles.length > 0) {
+                    countText.textContent = allFiles.length;
+                    countBadge.style.display = 'block';
+                } else {
+                    countBadge.style.display = 'none';
+                }
+            }
+        }
+        
+        function getAttachedFiles() {
+            const investmentType = document.getElementById('investment_type').value;
+            switch(investmentType) {
+                case 'LIC': return attachedFilesLIC;
+                case 'Mutual Fund': return attachedFilesMF;
+                case 'Health Insurance': return attachedFilesHI;
+                default: return attachedFilesGeneral;
+            }
+        }
+        
+        function setAttachedFiles(files) {
+            const investmentType = document.getElementById('investment_type').value;
+            switch(investmentType) {
+                case 'LIC': attachedFilesLIC = files; break;
+                case 'Mutual Fund': attachedFilesMF = files; break;
+                case 'Health Insurance': attachedFilesHI = files; break;
+                default: attachedFilesGeneral = files; break;
+            }
+        }
         
         async function checkScannerStatus() {
             const statusEl = document.getElementById('scannerStatus');
@@ -1751,13 +2211,14 @@
         
         async function startScan() {
             const clientId = document.getElementById('scanClientSelect').value;
+            const clientNameManual = document.getElementById('scanClientManual').value;
             const documentName = document.getElementById('scanDocumentName').value || 'Scanned Document';
             const documentDate = document.getElementById('scanDocumentDate').value;
             const scanMode = document.getElementById('scanMode').value;
             const progressEl = document.getElementById('scanProgress');
             const resultEl = document.getElementById('scanResult');
             const startBtn = document.getElementById('startScanBtn');
-            if (!clientId) return alert('Please select a client!');
+            if (!clientId && !clientNameManual) return alert('Please select a client or enter client name manually!');
             if (!selectedScannerId) return alert('Please select a scanner!');
             progressEl.style.display = 'block';
             resultEl.innerHTML = '';
@@ -1772,20 +2233,29 @@
                         document_date: documentDate,
                         format: 'jpg',
                         multiscan: scanMode === 'flatbed',
-                        scan_mode: scanMode
+                        scan_mode: scanMode,
+                        client_id: clientId || null,
+                        client_name: clientNameManual || null
                     })
                 });
                 const data = await response.json();
                 if (data.success) {
-                    attachedFiles = attachedFiles.concat(data.scanned_files);
-                    document.getElementById('scanned_documents').value = JSON.stringify(attachedFiles);
-                    const listEl = document.getElementById('attached_scans_list');
+                    const currentFiles = getAttachedFiles();
+                    const updatedFiles = currentFiles.concat(data.scanned_files);
+                    setAttachedFiles(updatedFiles);
+                    const scannedFieldId = getScannedDocsField();
+                    const field = document.getElementById(scannedFieldId);
+                    if (field) {
+                        field.value = JSON.stringify(updatedFiles);
+                    }
+                    const listEl = document.getElementById(getScansListId());
                     let listHtml = '<h6><i class="bi bi-paperclip"></i> Attached Scans:</h6><ul class="list-group list-group-flush">';
-                    attachedFiles.forEach(file => {
+                    updatedFiles.forEach(file => {
                         listHtml += `<li class="list-group-item">${file.document_name}</li>`;
                     });
                     listHtml += '</ul>';
-                    listEl.innerHTML = listHtml;
+                    if (listEl) listEl.innerHTML = listHtml;
+                    updateScanButtonText();
                     const modal = bootstrap.Modal.getInstance(document.getElementById('scannerModal'));
                     modal.hide();
                 } else {

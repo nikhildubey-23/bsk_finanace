@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, send_file, jsonify
 from urllib.parse import unquote
 import os
+import json
+import shutil
+import subprocess
 from werkzeug.utils import secure_filename
 import sqlite3
 from datetime import datetime
@@ -128,6 +131,43 @@ def get_client_folder_path(client_id, client_name, existing_conn=None):
         conn.close()
     return os.path.join(app.config['UPLOAD_FOLDER'], folder_name)
 
+def save_docs_for_entry(docs_json, category, entry_id, client_id, client_name, conn):
+    """Move temp scanned files to client/category subfolder and insert document records."""
+    if not docs_json:
+        return
+    try:
+        scanned_docs = json.loads(docs_json)
+    except Exception:
+        return
+    if not scanned_docs:
+        return
+    if client_id:
+        client_folder_path = get_client_folder_path(int(client_id), client_name, conn)
+        client_folder_name = os.path.basename(client_folder_path)
+    else:
+        client_folder_path = os.path.join(app.config['UPLOAD_FOLDER'], 'entry_' + str(entry_id))
+        client_folder_name = os.path.basename(client_folder_path)
+    
+    # Create subfolder for investment type category
+    subfolder_name = category  # e.g. 'LIC', 'MF', 'HI', 'general'
+    folder_path = os.path.join(client_folder_path, subfolder_name)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    
+    for doc in scanned_docs:
+        temp_path_full = os.path.join(app.config['UPLOAD_FOLDER'], doc['temp_path'])
+        if os.path.exists(temp_path_full):
+            original_filename = doc['original_filename']
+            final_filename = str(uuid.uuid4()) + '_' + secure_filename(original_filename)
+            dest_path_full = os.path.join(folder_path, final_filename)
+            shutil.move(temp_path_full, dest_path_full)
+            # relative path: ClientFolder/CategorySubfolder/filename
+            relative_filename = f"{client_folder_name}/{subfolder_name}/{final_filename}".replace('\\','/')
+            conn.execute(
+                'INSERT INTO documents (client_id, daily_entry_id, filename, original_filename, file_type, document_name, document_date, document_category) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                (int(client_id) if client_id else None, entry_id, relative_filename, original_filename, doc['file_type'], doc['document_name'], doc['document_date'], category)
+            )
+
 def init_db():
     conn = get_db_connection()
     
@@ -188,6 +228,7 @@ def init_db():
             file_type TEXT,
             document_name TEXT,
             document_date TEXT,
+            document_category TEXT,
             upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (client_id) REFERENCES clients (id),
             FOREIGN KEY (daily_entry_id) REFERENCES daily_entries (id)
@@ -205,6 +246,8 @@ def init_db():
             conn.execute('ALTER TABLE documents ADD COLUMN document_date TEXT')
         if 'daily_entry_id' not in columns:
             conn.execute('ALTER TABLE documents ADD COLUMN daily_entry_id INTEGER REFERENCES daily_entries(id)')
+        if 'document_category' not in columns:
+            conn.execute('ALTER TABLE documents ADD COLUMN document_category TEXT')
             
     except Exception as e:
         print(f"Error adding document columns: {e}")
@@ -369,6 +412,10 @@ def init_db():
         pass
     try:
         conn.execute('ALTER TABLE daily_entries ADD COLUMN applicant_name TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE daily_entries ADD COLUMN applicant_name_2 TEXT')
     except:
         pass
     try:
@@ -934,6 +981,19 @@ def send_whatsapp():
     
     if not client_ids or not template_id:
         return jsonify({'success': False, 'message': 'Missing required fields'})
+
+@app.route('/update_whatsapp_template', methods=['POST'])
+def update_whatsapp_template():
+    data = request.get_json()
+    template_id = data.get('template_id')
+    message = data.get('message')
+    if not template_id or message is None:
+        return jsonify({'success': False, 'message': 'Invalid data'})
+    if template_id in WHATSAPP_TEMPLATES:
+        WHATSAPP_TEMPLATES[template_id]['message'] = message
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'message': 'Template not found'})
     
     conn = get_db_connection()
     sent_count = 0
@@ -1087,6 +1147,9 @@ def daily_entry():
             stp_fund_name_to = request.form.get('stp_fund_name_to')
             
             scanned_docs_json = request.form.get('scanned_documents')
+            lic_scanned_docs_json = request.form.get('lic_scanned_documents')
+            mf_scanned_docs_json = request.form.get('mf_scanned_documents')
+            hi_scanned_docs_json = request.form.get('hi_scanned_documents')
             
             conn = get_db_connection()
             if conn is not None:
@@ -1189,30 +1252,11 @@ def daily_entry():
                         entry_id = cursor.lastrowid
                         logger.info(f"Daily entry saved with ID: {entry_id}, client: {client_name}, type: {investment_type}")
 
-                    # Process attached scans
-                    if scanned_docs_json and client_id:
-                        scanned_docs = json.loads(scanned_docs_json)
-                        client_folder_path = get_client_folder_path(int(client_id), client_name, conn)
-                        folder_name = os.path.basename(client_folder_path)
-                        
-                        if not os.path.exists(client_folder_path):
-                            os.makedirs(client_folder_path)
-
-                        for doc in scanned_docs:
-                            temp_path_full = os.path.join(app.config['UPLOAD_FOLDER'], doc['temp_path'])
-                            if os.path.exists(temp_path_full):
-                                original_filename = doc['original_filename']
-                                final_filename = str(uuid.uuid4()) + '_' + secure_filename(original_filename)
-                                dest_path_full = os.path.join(client_folder_path, final_filename)
-                                
-                                shutil.move(temp_path_full, dest_path_full)
-                                
-                                relative_filename = f"{folder_name}/{final_filename}".replace('\\','/')
-                                
-                                conn.execute(
-                                    'INSERT INTO documents (client_id, daily_entry_id, filename, original_filename, file_type, document_name, document_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                                    (int(client_id), entry_id, relative_filename, original_filename, doc['file_type'], doc['document_name'], doc['document_date'])
-                                )
+                    # Process all scanned documents (general + LIC + MF + HI)
+                    save_docs_for_entry(scanned_docs_json, 'general', entry_id, client_id, client_name, conn)
+                    save_docs_for_entry(lic_scanned_docs_json, 'LIC', entry_id, client_id, client_name, conn)
+                    save_docs_for_entry(mf_scanned_docs_json, 'MF', entry_id, client_id, client_name, conn)
+                    save_docs_for_entry(hi_scanned_docs_json, 'HI', entry_id, client_id, client_name, conn)
                     
                     conn.commit()
                     conn.close()
@@ -1331,6 +1375,12 @@ def edit_daily_entry(entry_id):
             death_fund_subtypes = request.form.getlist('death_fund_subtype[]')
             stp_fund_name_to = request.form.get('stp_fund_name_to')
             scanned_docs_json = request.form.get('scanned_documents')
+            lic_scanned_docs_json = request.form.get('lic_scanned_documents')
+            mf_scanned_docs_json = request.form.get('mf_scanned_documents')
+            hi_scanned_docs_json = request.form.get('hi_scanned_documents')
+            lic_scanned_docs_json = request.form.get('lic_scanned_documents')
+            mf_scanned_docs_json = request.form.get('mf_scanned_documents')
+            hi_scanned_docs_json = request.form.get('hi_scanned_documents')
             
             conn = get_db_connection()
             if conn is not None:
@@ -1420,30 +1470,11 @@ def edit_daily_entry(entry_id):
                     update_values.append(entry_id)
                     conn.execute(f'UPDATE daily_entries SET {set_clause} WHERE id = ?', update_values)
                     
-                    # Process attached scans
-                    if scanned_docs_json and client_id:
-                        scanned_docs = json.loads(scanned_docs_json)
-                        client_folder_path = get_client_folder_path(int(client_id), client_name, conn)
-                        folder_name = os.path.basename(client_folder_path)
-                        
-                        if not os.path.exists(client_folder_path):
-                            os.makedirs(client_folder_path)
-
-                        for doc in scanned_docs:
-                            temp_path_full = os.path.join(app.config['UPLOAD_FOLDER'], doc['temp_path'])
-                            if os.path.exists(temp_path_full):
-                                original_filename = doc['original_filename']
-                                final_filename = str(uuid.uuid4()) + '_' + secure_filename(original_filename)
-                                dest_path_full = os.path.join(client_folder_path, final_filename)
-                                
-                                shutil.move(temp_path_full, dest_path_full)
-                                
-                                relative_filename = f"{folder_name}/{final_filename}".replace('\\','/')
-                                
-                                conn.execute(
-                                    'INSERT INTO documents (client_id, daily_entry_id, filename, original_filename, file_type, document_name, document_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                                    (int(client_id), entry_id, relative_filename, original_filename, doc['file_type'], doc['document_name'], doc['document_date'])
-                                )
+                    # Process all scanned documents for edit (general + LIC + MF + HI)
+                    save_docs_for_entry(scanned_docs_json, 'general', entry_id, client_id, client_name, conn)
+                    save_docs_for_entry(lic_scanned_docs_json, 'LIC', entry_id, client_id, client_name, conn)
+                    save_docs_for_entry(mf_scanned_docs_json, 'MF', entry_id, client_id, client_name, conn)
+                    save_docs_for_entry(hi_scanned_docs_json, 'HI', entry_id, client_id, client_name, conn)
                     
                     conn.commit()
                     conn.close()
@@ -1468,8 +1499,44 @@ def edit_daily_entry(entry_id):
         conn = get_db_connection()
         if conn is None:
             return redirect(url_for('daily_report'))
+
+        # Query to get entry details along with associated documents
+        entry_query = '''
+            SELECT de.*, 
+                   COALESCE(e.entry_images, '') as entry_images,
+                   COALESCE(e_lic.entry_images, '') as lic_images,
+                   COALESCE(e_mf.entry_images, '') as mf_images,
+                   COALESCE(e_hi.entry_images, '') as hi_images
+            FROM daily_entries de
+            LEFT JOIN (
+                SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
+                FROM documents
+                WHERE daily_entry_id = ? AND (document_category IS NULL OR document_category = 'general')
+                GROUP BY daily_entry_id
+            ) e ON de.id = e.daily_entry_id
+            LEFT JOIN (
+                SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
+                FROM documents
+                WHERE daily_entry_id = ? AND document_category = 'LIC'
+                GROUP BY daily_entry_id
+            ) e_lic ON de.id = e_lic.daily_entry_id
+            LEFT JOIN (
+                SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
+                FROM documents
+                WHERE daily_entry_id = ? AND document_category = 'MF'
+                GROUP BY daily_entry_id
+            ) e_mf ON de.id = e_mf.daily_entry_id
+            LEFT JOIN (
+                SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
+                FROM documents
+                WHERE daily_entry_id = ? AND document_category = 'HI'
+                GROUP BY daily_entry_id
+            ) e_hi ON de.id = e_hi.daily_entry_id
+            WHERE de.id = ?
+        '''
         
-        edit_entry = conn.execute('SELECT * FROM daily_entries WHERE id = ?', (entry_id,)).fetchone()
+        edit_entry = conn.execute(entry_query, (entry_id, entry_id, entry_id, entry_id, entry_id)).fetchone()
+        
         hi_companies = conn.execute('SELECT * FROM hi_companies ORDER BY name').fetchall()
         clients = conn.execute('SELECT * FROM clients ORDER BY name').fetchall()
         companies = conn.execute('SELECT * FROM mf_companies ORDER BY name').fetchall()
@@ -1479,18 +1546,26 @@ def edit_daily_entry(entry_id):
         
         if edit_entry:
             edit_entry = dict(edit_entry)
+            # Combine all image files into one list for the template
+            all_images = []
+            for key in ['entry_images', 'lic_images', 'mf_images', 'hi_images']:
+                if edit_entry.get(key):
+                    all_images.extend(edit_entry[key].split(','))
+            
+            edit_entry['all_scanned_documents'] = list(set(all_images)) # Use set to remove duplicates
+
             companies = [dict(row) for row in companies]
             mf_funds = [dict(row) for row in mf_funds]
             hi_companies = [dict(row) for row in hi_companies]
             hi_products = [dict(row) for row in hi_products]
+            
             return render_template('edit_daily_entry.html', 
                                   edit_entry=edit_entry, 
                                   hi_companies=hi_companies, 
                                   clients=clients,
                                   companies=companies,
                                   mf_funds=mf_funds,
-                                  hi_products=hi_products,
-                                  entries=[])
+                                  hi_products=hi_products)
         else:
             flash('Entry not found!')
             return redirect(url_for('daily_report'))
@@ -1520,7 +1595,10 @@ def daily_report():
             entries = conn.execute('''
                 SELECT de.*, 
                 COALESCE(c.client_images, '') as client_images,
-                COALESCE(e.entry_images, '') as entry_images
+                COALESCE(e.entry_images, '') as entry_images,
+                COALESCE(e_lic.entry_images, '') as lic_images,
+                COALESCE(e_mf.entry_images, '') as mf_images,
+                COALESCE(e_hi.entry_images, '') as hi_images
                 FROM daily_entries de
                 LEFT JOIN (
                     SELECT client_id, GROUP_CONCAT(filename) as client_images
@@ -1531,9 +1609,27 @@ def daily_report():
                 LEFT JOIN (
                     SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
                     FROM documents
-                    WHERE daily_entry_id IS NOT NULL
+                    WHERE daily_entry_id IS NOT NULL AND (document_category IS NULL OR document_category = 'general')
                     GROUP BY daily_entry_id
                 ) e ON de.id = e.daily_entry_id
+                LEFT JOIN (
+                    SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
+                    FROM documents
+                    WHERE daily_entry_id IS NOT NULL AND document_category = 'LIC'
+                    GROUP BY daily_entry_id
+                ) e_lic ON de.id = e_lic.daily_entry_id
+                LEFT JOIN (
+                    SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
+                    FROM documents
+                    WHERE daily_entry_id IS NOT NULL AND document_category = 'MF'
+                    GROUP BY daily_entry_id
+                ) e_mf ON de.id = e_mf.daily_entry_id
+                LEFT JOIN (
+                    SELECT daily_entry_id, GROUP_CONCAT(filename) as entry_images
+                    FROM documents
+                    WHERE daily_entry_id IS NOT NULL AND document_category = 'HI'
+                    GROUP BY daily_entry_id
+                ) e_hi ON de.id = e_hi.daily_entry_id
                 ORDER BY de.entry_date DESC, de.id DESC
             ''').fetchall()
             
@@ -1944,6 +2040,115 @@ def delete_temp_file(filename):
         else:
             return jsonify({'success': False, 'error': 'File not found'})
     except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/delete_image/<path:filename>', methods=['DELETE'])
+def delete_image(filename):
+    """Delete a single image file and its database record."""
+    try:
+        filename = unquote(filename)
+        
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'success': False, 'error': 'Database connection failed'})
+
+        # Find the document by filename
+        # The filename in the DB is relative, e.g., "ClientName/Category/file.jpg"
+        document = conn.execute('SELECT * FROM documents WHERE filename = ?', (filename,)).fetchone()
+
+        if not document:
+            conn.close()
+            # If not found, try searching with normalized paths
+            document = conn.execute('SELECT * FROM documents WHERE filename = ?', (filename.replace('\\', '/'),)).fetchone()
+            if not document:
+                 return jsonify({'success': False, 'error': 'Document not found in database'})
+
+        # Construct the full file path
+        full_path = os.path.join(app.config['UPLOAD_FOLDER'], document['filename'])
+        
+        # 1. Delete the file from the filesystem
+        if os.path.exists(full_path):
+            os.remove(full_path)
+        
+        # 2. Delete the record from the database
+        conn.execute('DELETE FROM documents WHERE id = ?', (document['id'],))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True, 'message': 'Image deleted successfully'})
+
+    except Exception as e:
+        logger.error(f"Error deleting image {filename}: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/open_entry_docs/<int:entry_id>')
+def api_open_entry_docs(entry_id):
+    """Open scanned documents for a daily entry in Windows default photo viewer."""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'success': False, 'error': 'Database error'})
+        
+        # Get the investment type for this entry
+        entry = conn.execute('SELECT investment_type FROM daily_entries WHERE id = ?', (entry_id,)).fetchone()
+        if not entry:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Entry not found'})
+        
+        investment_type = entry['investment_type']
+        
+        # Map investment type to document_category
+        category_map = {
+            'LIC': 'LIC',
+            'Mutual Fund': 'MF',
+            'Health Insurance': 'HI',
+        }
+        doc_category = category_map.get(investment_type)
+        
+        if doc_category:
+            # Try specific category first, then fall back to all docs for this entry
+            docs = conn.execute(
+                "SELECT filename FROM documents WHERE daily_entry_id = ? AND document_category = ?",
+                (entry_id, doc_category)
+            ).fetchall()
+            if not docs:
+                # Fallback: get all documents for this entry regardless of category
+                docs = conn.execute(
+                    "SELECT filename FROM documents WHERE daily_entry_id = ?",
+                    (entry_id,)
+                ).fetchall()
+        else:
+            # For IT, ID Section, etc. — get all docs for this entry
+            docs = conn.execute(
+                "SELECT filename FROM documents WHERE daily_entry_id = ?",
+                (entry_id,)
+            ).fetchall()
+        
+        conn.close()
+        
+        if not docs:
+            return jsonify({'success': False, 'error': 'No documents found for this entry. Please make sure you scanned and saved documents when creating the entry.'})
+        
+        opened = 0
+        errors = []
+        for doc in docs:
+            rel_path = doc['filename']
+            abs_path = os.path.abspath(os.path.join(app.config['UPLOAD_FOLDER'], rel_path))
+            if os.path.exists(abs_path):
+                try:
+                    subprocess.Popen(['cmd', '/c', 'start', '', abs_path], shell=False)
+                    opened += 1
+                except Exception as e:
+                    errors.append(str(e))
+            else:
+                errors.append(f'File not found on disk: {rel_path}')
+        
+        if opened > 0:
+            return jsonify({'success': True, 'message': f'Opened {opened} document(s)'})
+        else:
+            return jsonify({'success': False, 'error': '; '.join(errors) or 'No files could be opened'})
+    except Exception as e:
+        logger.error(f"Error opening entry docs: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/daily_entry_rows')

@@ -580,10 +580,18 @@
                                 </button>
                             </div>
                             
+                            <!-- Manual number entry -->
+                            <div class="mt-3">
+                                <input type="text" id="manualPhone" class="form-control" placeholder="Enter phone number (with country code)">
+                                <button class="btn btn-outline-whatsapp w-100 mt-2" onclick="sendToNumber()">
+                                    <i class="bi bi-send"></i> Send to Number
+                                </button>
+                            </div>
+
                             <div class="mt-3">
                                 <small class="text-muted">
                                     <i class="bi bi-info-circle"></i> 
-                                    Messages will open in WhatsApp Web. Click send for each client.
+                                    Messages will open in WhatsApp Web. Click send for each client or use the manual number field.
                                 </small>
                             </div>
                         </div>
@@ -757,8 +765,10 @@
 
         function updateMessagePreview() {
             const preview = document.getElementById('messagePreview');
+            const manualPhone = document.getElementById('manualPhone') ? document.getElementById('manualPhone').value.trim() : '';
             
-            if (selectedClients.size === 0) {
+            // require either a client selection or a manual number
+            if (selectedClients.size === 0 && !manualPhone) {
                 preview.textContent = 'Please select clients to message...';
                 return;
             }
@@ -775,26 +785,34 @@
                 return;
             }
             
-            // Get first selected client for preview
-            const firstClientId = Array.from(selectedClients)[0];
-            const client = clients.find(c => c.id === firstClientId);
+            // Determine which data to use for placeholder replacement
             let message = templateContent;
-            
-            if (client) {
-                message = message.replace(/{client_name}/g, client.name || 'Client');
-                message = message.replace(/{policy_number}/g, client.policy_number || 'N/A');
-                message = message.replace(/{policy_type}/g, client.policy_type || 'Insurance');
-                message = message.replace(/{premium_amount}/g, client.premium_amount || 'Contact for details');
-                message = message.replace(/{due_date}/g, client.policy_expiry_date || 'Contact for details');
-                message = message.replace(/{expiry_date}/g, client.policy_expiry_date || 'Contact for details');
-            } else {
-                 // Fallback if client not found, though this shouldn't happen with the logic flow
+            if (manualPhone && selectedClients.size === 0) {
+                // generic values for manual number preview
                 message = message.replace(/{client_name}/g, 'Client');
                 message = message.replace(/{policy_number}/g, 'N/A');
                 message = message.replace(/{policy_type}/g, 'Insurance');
                 message = message.replace(/{premium_amount}/g, 'Contact for details');
                 message = message.replace(/{due_date}/g, 'Contact for details');
                 message = message.replace(/{expiry_date}/g, 'Contact for details');
+            } else {
+                const firstClientId = Array.from(selectedClients)[0];
+                const client = clients.find(c => c.id === firstClientId);
+                if (client) {
+                    message = message.replace(/{client_name}/g, client.name || 'Client');
+                    message = message.replace(/{policy_number}/g, client.policy_number || 'N/A');
+                    message = message.replace(/{policy_type}/g, client.policy_type || 'Insurance');
+                    message = message.replace(/{premium_amount}/g, client.premium_amount || 'Contact for details');
+                    message = message.replace(/{due_date}/g, client.policy_expiry_date || 'Contact for details');
+                    message = message.replace(/{expiry_date}/g, client.policy_expiry_date || 'Contact for details');
+                } else {
+                    message = message.replace(/{client_name}/g, 'Client');
+                    message = message.replace(/{policy_number}/g, 'N/A');
+                    message = message.replace(/{policy_type}/g, 'Insurance');
+                    message = message.replace(/{premium_amount}/g, 'Contact for details');
+                    message = message.replace(/{due_date}/g, 'Contact for details');
+                    message = message.replace(/{expiry_date}/g, 'Contact for details');
+                }
             }
 
             // These are not client-specific
@@ -837,6 +855,11 @@
                 editBtn.classList.remove('active');
 
                 updateMessagePreview(); // Refresh preview with new content
+
+                // if editing a real template (not custom) then persist
+                if (selectedTemplate && selectedTemplate !== 'custom') {
+                    saveTemplateEdit(selectedTemplate, editedTemplateContent);
+                }
             }
         }
 
@@ -1012,9 +1035,52 @@
             updateMessagePreview();
         }
 
+        // Send message to manually entered phone number
+        function sendToNumber() {
+            const phone = document.getElementById('manualPhone').value.trim();
+            if (!phone) {
+                alert('Please enter a phone number');
+                return;
+            }
+            if (!selectedTemplate) {
+                alert('Please select a message template or create a custom message');
+                return;
+            }
+
+            let templateContent;
+            if (selectedTemplate === 'custom') {
+                templateContent = customMessageText;
+            } else {
+                templateContent = editedTemplateContent || (templates[selectedTemplate] ? templates[selectedTemplate].message : '');
+            }
+
+            // Replace common placeholders with generic values
+            let message = templateContent;
+            message = message.replace(/{client_name}/g, 'Client');
+            message = message.replace(/{policy_number}/g, 'N/A');
+            message = message.replace(/{policy_type}/g, 'Insurance');
+            message = message.replace(/{premium_amount}/g, 'Contact for details');
+            message = message.replace(/{due_date}/g, 'Contact for details');
+            message = message.replace(/{expiry_date}/g, 'Contact for details');
+            message = message.replace(/{advisor_name}/g, 'Insurance Advisor');
+            message = message.replace(/{advisor_phone}/g, '+919876543210');
+            message = message.replace(/{update_details}/g, 'Please contact us for details');
+
+            const whatsappUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
         function refreshData() {
             window.location.reload();
         }
+
+        // update preview when manual phone input changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const manualInput = document.getElementById('manualPhone');
+            if (manualInput) {
+                manualInput.addEventListener('input', updateMessagePreview);
+            }
+        });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -1023,6 +1089,23 @@
 
         // Custom message functions
         let customMessageText = '';
+
+        function saveTemplateEdit(templateId, newMessage) {
+            fetch('/update_whatsapp_template', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({template_id: templateId, message: newMessage})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    templates[templateId].message = newMessage;
+                    alert('Template saved successfully');
+                } else {
+                    alert('Unable to save template: ' + (data.message || '')); 
+                }
+            });
+        }
 
         function useCustomMessage() {
             const customMsg = document.getElementById('customMessageText').value;

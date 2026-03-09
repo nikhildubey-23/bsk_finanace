@@ -334,7 +334,7 @@
                     <label class="form-label">ARN</label>
                     <select id="filterArn" class="form-select">
                         <option value="">All ARN</option>
-                        <option value="ARN-61661">ARN-61661 [MOHD.SHAHNAWAZ RAZVE]</option>
+                        <option value="ARN-61661">ARN-61661 [MOHD.SHAHANAWAZ RAZVI]</option>
                         <option value="ARN-133000">ARN-133000 [FARIDA BANO]</option>
                         <option value="ARN-276511">ARN-276511 [SMITA JAIN]</option>
                         <option value="ARN-314305">ARN-314305 [MOHD.SUFIYAN RAZVI]</option>
@@ -391,29 +391,29 @@
                             <th>Fund Type</th>
                             <th>SIP Amount</th>
                             <th>SIP Date</th>
-                            <th>SIP Start</th>
-                            <th>SIP End</th>
-                            <th>STP Start</th>
-                            <th>STP End</th>
+                            <th style="display: none;">SIP Start</th>
+                            <th style="display: none;">SIP End</th>
+                            <th style="display: none;">STP Start</th>
+                            <th style="display: none;">STP End</th>
                             <th>SWP Amount</th>
-                            <th>SWP Start</th>
-                            <th>SWP End</th>
-                            <th>Switch From</th>
-                            <th>Switch To</th>
-                            <th>Claimant Name</th>
-                            <th>Relation</th>
-                            <th>New Address</th>
-                            <th>Old Bank</th>
-                            <th>New Bank</th>
-                            <th>PAN Card</th>
+                            <th style="display: none;">SWP Start</th>
+                            <th style="display: none;">SWP End</th>
+                            <th style="display: none;">Switch From</th>
+                            <th style="display: none;">Switch To</th>
+                            <th style="display: none;">Claimant Name</th>
+                            <th style="display: none;">Relation</th>
+                            <th style="display: none;">New Address</th>
+                            <th style="display: none;">Old Bank</th>
+                            <th style="display: none;">New Bank</th>
+                            <th style="display: none;">PAN Card</th>
                             <th>File No.</th>
                             <th>HI Policy</th>
-                            <th>HI DOB</th>
-                            <th>HI Plan Term</th>
-                            <th>HI Doc</th>
-                            <th>HI Expiry</th>
+                            <th style="display: none;">HI DOB</th>
+                            <th style="display: none;">HI Plan Term</th>
+                            <th style="display: none;">HI Doc</th>
+                            <th style="display: none;">HI Expiry</th>
                             <th>HI Sum Assured</th>
-                            <th>Note</th>
+                            <th style="display: none;">Note</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -428,7 +428,9 @@
                             data-all="{{ entry['client_name'] or '' }} {{ entry['investment_type'] or '' }} {{ entry['lic_subtype'] or '' }} {{ entry['mf_subtype'] or '' }} {{ entry['mf_folio'] or '' }} {{ entry['lic_policy_number'] or '' }} {{ entry['hi_policy'] or '' }} {{ entry['pan_card'] or '' }} {{ entry['file_no'] or '' }} {{ entry['note'] or '' }} {{ entry['mf_arn'] or '' }}">
                             <td>{{ loop.index }}</td>
                             <td>{{ entry['entry_date'] or 'N/A' }}</td>
-                            <td><strong>{{ entry['client_name'] or 'N/A' }}</strong></td>
+                            <td>
+                                <strong>{{ entry['client_name'] or 'N/A' }}</strong>
+                            </td>
                             <td>
                                 {% if entry['client_category'] == 'Hot' %}<span class="badge bg-danger badge-type">Hot</span>
                                 {% elif entry['client_category'] == 'New' %}<span class="badge bg-success badge-type">New</span>
@@ -454,41 +456,67 @@
                                 {% else %}<span class="na-text">N/A</span>{% endif %}
                             </td>
                             <td>
-                                {% if entry.entry_images %}
-                                <button class="btn btn-sm btn-outline-primary" onclick="showDocument('{{ entry.entry_images }}')">
-                                    <i class="bi bi-file-image"></i> View
-                                </button>
+                                {% if entry.investment_type == 'LIC' %}
+                                    {% if entry.lic_images %}
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showDocument('{{ entry.lic_images }}')">
+                                        <i class="bi bi-file-image"></i> LIC Doc
+                                    </button>
+                                    {% else %}
+                                    <span class="na-text">N/A</span>
+                                    {% endif %}
+                                {% elif entry.investment_type == 'Mutual Fund' %}
+                                    {% if entry.mf_images %}
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showDocument('{{ entry.mf_images }}')">
+                                        <i class="bi bi-file-image"></i> MF Doc
+                                    </button>
+                                    {% else %}
+                                    <span class="na-text">N/A</span>
+                                    {% endif %}
+                                {% elif entry.investment_type == 'Health Insurance' %}
+                                    {% if entry.hi_images %}
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showDocument('{{ entry.hi_images }}')">
+                                        <i class="bi bi-file-image"></i> HI Doc
+                                    </button>
+                                    {% else %}
+                                    <span class="na-text">N/A</span>
+                                    {% endif %}
                                 {% else %}
-                                <span class="na-text">N/A</span>
+                                    {% if entry.entry_images %}
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showDocument('{{ entry.entry_images }}')">
+                                        <i class="bi bi-file-image"></i> View
+                                    </button>
+                                    {% else %}
+                                    <span class="na-text">N/A</span>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                             <td>{{ get_fund_name(entry.mf_fund_id) if entry.mf_fund_id else 'N/A' }}</td>
                             <td>{{ entry['mf_fund_type'] or entry['mf_fund_subtype'] or 'N/A' }}</td>
                             <td>{{ '₹' + entry.mf_sip_amount|string if entry.mf_sip_amount else 'N/A' }}</td>
                             <td>{{ entry['mf_sip_date'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_sip_start_date'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_sip_end_date'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_stp_start_date'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_stp_end_date'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_sip_start_date'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_sip_end_date'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_stp_start_date'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_stp_end_date'] or 'N/A' }}</td>
                             <td>{{ '₹' + entry.mf_swp_amount|string if entry.mf_swp_amount else 'N/A' }}</td>
-                            <td>{{ entry['mf_swp_start_date'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_swp_end_date'] or 'N/A' }}</td>
-                            <td>{{ get_fund_name(entry.mf_switch_fund_from) if entry.mf_switch_fund_from else 'N/A' }}</td>
-                            <td>{{ get_fund_name(entry.mf_switch_fund_to) if entry.mf_switch_fund_to else 'N/A' }}</td>
-                            <td>{{ entry['mf_claimant_name'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_claimant_relation'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_new_address'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_old_bank_detail'] or 'N/A' }}</td>
-                            <td>{{ entry['mf_new_bank_detail'] or 'N/A' }}</td>
-                            <td>{{ entry['pan_card'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_swp_start_date'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_swp_end_date'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ get_fund_name(entry.mf_switch_fund_from) if entry.mf_switch_fund_from else 'N/A' }}</td>
+                            <td style="display: none;">{{ get_fund_name(entry.mf_switch_fund_to) if entry.mf_switch_fund_to else 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_claimant_name'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_claimant_relation'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_new_address'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_old_bank_detail'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['mf_new_bank_detail'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['pan_card'] or 'N/A' }}</td>
                             <td>{{ entry['file_no'] or 'N/A' }}</td>
                             <td>{{ entry['hi_policy'] or 'N/A' }}</td>
-                            <td>{{ entry['hi_dob'] or 'N/A' }}</td>
-                            <td>{{ entry['hi_plan_term'] or 'N/A' }}</td>
-                            <td>{{ entry['hi_doc'] or 'N/A' }}</td>
-                            <td>{{ entry['hi_expiry_date'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['hi_dob'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['hi_plan_term'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['hi_doc'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['hi_expiry_date'] or 'N/A' }}</td>
                             <td>{{ '₹' + entry.hi_sum_assured|string if entry.hi_sum_assured else 'N/A' }}</td>
-                            <td>{{ entry['note'] or 'N/A' }}</td>
+                            <td style="display: none;">{{ entry['note'] or 'N/A' }}</td>
                             <td>
                                 <button class="btn-view" onclick="viewEntryDetails('{{ entry['id'] }}')" title="View Details">
                                     <i class="bi bi-eye"></i>
@@ -636,6 +664,17 @@
         document.getElementById('filterDateFrom').addEventListener('change', filterTable);
         document.getElementById('filterDateTo').addEventListener('change', filterTable);
     });
+
+    function openEntryDocs(entryId) {
+        fetch(`/api/open_entry_docs/${entryId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Could not open documents: ' + data.error);
+                }
+            })
+            .catch(err => alert('Error: ' + err.message));
+    }
 
     function deleteEntry(entryId) {
         if (confirm('Are you sure you want to delete this entry?')) {
@@ -1045,14 +1084,11 @@
     }
 
     function showDocument(filenames) {
-        const files = filenames.split(',');
+        const files = filenames.split(',').map(f => f.trim()).filter(f => f);
         
-        files.forEach(file => {
-            const trimmedFile = file.trim();
-            if (trimmedFile) {
-                fetch('/open/' + trimmedFile);
-            }
-        });
+        if (files.length === 0) return;
+        
+        fetch('/open/' + files[0]);
     }
 
     function printDocument() {

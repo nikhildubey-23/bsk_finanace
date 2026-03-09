@@ -6,6 +6,7 @@
     <title>Edit Entry - InsureVault Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,6 +33,8 @@
         .btn-primary-custom:hover { background: #2563eb; color: white; }
         .btn-success-custom { background: #10b981; color: white; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 500; transition: all 0.2s; }
         .btn-success-custom:hover { background: #059669; color: white; }
+        .btn-info-custom { background: #0ea5e9; color: white; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 500; }
+        .btn-info-custom:hover { background: #0284c7; color: white; }
         .btn-secondary-custom { background: #6b7280; color: white; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 500; }
         .btn-secondary-custom:hover { background: #4b5563; color: white; }
         
@@ -258,7 +261,7 @@
                         <label for="mf_arn" class="form-label">ARN</label>
                         <select class="form-select" id="mf_arn" name="mf_arn">
                             <option value="">Select ARN</option>
-                            <option value="ARN-61661" {% if edit_entry['mf_arn'] == 'ARN-61661' %}selected{% endif %}>ARN-61661 [MOHD.SHAHNAWAZ RAZVE]</option>
+                            <option value="ARN-61661" {% if edit_entry['mf_arn'] == 'ARN-61661' %}selected{% endif %}>ARN-61661 [MOHD.SHAHANAWAZ RAZVI]</option>
                             <option value="ARN-133000" {% if edit_entry['mf_arn'] == 'ARN-133000' %}selected{% endif %}>ARN-133000 [FARIDA BANO]</option>
                             <option value="ARN-276511" {% if edit_entry['mf_arn'] == 'ARN-276511' %}selected{% endif %}>ARN-276511 [SMITA JAIN]</option>
                             <option value="ARN-314305" {% if edit_entry['mf_arn'] == 'ARN-314305' %}selected{% endif %}>ARN-314305 [MOHD.SUFIYAN RAZVI]</option>
@@ -301,7 +304,7 @@
                     </div>
                     <div class="col-md-3 mb-3" id="applicant_div" style="display: {% if edit_entry['mf_applicant'] %}block{% else %}none{% endif %};">
                         <label for="mf_applicant" class="form-label">Applicant</label>
-                        <select class="form-select" id="mf_applicant" name="mf_applicant">
+                        <select class="form-select" id="mf_applicant" name="mf_applicant" onchange="toggleMFApplicantNames()">
                             <option value="">Select Applicant</option>
                             <option value="First Applicant" {% if edit_entry['mf_applicant'] == 'First Applicant' %}selected{% endif %}>First Applicant</option>
                             <option value="Second Applicant" {% if edit_entry['mf_applicant'] == 'Second Applicant' %}selected{% endif %}>Second Applicant</option>
@@ -311,6 +314,10 @@
                     <div class="col-md-3 mb-3" id="applicant_name_div" style="display: {% if edit_entry['applicant_name'] %}block{% else %}none{% endif %};">
                         <label for="applicant_name" class="form-label">Applicant Name</label>
                         <input type="text" class="form-control" id="applicant_name" name="applicant_name" value="{{ edit_entry['applicant_name'] or '' }}">
+                    </div>
+                    <div class="col-md-3 mb-3" id="applicant_name_2_div" style="display: {% if edit_entry['applicant_name_2'] %}block{% else %}none{% endif %};">
+                        <label for="applicant_name_2" class="form-label">Applicant Name 2</label>
+                        <input type="text" class="form-control" id="applicant_name_2" name="applicant_name_2" value="{{ edit_entry['applicant_name_2'] or '' }}">
                     </div>
                 </div>
                 
@@ -364,6 +371,9 @@
             <div class="section-card mt-3">
                 <div class="section-title"><i class="bi bi-scanner"></i> Document Scanning</div>
                 <input type="hidden" id="scanned_documents" name="scanned_documents" value="">
+                <input type="hidden" id="lic_scanned_documents" name="lic_scanned_documents" value="">
+                <input type="hidden" id="mf_scanned_documents" name="mf_scanned_documents" value="">
+                <input type="hidden" id="hi_scanned_documents" name="hi_scanned_documents" value="">
                 <div id="attached_scans_list" class="mt-3"></div>
             </div>
 
@@ -373,6 +383,9 @@
                 </button>
                 <button type="button" class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#scannerModal">
                     <i class="bi bi-scanner me-2"></i>Scan Document
+                </button>
+                <button type="button" class="btn btn-info-custom" data-bs-toggle="modal" data-bs-target="#viewDocsModal">
+                    <i class="bi bi-images me-2"></i>View Existing Documents
                 </button>
                 <a href="/daily_report" class="btn btn-secondary-custom">
                     <i class="bi bi-x-lg me-2"></i>Cancel
@@ -458,11 +471,248 @@
     </div>
 </div>
 
+<!-- View Documents Modal -->
+<div class="modal fade" id="viewDocsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-images"></i> Existing Scanned Documents</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if edit_entry.all_scanned_documents %}
+                    <div class="row">
+                        <!-- Thumbnails -->
+                        <div class="col-md-3">
+                            <div class="thumbnail-grid" style="max-height: 70vh; overflow-y: auto;">
+                                {% for doc in edit_entry.all_scanned_documents %}
+                                    <div class="thumbnail-item-container" id="thumbnail-{{ loop.index }}">
+                                        <img src="{{ url_for('serve_upload', filename=doc) }}" 
+                                             class="img-thumbnail" 
+                                             style="cursor: pointer; margin-bottom: 5px;" 
+                                             onclick="showImage('{{ url_for('serve_upload', filename=doc) }}')">
+                                        <button class="btn btn-sm btn-danger" 
+                                                style="position: absolute; top: 5px; right: 5px;" 
+                                                onclick="deleteImage('{{ doc }}', 'thumbnail-{{ loop.index }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- Image Preview -->
+                        <div class="col-md-9">
+                            <div id="imagePreviewContainer" style="height: 70vh; display: flex; justify-content: center; align-items: center; background: #f0f0f0; border-radius: 8px;">
+                                <img id="mainImage" src="{{ url_for('serve_upload', filename=edit_entry.all_scanned_documents[0]) }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">No existing documents found for this entry.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="printModalImage()">
+                    <i class="bi bi-printer"></i> Print
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Scanner functionality
+    function showImage(src) {
+        document.getElementById('mainImage').src = src;
+    }
+
+    function toggleMFApplicantNames() {
+        const applicant = document.getElementById('mf_applicant').value;
+        const applicantNameDiv = document.getElementById('applicant_name_div');
+        const applicantName2Div = document.getElementById('applicant_name_2_div');
+        
+        if (applicant === 'Second Applicant') {
+            applicantNameDiv.style.display = 'block';
+            applicantName2Div.style.display = 'none';
+        } else if (applicant === 'Third Applicant') {
+            applicantNameDiv.style.display = 'block';
+            applicantName2Div.style.display = 'block';
+        } else {
+            applicantNameDiv.style.display = 'none';
+            applicantName2Div.style.display = 'none';
+        }
+    }
+
+    function deleteImage(filename, thumbnailId) {
+        if (!confirm('Are you sure you want to delete this image? This action cannot be undone.')) {
+            return;
+        }
+
+        fetch(`/delete_image/${filename}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the thumbnail container
+                const thumbnail = document.getElementById(thumbnailId);
+                if (thumbnail) {
+                    thumbnail.remove();
+                }
+
+                // If the deleted image is the main image, clear the preview
+                const mainImage = document.getElementById('mainImage');
+                if (mainImage.src.endsWith(filename)) {
+                    mainImage.src = '';
+                    // Optionally, show the first available thumbnail as the main image
+                    const firstThumbnail = document.querySelector('.thumbnail-grid img');
+                    if (firstThumbnail) {
+                        mainImage.src = firstThumbnail.src;
+                    }
+                }
+                alert('Image deleted successfully.');
+            } else {
+                alert('Error deleting image: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the image.');
+        });
+    }
+
+    function printModalImage() {
+        const imageSrc = document.getElementById('mainImage').src;
+        if (!imageSrc) {
+            alert("No image selected to print.");
+            return;
+        }
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head><title>Print Document</title></head>
+                <body style="margin:0; padding:0;">
+                    <img src="${imageSrc}" style="max-width:100%;" onload="window.print(); window.close();">
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+    // Scanner functionality from daily_entry.html
     let selectedScannerId = null;
-    let attachedFiles = [];
-    
+    let attachedFilesGeneral = [];
+    let attachedFilesLIC = [];
+    let attachedFilesMF = [];
+    let attachedFilesHI = [];
+    let currentDocType = 'general';
+
+    function openScannerModal(docType) {
+        if (docType === 'LIC') {
+            currentDocType = 'LIC';
+        } else if (docType === 'Mutual Fund') {
+            currentDocType = 'MF';
+        } else if (docType === 'Health Insurance') {
+            currentDocType = 'HI';
+        } else {
+            currentDocType = 'general';
+        }
+        const modal = new bootstrap.Modal(document.getElementById('scannerModal'));
+        modal.show();
+    }
+
+    function getScannedDocsField() {
+        const investmentType = document.getElementById('investment_type').value;
+        switch(investmentType) {
+            case 'LIC': return 'lic_scanned_documents';
+            case 'Mutual Fund': return 'mf_scanned_documents';
+            case 'Health Insurance': return 'hi_scanned_documents';
+            default: return 'scanned_documents';
+        }
+    }
+
+    function getScansListId() {
+        const investmentType = document.getElementById('investment_type').value;
+        switch(investmentType) {
+            case 'LIC': return 'lic_scans_list';
+            case 'Mutual Fund': return 'mf_scans_list';
+            case 'Health Insurance': return 'hi_scans_list';
+            default: return 'attached_scans_list';
+        }
+    }
+
+    function openDynamicScanner() {
+        const investmentType = document.getElementById('investment_type').value;
+        openScannerModal(investmentType);
+    }
+
+    function updateScanButtonText() {
+        const investmentType = document.getElementById('investment_type').value;
+        const btnText = document.getElementById('scanBtnText');
+        const scanList = document.getElementById('current_scans_list');
+        
+        let typeText = 'Document';
+        let listId = 'attached_scans_list';
+        
+        if (investmentType === 'LIC') {
+            typeText = 'LIC Document';
+            listId = 'lic_scans_list';
+        } else if (investmentType === 'Mutual Fund') {
+            typeText = 'Mutual Fund Document';
+            listId = 'mf_scans_list';
+        } else if (investmentType === 'Health Insurance') {
+            typeText = 'Health Insurance Document';
+            listId = 'hi_scans_list';
+        }
+        
+        if (btnText) btnText.textContent = 'Scan ' + typeText;
+        
+        if (scanList) {
+            let html = '';
+            const files = getAttachedFiles();
+            if (files && files.length > 0) {
+                html = '<h6><i class="bi bi-paperclip"></i> Attached Scans:</h6><ul class="list-group list-group-flush">';
+                files.forEach(file => {
+                    html += `<li class="list-group-item">${file.document_name}</li>`;
+                });
+                html += '</ul>';
+            }
+            scanList.innerHTML = html;
+        }
+        
+        // Update file count badge
+        const allFiles = getAttachedFiles();
+        const countBadge = document.getElementById('scan_file_count_badge');
+        const countText = document.getElementById('scan_file_count_text');
+        if (countBadge && countText) {
+            if (allFiles && allFiles.length > 0) {
+                countText.textContent = allFiles.length;
+                countBadge.style.display = 'block';
+            } else {
+                countBadge.style.display = 'none';
+            }
+        }
+    }
+
+    function getAttachedFiles() {
+        const investmentType = document.getElementById('investment_type').value;
+        switch(investmentType) {
+            case 'LIC': return attachedFilesLIC;
+            case 'Mutual Fund': return attachedFilesMF;
+            case 'Health Insurance': return attachedFilesHI;
+            default: return attachedFilesGeneral;
+        }
+    }
+
+    function setAttachedFiles(files) {
+        const investmentType = document.getElementById('investment_type').value;
+        switch(investmentType) {
+            case 'LIC': attachedFilesLIC = files; break;
+            case 'Mutual Fund': attachedFilesMF = files; break;
+            case 'Health Insurance': attachedFilesHI = files; break;
+            default: attachedFilesGeneral = files; break;
+        }
+    }
+
     async function checkScannerStatus() {
         const statusEl = document.getElementById('scannerStatus');
         const statusTextEl = document.getElementById('scannerStatusText');
@@ -492,7 +742,7 @@
             notAvailableEl.style.display = 'block';
         }
     }
-    
+
     async function loadScanners() {
         const scannerList = document.getElementById('scannerList');
         const startBtn = document.getElementById('startScanBtn');
@@ -536,7 +786,7 @@
         }
         return false;
     }
-    
+
     async function startScan() {
         const clientId = document.getElementById('scanClientSelect').value;
         const documentName = document.getElementById('scanDocumentName').value || 'Scanned Document';
@@ -565,15 +815,22 @@
             });
             const data = await response.json();
             if (data.success) {
-                attachedFiles = attachedFiles.concat(data.scanned_files);
-                document.getElementById('scanned_documents').value = JSON.stringify(attachedFiles);
-                const listEl = document.getElementById('attached_scans_list');
+                const currentFiles = getAttachedFiles();
+                const updatedFiles = currentFiles.concat(data.scanned_files);
+                setAttachedFiles(updatedFiles);
+                const scannedFieldId = getScannedDocsField();
+                const field = document.getElementById(scannedFieldId);
+                if (field) {
+                    field.value = JSON.stringify(updatedFiles);
+                }
+                const listEl = document.getElementById(getScansListId());
                 let listHtml = '<h6><i class="bi bi-paperclip"></i> Attached Scans:</h6><ul class="list-group list-group-flush">';
-                attachedFiles.forEach(file => {
+                updatedFiles.forEach(file => {
                     listHtml += `<li class="list-group-item">${file.document_name}</li>`;
                 });
                 listHtml += '</ul>';
-                listEl.innerHTML = listHtml;
+                if (listEl) listEl.innerHTML = listHtml;
+                updateScanButtonText();
                 const modal = bootstrap.Modal.getInstance(document.getElementById('scannerModal'));
                 modal.hide();
             } else {
@@ -587,7 +844,6 @@
             startBtn.disabled = false;
         }
     }
-
     // Scanner modal events
     document.addEventListener('DOMContentLoaded', function() {
         const scannerModal = document.getElementById('scannerModal');
